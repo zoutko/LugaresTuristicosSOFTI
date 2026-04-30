@@ -1,6 +1,5 @@
 package com.proyecto.test.touristPlaceManagment.domain;
 
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -8,7 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -19,9 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.annotation.Id;
-
-import com.proyecto.test.utils.Environment;
+import com.proyecto.test.common.Environment;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,10 +30,8 @@ import lombok.Setter;
 public class TouristPlace {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(columnDefinition = "uuid")
+    @GeneratedValue
     private UUID id;
-
     @Column(name = "name")
     private String name;
 
@@ -54,45 +49,45 @@ public class TouristPlace {
     private Environment environment;
 
     @Embedded
-    private com.proyecto.test.utils.Location location;
+    private com.proyecto.test.common.Location location;
 
     @Embedded
     private Album album;
 
     @ManyToMany
-    @JoinTable(
-        name = "places_categories",
-        joinColumns = @JoinColumn(name = "place_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private List<com.proyecto.test.utils.Category> categories;
+    @JoinTable(name = "places_categories", joinColumns = @JoinColumn(name = "place_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private List<com.proyecto.test.common.Category> categories;
 
     @OneToMany(mappedBy = "touristPlace", cascade = CascadeType.ALL)
     private List<Activity> activities;
 
-    public TouristPlace() {}
+    public TouristPlace() {
+    }
 
-    public void addCategory(com.proyecto.test.utils.Category category) {
-        if (this.categories == null) this.categories = new ArrayList<>();
+    public void addCategory(com.proyecto.test.common.Category category) {
+        if (this.categories == null)
+            this.categories = new ArrayList<>();
         this.categories.add(category);
     }
 
-    public void removeCategory(com.proyecto.test.utils.Category category) {
-        if (this.categories != null) this.categories.remove(category);
+    public void removeCategory(com.proyecto.test.common.Category category) {
+        if (this.categories != null)
+            this.categories.remove(category);
     }
 
     public void addActivity(Activity activity) {
-        if (this.activities == null) this.activities = new ArrayList<>();
+        if (this.activities == null)
+            this.activities = new ArrayList<>();
         activity.setTouristPlace(this);
         this.activities.add(activity);
     }
 
     public void removeActivity(Activity activity) {
-        if (this.activities != null) this.activities.remove(activity);
+        if (this.activities != null)
+            this.activities.remove(activity);
     }
 
     public String getSummary() {
         return name + " - " + location.getFullLocation();
     }
 }
-

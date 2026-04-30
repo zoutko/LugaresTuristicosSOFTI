@@ -3,9 +3,9 @@ package com.proyecto.test.tourManagment.domain;
 import java.util.List;
 
 import com.proyecto.test.touristPlaceManagment.domain.TouristPlace;
-import com.proyecto.test.utils.Category;
-import com.proyecto.test.utils.Environment;
-import com.proyecto.test.utils.Location;
+import com.proyecto.test.common.Category;
+import com.proyecto.test.common.Environment;
+import com.proyecto.test.common.Location;
 
 public class Tour {
     private long id;
