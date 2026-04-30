@@ -1,4 +1,4 @@
-package com.proyecto.test.touristPlaceManagment.domain;
+package com.proyecto.test.utils;
 
 
 public class Photo {
@@ -6,6 +6,8 @@ public class Photo {
     private int id;
     private String filePath;
     private String description;
+
+
     public int getId() {
         return id;
     }

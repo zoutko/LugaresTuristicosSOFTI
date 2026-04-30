@@ -1,4 +1,4 @@
-package com.proyecto.test.touristPlaceManagment.domain;
+package com.proyecto.test.utils;
 
 import java.util.List;
 

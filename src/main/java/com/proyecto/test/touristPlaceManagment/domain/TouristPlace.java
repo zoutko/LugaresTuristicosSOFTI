@@ -1,5 +1,6 @@
 package com.proyecto.test.touristPlaceManagment.domain;
 
+import com.proyecto.test.utils.Album;
 import com.proyecto.test.utils.Category;
 import com.proyecto.test.utils.Enviroment;
 import com.proyecto.test.utils.Location;
