@@ -1,72 +1,98 @@
 package com.proyecto.test.touristPlaceManagment.domain;
 
-import com.proyecto.test.utils.Category;
-import com.proyecto.test.utils.Enviroment;
-import com.proyecto.test.utils.Location;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.annotation.Id;
+
+import com.proyecto.test.utils.Environment;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "places")
 public class TouristPlace {
-    
-    private Long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "uuid")
+    private UUID id;
+
+    @Column(name = "name")
     private String name;
-    private Location location;
-    private Category category;
-    private Enviroment enviroment;
-    private String activities;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "cancelation_policy")
     private String cancelationPolicy;
-    private Times duration;
+
+    @Column(name = "duration")
+    private String duration;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "environment")
+    private Environment environment;
+
+    @Embedded
+    private com.proyecto.test.utils.Location location;
+
+    @Embedded
     private Album album;
-    public Long getId() {
-        return id;
+
+    @ManyToMany
+    @JoinTable(
+        name = "places_categories",
+        joinColumns = @JoinColumn(name = "place_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<com.proyecto.test.utils.Category> categories;
+
+    @OneToMany(mappedBy = "touristPlace", cascade = CascadeType.ALL)
+    private List<Activity> activities;
+
+    public TouristPlace() {}
+
+    public void addCategory(com.proyecto.test.utils.Category category) {
+        if (this.categories == null) this.categories = new ArrayList<>();
+        this.categories.add(category);
     }
-    public void setId(Long id) {
-        this.id = id;
+
+    public void removeCategory(com.proyecto.test.utils.Category category) {
+        if (this.categories != null) this.categories.remove(category);
     }
-    public String getName() {
-        return name;
+
+    public void addActivity(Activity activity) {
+        if (this.activities == null) this.activities = new ArrayList<>();
+        activity.setTouristPlace(this);
+        this.activities.add(activity);
     }
-    public void setName(String name) {
-        this.name = name;
+
+    public void removeActivity(Activity activity) {
+        if (this.activities != null) this.activities.remove(activity);
     }
-    public Location getLocation() {
-        return location;
-    }
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-    public Category getCategory() {
-        return category;
-    }
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-    public Enviroment getEnviroment() {
-        return enviroment;
-    }
-    public void setEnviroment(Enviroment enviroment) {
-        this.enviroment = enviroment;
-    }
-    public String getActivities() {
-        return activities;
-    }
-    public void setActivities(String activities) {
-        this.activities = activities;
-    }
-    public String getCancelationPolicy() {
-        return cancelationPolicy;
-    }
-    public void setCancelationPolicy(String cancelationPolicy) {
-        this.cancelationPolicy = cancelationPolicy;
-    }
-    public Times getDuration() {
-        return duration;
-    }
-    public void setDuration(Times duration) {
-        this.duration = duration;
-    }
-    public Album getAlbum() {
-        return album;
-    }
-    public void setAlbum(Album album) {
-        this.album = album;
+
+    public String getSummary() {
+        return name + " - " + location.getFullLocation();
     }
 }
+

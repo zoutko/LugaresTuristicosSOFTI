@@ -1,30 +1,43 @@
 package com.proyecto.test.touristPlaceManagment.domain;
 
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import java.util.ArrayList;
 import java.util.List;
 
-
+@Getter
+@Setter
+@Embeddable
 public class Album {
-    
-    private int id;
-    private List<Photo> photos;
+
+    @Column(name = "images", columnDefinition = "jsonb")
+    private List<Photo> photos = new ArrayList<>();
+
     private int index;
-    public int getId() {
-        return id;
+
+    public Album() {}
+
+    public boolean insertPhoto(Photo photo) {
+        return photos.add(photo);
     }
-    public void setId(int id) {
-        this.id = id;
+
+    public boolean deletePhoto(Photo photo) {
+        return photos.remove(photo);
     }
-    public List<Photo> getPhotos() {
-        return photos;
+
+    public Photo previousPhoto() {
+        if (index > 0) index--;
+        return photos.get(index);
     }
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
+
+    public Photo nextPhoto() {
+        if (index < photos.size() - 1) index++;
+        return photos.get(index);
     }
-    public int getIndex() {
-        return index;
+
+    public Photo getCurrent() {
+        return photos.isEmpty() ? null : photos.get(index);
     }
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    
 }

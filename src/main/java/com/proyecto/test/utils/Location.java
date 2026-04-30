@@ -1,41 +1,33 @@
 package com.proyecto.test.utils;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Embeddable
 public class Location {
-    
+
+    @Column(name = "city")
     private String city;
+
+    @Column(name = "department")
     private String department;
+
+    @Column(name = "country")
     private String country;
+
+    @Column(name = "latitude")
     private Double latitude;
-    private Double longitude;
-    public String getCity() {
-        return city;
+
+    public Location() {}
+
+    public String getFullLocation() {
+        return city + ", " + department + ", " + country;
     }
-    public void setCity(String city) {
-        this.city = city;
-    }
-    public String getDepartment() {
-        return department;
-    }
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-    public String getCountry() {
-        return country;
-    }
-    public void setCountry(String country) {
-        this.country = country;
-    }
-    public Double getLatitude() {
-        return latitude;
-    }
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-    public Double getLongitude() {
-        return longitude;
-    }
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-     
+
+    public boolean isSameCity(Location other) {
+        return this.city.equalsIgnoreCase(other.city);
+    }     
 }

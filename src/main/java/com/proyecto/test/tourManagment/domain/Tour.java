@@ -4,14 +4,14 @@ import java.util.List;
 
 import com.proyecto.test.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.test.utils.Category;
-import com.proyecto.test.utils.Enviroment;
+import com.proyecto.test.utils.Environment;
 import com.proyecto.test.utils.Location;
 
 public class Tour {
     private long id;
     private String name;
     private Category categories;
-    private Enviroment enviroment;
+    private Environment enviroment;
     private List<TouristPlace> itinerary;
     private String description;
     private String recommendations;
@@ -49,10 +49,10 @@ public class Tour {
     public void setRecommendations(String recommendations) {
         this.recommendations = recommendations;
     }
-    public Enviroment getEnviroment() {
+    public Environment getEnviroment() {
         return enviroment;
     }
-    public void setEnviroment(Enviroment enviroment) {
+    public void setEnviroment(Environment enviroment) {
         this.enviroment = enviroment;
     }
     public List<TouristPlace> getItinerary() {
