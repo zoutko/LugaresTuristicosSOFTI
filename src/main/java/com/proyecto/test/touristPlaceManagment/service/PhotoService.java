@@ -1,13 +1,12 @@
 package com.proyecto.test.touristPlaceManagment.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.proyecto.test.touristPlaceManagment.domain.Photo;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-
 import java.util.UUID;
+import java.util.List;
 
 @Service
 public class PhotoService {
@@ -15,38 +14,64 @@ public class PhotoService {
     @Autowired
     private TouristPlaceService touristPlaceService;
 
-    // Validar si una foto es valida
+    
     public boolean isValid(Photo photo) {
-        return photo.isValid();
+        return photo != null && photo.isValid();
     }
 
-    // Obtener nombre del archivo
     public String getFileName(Photo photo) {
-        return photo.getFileName();
+        return photo != null ? photo.getFileName() : "";
     }
 
-    // Buscar foto por id dentro de un lugar
-    public Photo getPhotoById(UUID placeId, int photoId) {
+    public List<Photo> getPhotos(UUID placeId) {
         return touristPlaceService.getById(placeId)
-            .getAlbum().getPhotos().stream()
-            .filter(p -> p.getId() == photoId)
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Photo not found: " + photoId));
+                .getAlbum()
+                .getPhotos();
     }
 
-    // Actualizar ruta de una foto
-    public Photo updateFilePath(UUID placeId, int photoId, String filePath) {
-        Photo photo = getPhotoById(placeId, photoId);
+    public Photo getPhotoByIndex(UUID placeId, int index) {
+        List<Photo> photos = getPhotos(placeId);
+
+        if (index < 0 || index >= photos.size()) {
+            throw new RuntimeException("Photo index out of bounds: " + index);
+        }
+
+        return photos.get(index);
+    }
+
+
+    public Photo updateFilePath(UUID placeId, int index, String filePath) {
+        Photo photo = getPhotoByIndex(placeId, index);
         photo.setFilePath(filePath);
         return photo;
     }
 
-    // Actualizar descripcion de una foto
-    public Photo updateDescription(UUID placeId, int photoId, String description) {
-        Photo photo = getPhotoById(placeId, photoId);
+
+    public Photo updateDescription(UUID placeId, int index, String description) {
+        Photo photo = getPhotoByIndex(placeId, index);
         photo.setDescription(description);
         return photo;
     }
+
+
+    public Photo addPhoto(UUID placeId, Photo photo) {
+        if (!isValid(photo)) {
+            throw new RuntimeException("Invalid photo");
+        }
+
+        List<Photo> photos = getPhotos(placeId);
+        photos.add(photo);
+
+        return photo;
+    }
+
+    public void deletePhoto(UUID placeId, int index) {
+        List<Photo> photos = getPhotos(placeId);
+
+        if (index < 0 || index >= photos.size()) {
+            throw new RuntimeException("Photo index out of bounds: " + index);
+        }
+
+        photos.remove(index);
+    }
 }
-
-

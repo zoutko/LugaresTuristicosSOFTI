@@ -1,4 +1,4 @@
-package com.proyecto.test.utils;
+package com.proyecto.test.common;
 
 import jakarta.persistence.*;
 import lombok.Getter;

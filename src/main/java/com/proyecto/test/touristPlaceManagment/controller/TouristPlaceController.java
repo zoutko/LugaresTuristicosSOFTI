@@ -12,7 +12,7 @@ import com.proyecto.test.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.test.touristPlaceManagment.service.ActivityService;
 import com.proyecto.test.touristPlaceManagment.service.AlbumService;
 import com.proyecto.test.touristPlaceManagment.service.TouristPlaceService;
-import com.proyecto.test.utils.Environment;
+import com.proyecto.test.common.Environment;
 
 import java.util.List;
 import java.util.UUID;
