@@ -30,7 +30,6 @@ public class TouristPlaceController {
     @Autowired
     private ActivityService activityService;
 
-    // ── TouristPlace ──────────────────────────────────────
 
     @GetMapping
     public ResponseEntity<List<TouristPlace>> getAll() {
@@ -58,8 +57,6 @@ public class TouristPlaceController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Búsquedas ─────────────────────────────────────────
-
     @GetMapping("/search/name/{name}")
     public ResponseEntity<List<TouristPlace>> getByName(@PathVariable String name) {
         return ResponseEntity.ok(touristPlaceService.getByName(name));
@@ -74,8 +71,6 @@ public class TouristPlaceController {
     public ResponseEntity<List<TouristPlace>> getByEnvironment(@PathVariable Environment environment) {
         return ResponseEntity.ok(touristPlaceService.getByEnvironment(environment));
     }
-
-    // ── Activities ────────────────────────────────────────
 
     @GetMapping("/{id}/activities")
     public ResponseEntity<List<Activity>> getActivities(@PathVariable UUID id) {
