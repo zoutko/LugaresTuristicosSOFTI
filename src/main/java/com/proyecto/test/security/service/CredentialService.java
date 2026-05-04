@@ -20,15 +20,18 @@ public class CredentialService {
     private final CredentialRepository credentialRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
 
     public CredentialService(CredentialRepository credentialRepository,
                              PasswordEncoder passwordEncoder,
                              TokenService tokenService,
+                             EmailService emailService,
                              AuthenticationManager authenticationManager) {
         this.credentialRepository = credentialRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.emailService = emailService;
         this.authenticationManager = authenticationManager;
     }
 
@@ -93,7 +96,7 @@ public class CredentialService {
 
     // ── Recuperar contraseña ──────────────────────────────────────────────
 
-    public void recuperarContrasena(String correo) {
+    public String recuperarContrasena(String correo) {
         Credential credential = credentialRepository.findByCorreo(correo)
                 .orElseThrow(() -> new UsernameNotFoundException("Correo no registrado"));
 
@@ -101,8 +104,8 @@ public class CredentialService {
         credential.setContrasena(passwordEncoder.encode(contrasenaTemporal));
         credentialRepository.save(credential);
 
-        // TODO: enviar por email cuando se integre el servicio de correo
-        System.out.println("Contraseña temporal para " + correo + ": " + contrasenaTemporal);
+        emailService.enviarTokenRecuperacion(correo, contrasenaTemporal);
+        return contrasenaTemporal;
     }
 
     // ── Utilidades ────────────────────────────────────────────────────────

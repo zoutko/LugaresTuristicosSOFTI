@@ -20,7 +20,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final UserDetailsService userDetailsService; // ← ya no usa CredentialService
+    private final UserDetailsService userDetailsService; 
 
     public JwtAuthFilter(TokenService tokenService, UserDetailsService userDetailsService) {
         this.tokenService = tokenService;
