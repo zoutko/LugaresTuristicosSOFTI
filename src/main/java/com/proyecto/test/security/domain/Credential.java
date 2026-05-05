@@ -17,47 +17,40 @@ public class Credential implements UserDetails {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String correo;
+    private String email;
 
     @Column(nullable = false)
-    private String contrasena;
+    private String password;
 
     @Enumerated(EnumType.STRING)
-    private State estado;
+    private State state;
 
-    // El rol llega como String desde UserManagement vía RoleDTO
-    // Security no necesita saber la estructura interna de los roles
     private String role;
 
-    // Referencia al módulo UserManagement (solo el ID, no el objeto completo)
     private Long userId;
 
     public Credential() {}
 
-    public Credential(String correo, String contrasena, String role, Long userId) {
-        this.correo = correo;
-        this.contrasena = contrasena;
+    public Credential(String email, String password, String role, Long userId) {
+        this.email = email;
+        this.password = password;
         this.role = role;
-        this.estado = State.ACTIVO;
+        this.state = State.ACTIVE;
         this.userId = userId;
     }
 
-    // ── UserDetails (requeridos por Spring Security) ──────────────────────
-
     @Override
     public String getUsername() {
-        return correo;
+        return email;
     }
 
     @Override
     public String getPassword() {
-        return contrasena;
+        return password;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Spring Security usa "ROLE_" como prefijo estándar
-        // Permite usar @PreAuthorize("hasRole('ADMIN')") en los controllers
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
@@ -68,7 +61,7 @@ public class Credential implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return estado != State.BLOQUEADO;
+        return state != State.BLOCKED;
     }
 
     @Override
@@ -78,20 +71,18 @@ public class Credential implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return estado == State.ACTIVO;
+        return state == State.ACTIVE;
     }
-
-    // ── Getters y Setters ─────────────────────────────────────────────────
 
     public Long getId() { return id; }
 
-    public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setContrasena(String contrasena) { this.contrasena = contrasena; }
+    public void setPassword(String password) { this.password = password; }
 
-    public State getEstado() { return estado; }
-    public void setEstado(State estado) { this.estado = estado; }
+    public State getState() { return state; }
+    public void setState(State state) { this.state = state; }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }

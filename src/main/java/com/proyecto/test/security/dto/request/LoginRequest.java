@@ -2,19 +2,19 @@ package com.proyecto.test.security.dto.request;
 
 public class LoginRequest {
 
-    private String correo;
-    private String contrasena;
+    private String email;
+    private String password;
 
     public LoginRequest() {}
 
-    public LoginRequest(String correo, String contrasena) {
-        this.correo = correo;
-        this.contrasena = contrasena;
+    public LoginRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
     }
 
-    public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getContrasena() { return contrasena; }
-    public void setContrasena(String contrasena) { this.contrasena = contrasena; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 }

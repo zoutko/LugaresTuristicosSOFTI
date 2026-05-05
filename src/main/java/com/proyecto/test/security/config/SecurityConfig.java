@@ -17,8 +17,6 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    // Ahora recibe AuthenticationProvider desde ApplicationConfig
-    // ya no depende de CredentialService directamente
     public SecurityConfig(JwtAuthFilter jwtAuthFilter,
                           AuthenticationProvider authenticationProvider) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -32,8 +30,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/auth/login",
-                    "/api/auth/registro",
-                    "/api/auth/recuperar-contrasena",
+                    "/api/auth/register",
+                    "/api/auth/recover-password",
                     "/h2-console/**"
                 ).permitAll()
                 .anyRequest().authenticated()

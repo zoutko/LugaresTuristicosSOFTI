@@ -1,35 +1,36 @@
 package com.proyecto.test.security.domain;
 
-import jakarta.persistence.*;
 import java.util.Date;
 
+import jakarta.persistence.*;
+
 @Entity
-@Table(name = "tokens")
-public class Token {
+@Table(name = "password_reset_tokens")
+public class PasswordResetToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 512)
+    @Column(nullable = false, unique = true)
     private String token;
 
     @Column(nullable = false)
     private Date expirationDate;
 
+    private boolean used;
+
     @ManyToOne
     @JoinColumn(name = "credential_id", nullable = false)
     private Credential credential;
 
-    private boolean revoked;
+    public PasswordResetToken() {}
 
-    public Token() {}
-
-    public Token(String token, Date expirationDate, Credential credential) {
+    public PasswordResetToken(String token, Date expirationDate, Credential credential) {
         this.token = token;
         this.expirationDate = expirationDate;
         this.credential = credential;
-        this.revoked = false;
+        this.used = false;
     }
 
     public boolean isExpired() {
@@ -37,7 +38,7 @@ public class Token {
     }
 
     public boolean isValid() {
-        return !revoked && !isExpired();
+        return !used && !isExpired();
     }
 
     public Long getId() { return id; }
@@ -48,9 +49,9 @@ public class Token {
     public Date getExpirationDate() { return expirationDate; }
     public void setExpirationDate(Date expirationDate) { this.expirationDate = expirationDate; }
 
+    public boolean isUsed() { return used; }
+    public void setUsed(boolean used) { this.used = used; }
+
     public Credential getCredential() { return credential; }
     public void setCredential(Credential credential) { this.credential = credential; }
-
-    public boolean isRevoked() { return revoked; }
-    public void setRevoked(boolean revoked) { this.revoked = revoked; }
 }

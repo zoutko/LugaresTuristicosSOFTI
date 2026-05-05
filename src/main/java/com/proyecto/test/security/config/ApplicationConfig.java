@@ -21,12 +21,10 @@ public class ApplicationConfig {
         this.credentialRepository = credentialRepository;
     }
 
-    // UserDetailsService definido aquí en lugar de en CredentialService
-    // para romper el ciclo: SecurityConfig → CredentialService → SecurityConfig
     @Bean
     public UserDetailsService userDetailsService() {
-        return correo -> credentialRepository.findByCorreo(correo)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + correo));
+        return email -> credentialRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
     @Bean
