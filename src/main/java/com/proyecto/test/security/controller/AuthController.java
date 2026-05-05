@@ -7,6 +7,8 @@ import com.proyecto.test.security.dto.request.RecuperarContrasenaRequest;
 import com.proyecto.test.security.dto.request.RegistroRequest;
 import com.proyecto.test.security.dto.response.LoginResponse;
 import com.proyecto.test.security.service.CredentialService;
+import com.proyecto.test.security.service.EmailService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,9 +21,11 @@ import java.util.Map;
 public class AuthController {
 
     private final CredentialService credentialService;
+    private final EmailService emailService;
 
-    public AuthController(CredentialService credentialService) {
+    public AuthController(CredentialService credentialService, EmailService emailService) {
         this.credentialService = credentialService;
+        this.emailService = emailService;
     }
 
     // ── POST /api/auth/login ──────────────────────────────────────────────
@@ -57,12 +61,14 @@ public class AuthController {
     @PostMapping("/recuperar-contrasena")
     public ResponseEntity<Map<String, String>> recuperarContrasena(
             @RequestBody RecuperarContrasenaRequest request) {
-        credentialService.recuperarContrasena(request.getCorreo());
+        String temporal = credentialService.recuperarContrasena(request.getCorreo());
+        emailService.enviarTokenRecuperacion(request.getCorreo(), temporal);
         return ResponseEntity.ok(Map.of("mensaje", "Se ha enviado una contraseña temporal al correo"));
     }
 
     // ── PUT /api/auth/cambiar-contrasena ──────────────────────────────────
-    // Requiere token válido: solo usuarios autenticados pueden cambiar su contraseña
+    // Requiere token válido: solo usuarios autenticados pueden cambiar su
+    // contraseña
     @PutMapping("/cambiar-contrasena")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> cambiarContrasena(
