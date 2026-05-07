@@ -4,8 +4,8 @@ import java.util.Set;
 
 public class RoleDTO {
 
-    private String name;             // "ADMIN", "USER", "GUIDE"
-    private Set<String> permissions; // ["READ", "WRITE", "DELETE"]
+    private String name;
+    private Set<String> permissions;
 
     public RoleDTO() {}
 

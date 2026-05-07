@@ -2,9 +2,9 @@ package com.proyecto.test.security.service;
 
 import com.proyecto.test.security.domain.Credential;
 import com.proyecto.test.security.domain.Token;
-import com.proyecto.test.security.dto.request.CambiarContrasenaRequest;
+import com.proyecto.test.security.dto.request.ChangePasswordRequest;
 import com.proyecto.test.security.dto.request.LoginRequest;
-import com.proyecto.test.security.dto.request.RegistroRequest;
+import com.proyecto.test.security.dto.request.RegisterRequest;
 import com.proyecto.test.security.dto.response.LoginResponse;
 import com.proyecto.test.security.repository.CredentialRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,44 +35,38 @@ public class CredentialService {
         this.authenticationManager = authenticationManager;
     }
 
-    // ── Login ─────────────────────────────────────────────────────────────
-
     public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getCorreo(),
-                        request.getContrasena()
+                        request.getEmail(),
+                        request.getPassword()
                 )
         );
 
-        Credential credential = credentialRepository.findByCorreo(request.getCorreo())
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        Credential credential = credentialRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Token token = tokenService.generarToken(credential);
+        Token token = tokenService.generateToken(credential);
 
         return new LoginResponse(
-                token.getValor(),
-                credential.getCorreo(),
+                token.getToken(),
+                credential.getEmail(),
                 credential.getRole()
         );
     }
 
-    // ── Cerrar sesión ─────────────────────────────────────────────────────
-
-    public void cerrarSesion(String valorToken) {
-        tokenService.revocarToken(valorToken);
+    public void logout(String token) {
+        tokenService.revokeToken(token);
     }
 
-    // ── Crear credencial ──────────────────────────────────────────────────
-
-    public Credential crearCredencial(RegistroRequest request) {
-        if (credentialRepository.existsByCorreo(request.getCorreo())) {
-            throw new IllegalArgumentException("El correo ya está registrado");
+    public Credential createCredential(RegisterRequest request) {
+        if (credentialRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email already registered");
         }
 
         Credential credential = new Credential(
-                request.getCorreo(),
-                passwordEncoder.encode(request.getContrasena()),
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
                 request.getRole().getName(),
                 request.getUserId()
         );
@@ -80,37 +74,31 @@ public class CredentialService {
         return credentialRepository.save(credential);
     }
 
-    // ── Cambiar contraseña ────────────────────────────────────────────────
+    public void changePassword(ChangePasswordRequest request) {
+        Credential credential = credentialRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-    public void cambiarContrasena(CambiarContrasenaRequest request) {
-        Credential credential = credentialRepository.findByCorreo(request.getCorreo())
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
-
-        if (!passwordEncoder.matches(request.getContrasenaActual(), credential.getPassword())) {
-            throw new BadCredentialsException("La contraseña actual es incorrecta");
+        if (!passwordEncoder.matches(request.getCurrentPassword(), credential.getPassword())) {
+            throw new BadCredentialsException("Current password is incorrect");
         }
 
-        credential.setContrasena(passwordEncoder.encode(request.getNuevaContrasena()));
+        credential.setPassword(passwordEncoder.encode(request.getNewPassword()));
         credentialRepository.save(credential);
     }
 
-    // ── Recuperar contraseña ──────────────────────────────────────────────
+    public String recoverPassword(String email) {
+        Credential credential = credentialRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Email not registered"));
 
-    public String recuperarContrasena(String correo) {
-        Credential credential = credentialRepository.findByCorreo(correo)
-                .orElseThrow(() -> new UsernameNotFoundException("Correo no registrado"));
-
-        String contrasenaTemporal = generarContrasenaTemporal();
-        credential.setContrasena(passwordEncoder.encode(contrasenaTemporal));
+        String temporaryPassword = generateTemporaryPassword();
+        credential.setPassword(passwordEncoder.encode(temporaryPassword));
         credentialRepository.save(credential);
 
-        emailService.enviarTokenRecuperacion(correo, contrasenaTemporal);
-        return contrasenaTemporal;
+        emailService.sendRecoveryToken(email, temporaryPassword);
+        return temporaryPassword;
     }
 
-    // ── Utilidades ────────────────────────────────────────────────────────
-
-    private String generarContrasenaTemporal() {
+    private String generateTemporaryPassword() {
         return java.util.UUID.randomUUID().toString().substring(0, 8);
     }
 }

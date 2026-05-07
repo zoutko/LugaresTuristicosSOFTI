@@ -30,64 +30,53 @@ public class TokenService {
         this.tokenRepository = tokenRepository;
     }
 
-    // ── Generación ────────────────────────────────────────────────────────
+    public Token generateToken(Credential credential) {
+        Date expiration = new Date(System.currentTimeMillis() + expirationMs);
 
-    public Token generarToken(Credential credential) {
-        Date expiracion = new Date(System.currentTimeMillis() + expirationMs);
-
-        // API actualizada de jjwt 0.12.x
-        String valorJwt = Jwts.builder()
+        String jwt = Jwts.builder()
                 .subject(credential.getUsername())
                 .issuedAt(new Date())
-                .expiration(expiracion)
+                .expiration(expiration)
                 .signWith(getSigningKey())
                 .compact();
 
-        // Revocar tokens anteriores antes de guardar el nuevo
-        revocarTokensAnteriores(credential.getId());
+        revokePreviousTokens(credential.getId());
 
-        Token token = new Token(valorJwt, expiracion, credential);
+        Token token = new Token(jwt, expiration, credential);
         return tokenRepository.save(token);
     }
 
-    // ── Validación ────────────────────────────────────────────────────────
-
-    public boolean validarToken(String valorToken, UserDetails userDetails) {
-        String username = extraerUsername(valorToken);
-        Token token = tokenRepository.findByValor(valorToken).orElse(null);
+    public boolean validateToken(String tokenValue, UserDetails userDetails) {
+        String username = extractUsername(tokenValue);
+        Token token = tokenRepository.findByToken(tokenValue).orElse(null);
 
         if (token == null) return false;
 
-        return username.equals(userDetails.getUsername()) && token.isValido();
+        return username.equals(userDetails.getUsername()) && token.isValid();
     }
 
-    public String extraerUsername(String valorToken) {
-        return extraerClaims(valorToken).getSubject();
+    public String extractUsername(String tokenValue) {
+        return extractClaims(tokenValue).getSubject();
     }
 
-    // ── Revocación ────────────────────────────────────────────────────────
-
-    public void revocarToken(String valorToken) {
-        tokenRepository.findByValor(valorToken).ifPresent(token -> {
-            token.setRevocado(true);
+    public void revokeToken(String tokenValue) {
+        tokenRepository.findByToken(tokenValue).ifPresent(token -> {
+            token.setRevoked(true);
             tokenRepository.save(token);
         });
     }
 
-    private void revocarTokensAnteriores(Long credentialId) {
-        List<Token> tokensActivos = tokenRepository.findTokensValidosByCredentialId(credentialId);
-        tokensActivos.forEach(t -> t.setRevocado(true));
-        tokenRepository.saveAll(tokensActivos);
+    private void revokePreviousTokens(Long credentialId) {
+        List<Token> activeTokens = tokenRepository.findValidTokensByCredentialId(credentialId);
+        activeTokens.forEach(t -> t.setRevoked(true));
+        tokenRepository.saveAll(activeTokens);
     }
 
-    // ── Utilidades ────────────────────────────────────────────────────────
-
-    private Claims extraerClaims(String valorToken) {
-        // API actualizada de jjwt 0.12.x
+    private Claims extractClaims(String tokenValue) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
-                .parseSignedClaims(valorToken)
+                .parseSignedClaims(tokenValue)
                 .getPayload();
     }
 
