@@ -20,18 +20,15 @@ public class CredentialService {
     private final CredentialRepository credentialRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
-    private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
 
     public CredentialService(CredentialRepository credentialRepository,
                              PasswordEncoder passwordEncoder,
                              TokenService tokenService,
-                             EmailService emailService,
                              AuthenticationManager authenticationManager) {
         this.credentialRepository = credentialRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
-        this.emailService = emailService;
         this.authenticationManager = authenticationManager;
     }
 
@@ -64,11 +61,16 @@ public class CredentialService {
             throw new IllegalArgumentException("Email already registered");
         }
 
+        String roleName = (request.getRole() != null && request.getRole().getName() != null
+            && !request.getRole().getName().isBlank())
+                ? request.getRole().getName().trim()
+                : "USER";
+
         Credential credential = new Credential(
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
-                request.getRole().getName(),
-                request.getUserId()
+            roleName,
+            request.getUserId()
         );
 
         return credentialRepository.save(credential);
@@ -93,8 +95,6 @@ public class CredentialService {
         String temporaryPassword = generateTemporaryPassword();
         credential.setPassword(passwordEncoder.encode(temporaryPassword));
         credentialRepository.save(credential);
-
-        emailService.sendRecoveryToken(email, temporaryPassword);
         return temporaryPassword;
     }
 
