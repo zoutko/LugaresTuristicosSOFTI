@@ -154,8 +154,6 @@
                     </div>
 
                     <p class="error" *ngIf="registerErrorMessage">{{ registerErrorMessage }}</p>
-                    <p class="success" *ngIf="registerSuccessMessage">{{ registerSuccessMessage }}</p>
-
                     <button class="btn btn--register" type="submit" [disabled]="isRegistering">
                         {{ isRegistering ? 'Registrando...' : 'Registrarse' }}
                     </button>
@@ -178,4 +176,11 @@
         (closed)="closeRecoverModal()"
         (submitted)="submitRecoverPassword($event)"
     ></app-recover-password-modal>
+
+    <app-toast
+        [open]="toastOpen"
+        [message]="toastMessage"
+        [variant]="toastVariant"
+        (closed)="toastOpen = false"
+    ></app-toast>
 </div>

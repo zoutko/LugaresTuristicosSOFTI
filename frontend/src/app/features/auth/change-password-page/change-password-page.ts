@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
-import { AuthApiService } from '../auth-api.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-change-password-page',
@@ -25,7 +25,7 @@ export class ChangePasswordPage {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly authApi: AuthApiService
+    private readonly authApi: AuthService
   ) {
     const emailParam = this.route.snapshot.queryParamMap.get('email');
     if (emailParam) this.email = emailParam;

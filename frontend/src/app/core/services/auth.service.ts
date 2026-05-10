@@ -18,7 +18,7 @@ export interface RegisterRequest {
 }
 
 @Injectable({ providedIn: 'root' })
-export class AuthApiService {
+export class AuthService {
   constructor(private readonly http: HttpClient) {}
 
   recoverPassword(email: string): Observable<{ message: string }> {

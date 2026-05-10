@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { AuthApiService } from '../auth-api.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { RecoverPasswordModalComponent } from '../recover-password-modal/recover-password-modal';
+import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
 
 @Component({
   selector: 'app-auth-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RecoverPasswordModalComponent],
+  imports: [CommonModule, FormsModule, RecoverPasswordModalComponent, ToastComponent],
   templateUrl: './auth-page.html',
   styleUrl: './auth-page.css',
 })
@@ -28,8 +29,11 @@ export class AuthPage {
   registerPassword = '';
   registerConfirmPassword = '';
   registerErrorMessage = '';
-  registerSuccessMessage = '';
   isRegistering = false;
+
+  toastOpen = false;
+  toastMessage = '';
+  toastVariant: ToastVariant = 'info';
 
   recoverModalOpen = false;
   isRecovering = false;
@@ -37,7 +41,7 @@ export class AuthPage {
 
   constructor(
     private readonly router: Router,
-    private readonly authApi: AuthApiService
+    private readonly authApi: AuthService
   ) {}
 
   openRecoverModal(): void {
@@ -92,8 +96,10 @@ export class AuthPage {
           localStorage.setItem('auth.email', res.email);
           localStorage.setItem('auth.role', res.role);
           this.loginSuccessMessage = 'Inicio de sesión exitoso.';
-          // En este proyecto aún no hay una ruta principal definida.
-          // Se deja la sesión iniciada y se muestra el mensaje de éxito.
+
+          this.loginEmail = '';
+          this.loginPassword = '';
+
         } else {
           this.loginErrorMessage = 'Respuesta inválida del servidor.';
         }
@@ -109,7 +115,6 @@ export class AuthPage {
     if (this.isRegistering) return;
 
     this.registerErrorMessage = '';
-    this.registerSuccessMessage = '';
 
     const name = this.registerName.trim();
     const email = this.registerEmail.trim();
@@ -134,7 +139,18 @@ export class AuthPage {
       .subscribe({
         next: () => {
           this.isRegistering = false;
-          this.registerSuccessMessage = 'Registro exitoso. Ya puedes iniciar sesión.';
+
+          this.toastVariant = 'success';
+          this.toastMessage = 'Cuenta creada exitosamente.';
+          this.toastOpen = true;
+
+          this.registerName = '';
+          this.registerEmail = '';
+          this.registerPhoneNumber = '';
+          this.registerDocument = '';
+          this.registerPassword = '';
+          this.registerConfirmPassword = '';
+
           this.loginEmail = email;
           this.loginPassword = '';
         },

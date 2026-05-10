@@ -1,0 +1,12 @@
+<div
+  class="toast"
+  [class.toast--open]="open"
+  [class.toast--success]="variant === 'success'"
+  [class.toast--error]="variant === 'error'"
+  [class.toast--info]="variant === 'info'"
+  role="status"
+  aria-live="polite"
+  (click)="dismiss()"
+>
+  <span class="toast-message">{{ message }}</span>
+</div>
