@@ -380,9 +380,6 @@ class UserServiceTest {
         }
     }
 
-    // ----------------------------------------------------------------
-    // Helpers de reflexión
-    // ----------------------------------------------------------------
 
     private void setContactId(Contact contact, Long id) {
         try {
