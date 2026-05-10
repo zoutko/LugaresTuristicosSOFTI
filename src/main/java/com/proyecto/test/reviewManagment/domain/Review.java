@@ -2,8 +2,8 @@ package com.proyecto.test.reviewManagment.domain;
 
 import java.util.Date;
 
+import com.proyecto.test.common.User;
 import com.proyecto.test.tourManagment.domain.Tour;
-import com.proyecto.test.userManagment.domain.User;
 
 public class Review {
     

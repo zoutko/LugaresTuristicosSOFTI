@@ -59,7 +59,6 @@ public class AuthController {
     }
 
     @PutMapping("/change-password")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> changePassword(
             @RequestBody ChangePasswordRequest request) {
         credentialService.changePassword(request);
