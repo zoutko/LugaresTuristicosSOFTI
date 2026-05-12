@@ -43,6 +43,8 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/register",
                                 "/api/auth/recover-password",
+                                "/api/auth/change-password",
+                                "/api/users/register",
                                 "/h2-console/**")
                         .permitAll()
                         .anyRequest().authenticated())
