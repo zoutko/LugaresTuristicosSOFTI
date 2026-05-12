@@ -32,7 +32,8 @@ public class SecurityConfig {
                     "/api/auth/login",
                     "/api/auth/register",
                     "/api/auth/recover-password",
-                    "/h2-console/**"
+                    "/h2-console/**",
+                    "/places/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
