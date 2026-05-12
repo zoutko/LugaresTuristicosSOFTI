@@ -101,4 +101,14 @@ public class CredentialService {
     private String generateTemporaryPassword() {
         return java.util.UUID.randomUUID().toString().substring(0, 8);
     }
+
+    public Credential getCredentialByUserId(Long userId) {
+        return credentialRepository.findByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Credencial no encontrada para userId: " + userId));
+    }
+
+    public Credential getCredentialById(Long id) {
+        return credentialRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Credencial no encontrada con id: " + id));
+    }
 }
