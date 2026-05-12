@@ -38,7 +38,7 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, String>> logout(
             @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7); // removes "Bearer "
+        String token = authHeader.substring(7); 
         credentialService.logout(token);
         return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
     }

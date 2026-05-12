@@ -1,0 +1,186 @@
+<div class="page">
+    <header class="topbar">
+        <a class="brand" href="#" aria-label="Recorridos Turísticos">
+            <span class="brand-icon" aria-hidden="true">
+                <svg viewBox="0 0 64 40" focusable="false" aria-hidden="true">
+                    <path d="M6 36L24 10l10 16 6-8 18 18H6z" fill="currentColor" />
+                    <circle cx="52" cy="10" r="6" fill="currentColor" />
+                </svg>
+            </span>
+            <span class="brand-text">
+                <span class="brand-title">Recorridos</span>
+                <span class="brand-title">Turísticos</span>
+            </span>
+        </a>
+
+        <nav class="menu" aria-label="Navegación principal">
+            <a class="menu-item" href="#">Inicio</a>
+            <a class="menu-item" href="#">Recorridos</a>
+            <a class="menu-item" href="#">Lugares Turísticos</a>
+        </nav>
+
+        <button class="user" type="button" aria-label="Usuario">
+            <span class="user-icon" aria-hidden="true"></span>
+        </button>
+    </header>
+
+    <main class="content">
+        <section class="auth-grid" aria-label="Autenticación">
+            <article class="card card--login">
+                <h2 class="card-title card-title--login">Iniciar sesión</h2>
+
+                <form class="form" autocomplete="on" (ngSubmit)="submitLogin()">
+                    <label class="field">
+                        <span class="label">Correo electrónico</span>
+                        <input
+                            class="input"
+                            type="email"
+                            name="loginEmail"
+                            [(ngModel)]="loginEmail"
+                            placeholder="Ingrese su correo"
+                            autocomplete="email"
+                            [disabled]="isLoggingIn"
+                        />
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Contraseña</span>
+                        <input
+                            class="input"
+                            type="password"
+                            name="loginPassword"
+                            [(ngModel)]="loginPassword"
+                            placeholder="Ingrese su contraseña"
+                            autocomplete="current-password"
+                            [disabled]="isLoggingIn"
+                        />
+                    </label>
+
+                    <button class="forgot" type="button" (click)="openRecoverModal()">¿Olvidó su contraseña?</button>
+
+                    <p class="error" *ngIf="loginErrorMessage">{{ loginErrorMessage }}</p>
+                    <p class="success" *ngIf="loginSuccessMessage">{{ loginSuccessMessage }}</p>
+
+                    <button class="btn btn--login" type="submit" [disabled]="isLoggingIn">
+                        {{ isLoggingIn ? 'Ingresando...' : 'Iniciar Sesión' }}
+                    </button>
+                </form>
+            </article>
+
+            <article class="card card--register">
+                <h2 class="card-title card-title--register">Crear Cuenta</h2>
+
+                <form class="form" autocomplete="on" (ngSubmit)="submitRegister()">
+                    <label class="field">
+                        <span class="label">Nombre</span>
+                        <input
+                            class="input"
+                            type="text"
+                            name="registerName"
+                            [(ngModel)]="registerName"
+                            placeholder="Ingrese su nombre completo"
+                            autocomplete="name"
+                            [disabled]="isRegistering"
+                        />
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Correo electrónico</span>
+                        <input
+                            class="input"
+                            type="email"
+                            name="registerEmail"
+                            [(ngModel)]="registerEmail"
+                            placeholder="Ingrese su correo"
+                            autocomplete="email"
+                            [disabled]="isRegistering"
+                        />
+                    </label>
+
+                    <div class="row-2">
+                        <label class="field">
+                            <span class="label">Celular</span>
+                            <input
+                                class="input"
+                                type="tel"
+                                name="registerPhoneNumber"
+                                [(ngModel)]="registerPhoneNumber"
+                                placeholder="Ingrese su celular"
+                                autocomplete="tel"
+                                [disabled]="isRegistering"
+                            />
+                        </label>
+
+                        <label class="field">
+                            <span class="label">Documento</span>
+                            <input
+                                class="input"
+                                type="text"
+                                name="registerDocument"
+                                [(ngModel)]="registerDocument"
+                                placeholder="Ingrese su documento"
+                                autocomplete="off"
+                                [disabled]="isRegistering"
+                            />
+                        </label>
+                    </div>
+
+                    <div class="row-2">
+                        <label class="field">
+                            <span class="label">Contraseña</span>
+                            <input
+                                class="input"
+                                type="password"
+                                name="registerPassword"
+                                [(ngModel)]="registerPassword"
+                                placeholder="Ingrese su contraseña"
+                                autocomplete="new-password"
+                                [disabled]="isRegistering"
+                            />
+                        </label>
+
+                        <label class="field">
+                            <span class="label">Confirmar contraseña</span>
+                            <input
+                                class="input"
+                                type="password"
+                                name="registerConfirmPassword"
+                                [(ngModel)]="registerConfirmPassword"
+                                placeholder="Confirme su contraseña"
+                                autocomplete="new-password"
+                                [disabled]="isRegistering"
+                            />
+                        </label>
+                    </div>
+
+                    <p class="error" *ngIf="registerErrorMessage">{{ registerErrorMessage }}</p>
+                    <button class="btn btn--register" type="submit" [disabled]="isRegistering">
+                        {{ isRegistering ? 'Registrando...' : 'Registrarse' }}
+                    </button>
+                </form>
+            </article>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span class="footer-title">Contáctanos</span>
+            <span class="footer-email">recorridosturisticos@gmail.com</span>
+        </div>
+    </footer>
+
+    <app-recover-password-modal
+        [open]="recoverModalOpen"
+        [isSubmitting]="isRecovering"
+        [errorMessage]="recoverErrorMessage"
+        (closed)="closeRecoverModal()"
+        (submitted)="submitRecoverPassword($event)"
+    ></app-recover-password-modal>
+
+    <app-toast
+        [open]="toastOpen"
+        [message]="toastMessage"
+        [variant]="toastVariant"
+        (closed)="toastOpen = false"
+    ></app-toast>
+</div>
