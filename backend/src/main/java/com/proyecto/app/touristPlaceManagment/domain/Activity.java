@@ -1,19 +1,11 @@
 package com.proyecto.app.touristPlaceManagment.domain;
 
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "activities")
 public class Activity {
@@ -28,6 +20,4 @@ public class Activity {
     @ManyToOne
     @JoinColumn(name = "place_id")
     private TouristPlace touristPlace;
-
-    public Activity() {}
 }

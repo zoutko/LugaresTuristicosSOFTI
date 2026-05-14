@@ -1,13 +1,17 @@
 package com.proyecto.app.touristPlaceManagment.service;
 
-import com.proyecto.app.touristPlaceManagment.domain.Activity;
-import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
-import com.proyecto.app.common.Category;
 import com.proyecto.app.common.Environment;
+import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
+import com.proyecto.app.touristPlaceManagment.dto.request.TouristPlaceRequest;
+import com.proyecto.app.touristPlaceManagment.dto.response.ActivityResponse;
+import com.proyecto.app.touristPlaceManagment.dto.response.TouristPlaceResponse;
+import com.proyecto.app.touristPlaceManagment.exception.InvalidPlaceDataException;
+import com.proyecto.app.touristPlaceManagment.exception.TouristPlaceNotFoundException;
+import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -15,103 +19,106 @@ import java.util.stream.Collectors;
 @Service
 public class TouristPlaceService {
 
-    private List<TouristPlace> places = new ArrayList<>();
+    private final TouristPlaceRepository placeRepository;
 
-
-    public List<TouristPlace> getAll() {
-        return places;
+    public TouristPlaceService(TouristPlaceRepository placeRepository) {
+        this.placeRepository = placeRepository;
     }
 
 
-    public TouristPlace getById(UUID id) {
-        return places.stream()
-            .filter(p -> p.getId().equals(id))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Place not found: " + id));
+    public List<TouristPlaceResponse> getAll() {
+        return placeRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public TouristPlaceResponse getById(UUID id) {
+        return toResponse(resolveOrThrow(id));
+    }
+
+    public List<TouristPlaceResponse> getByName(String name) {
+        return placeRepository.findByNameContainingIgnoreCase(name).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<TouristPlaceResponse> getByCity(String city) {
+        return placeRepository.findByLocationCityIgnoreCase(city).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<TouristPlaceResponse> getByEnvironment(Environment environment) {
+        return placeRepository.findByEnvironment(environment).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
 
-    public TouristPlace create(TouristPlace place) {
-        place.setId(UUID.randomUUID());
-        places.add(place);
-        return place;
+    @Transactional
+    public TouristPlaceResponse create(TouristPlaceRequest request) {
+        validateRequest(request);
+        TouristPlace place = toEntity(request);
+        return toResponse(placeRepository.save(place));
     }
 
-
-    public TouristPlace update(UUID id, TouristPlace updated) {
-        TouristPlace existing = getById(id);
-        existing.setName(updated.getName());
-        existing.setDescription(updated.getDescription());
-        existing.setCancelationPolicy(updated.getCancelationPolicy());
-        existing.setDuration(updated.getDuration());
-        existing.setEnvironment(updated.getEnvironment());
-        existing.setLocation(updated.getLocation());
-        existing.setAlbum(updated.getAlbum());
-        existing.setCategories(updated.getCategories());
-        existing.setActivities(updated.getActivities());
-        return existing;
+    @Transactional
+    public TouristPlaceResponse update(UUID id, TouristPlaceRequest request) {
+        validateRequest(request);
+        TouristPlace existing = resolveOrThrow(id);
+        applyUpdate(existing, request);
+        return toResponse(placeRepository.save(existing));
     }
 
-
+    @Transactional
     public void delete(UUID id) {
-        TouristPlace existing = getById(id);
-        places.remove(existing);
+        TouristPlace place = resolveOrThrow(id);
+        placeRepository.delete(place);
     }
 
-
-    public List<TouristPlace> getByName(String name) {
-        return places.stream()
-            .filter(p -> p.getName().toLowerCase().contains(name.toLowerCase()))
-            .collect(Collectors.toList());
+    TouristPlace resolveOrThrow(UUID id) {
+        return placeRepository.findById(id)
+                .orElseThrow(() -> new TouristPlaceNotFoundException(id.toString()));
     }
 
-
-    public List<TouristPlace> getByCity(String city) {
-        return places.stream()
-            .filter(p -> p.getLocation().getCity().equalsIgnoreCase(city))
-            .collect(Collectors.toList());
+    private void validateRequest(TouristPlaceRequest req) {
+        if (req.getName() == null || req.getName().isBlank()) {
+            throw new InvalidPlaceDataException("El nombre del lugar no puede estar vacío");
+        }
     }
 
-
-    public List<TouristPlace> getByEnvironment(Environment environment) {
-        return places.stream()
-            .filter(p -> p.getEnvironment().equals(environment))
-            .collect(Collectors.toList());
+    private TouristPlace toEntity(TouristPlaceRequest req) {
+        TouristPlace p = new TouristPlace();
+        applyUpdate(p, req);
+        return p;
     }
 
-
-    public List<TouristPlace> getByCategory(Long categoryId) {
-        return places.stream()
-            .filter(p -> p.getCategories().stream()
-                .anyMatch(c -> c.getId().equals(categoryId)))
-            .collect(Collectors.toList());
+    private void applyUpdate(TouristPlace p, TouristPlaceRequest req) {
+        p.setName(req.getName());
+        p.setDescription(req.getDescription());
+        p.setCancelationPolicy(req.getCancelationPolicy());
+        p.setDuration(req.getDuration());
+        p.setEnvironment(req.getEnvironment());
+        p.setLocation(req.getLocation());
     }
 
+    private TouristPlaceResponse toResponse(TouristPlace p) {
+        List<ActivityResponse> activityResponses = p.getActivities() == null
+                ? List.of()
+                : p.getActivities().stream()
+                        .map(a -> new ActivityResponse(a.getId(), a.getDescription()))
+                        .collect(Collectors.toList());
 
-    public TouristPlace addActivity(UUID placeId, Activity activity) {
-        TouristPlace place = getById(placeId);
-        place.addActivity(activity);
-        return place;
-    }
-
-
-    public TouristPlace removeActivity(UUID placeId, Activity activity) {
-        TouristPlace place = getById(placeId);
-        place.removeActivity(activity);
-        return place;
-    }
-
-
-    public TouristPlace addCategory(UUID placeId, Category category) {
-        TouristPlace place = getById(placeId);
-        place.addCategory(category);
-        return place;
-    }
-
-
-    public TouristPlace removeCategory(UUID placeId, Category category) {
-        TouristPlace place = getById(placeId);
-        place.removeCategory(category);
-        return place;
+        return TouristPlaceResponse.builder()
+                .id(p.getId())
+                .name(p.getName())
+                .description(p.getDescription())
+                .cancelationPolicy(p.getCancelationPolicy())
+                .duration(p.getDuration())
+                .environment(p.getEnvironment())
+                .location(p.getLocation())
+                .activities(activityResponses)
+                .totalPhotos(p.getAlbum() != null ? p.getAlbum().getPhotos().size() : 0)
+                .build();
     }
 }
