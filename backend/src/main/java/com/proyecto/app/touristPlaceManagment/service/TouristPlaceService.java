@@ -1,5 +1,7 @@
 package com.proyecto.app.touristPlaceManagment.service;
 
+import com.proyecto.app.catalog.domain.Category;
+import com.proyecto.app.catalog.repository.CategoryRepository;
 import com.proyecto.app.common.Environment;
 import com.proyecto.app.media.domain.Album;
 import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
@@ -21,9 +23,12 @@ import java.util.stream.Collectors;
 public class TouristPlaceService {
 
     private final TouristPlaceRepository placeRepository;
+    private final CategoryRepository categoryRepository;
 
-    public TouristPlaceService(TouristPlaceRepository placeRepository) {
+    public TouristPlaceService(TouristPlaceRepository placeRepository,
+                              CategoryRepository categoryRepository) {
         this.placeRepository = placeRepository;
+        this.categoryRepository = categoryRepository;
     }
 
 
@@ -107,6 +112,14 @@ public class TouristPlaceService {
         album.setName(req.getName());
         p.setAlbum(album);
     }
+    if (req.getCategoryIds() != null && !req.getCategoryIds().isEmpty()) {
+        List<Category> categories = req.getCategoryIds().stream()
+            .map(id -> categoryRepository.findById(id)
+                .orElseThrow(() -> new InvalidPlaceDataException("Categoría no encontrada: " + id)))
+            .collect(Collectors.toList());
+        p.getCategories().clear();
+        p.getCategories().addAll(categories);
+    }
     }
 
     private TouristPlaceResponse toResponse(TouristPlace p) {
@@ -114,18 +127,23 @@ public class TouristPlaceService {
                 ? List.of()
                 : p.getActivities().stream()
                         .map(a -> new ActivityResponse(a.getId(), a.getDescription()))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList())
+                        ;
 
-        return TouristPlaceResponse.builder()
-                .id(p.getId())
-                .name(p.getName())
-                .description(p.getDescription())
-                .cancelationPolicy(p.getCancelationPolicy())
-                .duration(p.getDuration())
-                .environment(p.getEnvironment())
-                .location(p.getLocation())
-                .activities(activityResponses)
-                .totalPhotos(p.getAlbum() != null ? p.getAlbum().getPhotos().size() : 0)
-                .build();
+return TouristPlaceResponse.builder()
+        .id(p.getId())
+        .name(p.getName())
+        .description(p.getDescription())
+        .cancelationPolicy(p.getCancelationPolicy())
+        .duration(p.getDuration())
+        .environment(p.getEnvironment())
+        .location(p.getLocation())
+        .activities(activityResponses)
+        .categories(p.getCategories() == null ? List.of() :
+                p.getCategories().stream()
+                        .map(c -> c.getName())
+                        .collect(Collectors.toList()))
+        .totalPhotos(p.getAlbum() != null ? p.getAlbum().getPhotos().size() : 0)
+        .build();
     }
 }

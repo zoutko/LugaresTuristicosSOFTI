@@ -28,7 +28,6 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-
         if (credentialRepository.existsByEmail("admin@gmail.com")) return;
 
         

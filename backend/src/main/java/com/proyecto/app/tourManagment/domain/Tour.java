@@ -3,7 +3,7 @@ package com.proyecto.app.tourManagment.domain;
 import java.util.List;
 
 import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
-import com.proyecto.app.common.Category;
+import com.proyecto.app.catalog.domain.Category;
 import com.proyecto.app.common.Environment;
 import com.proyecto.app.common.Location;
 

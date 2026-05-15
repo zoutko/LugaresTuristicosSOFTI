@@ -26,7 +26,7 @@ public class TouristPlaceResponse {
     private Environment environment;
     private Location location;
     private List<ActivityResponse> activities;
+    private List<String> categories;
 
-    // Solo metadatos del álbum; el contenido se obtiene via /media
     private int totalPhotos;
 }

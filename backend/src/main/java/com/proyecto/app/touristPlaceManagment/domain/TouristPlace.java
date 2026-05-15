@@ -1,9 +1,9 @@
 package com.proyecto.app.touristPlaceManagment.domain;
 
-import com.proyecto.app.common.Category;
+import com.proyecto.app.catalog.domain.Category;
 import com.proyecto.app.common.Environment;
 import com.proyecto.app.common.Location;
-import com.proyecto.app.media.domain.Album;   // ← única dependencia de media
+import com.proyecto.app.media.domain.Album;  
 
 import jakarta.persistence.*;
 import lombok.*;
