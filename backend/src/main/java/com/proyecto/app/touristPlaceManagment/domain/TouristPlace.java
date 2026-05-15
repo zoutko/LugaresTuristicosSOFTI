@@ -45,7 +45,7 @@ public class TouristPlace {
 
     @ManyToOne(cascade = CascadeType.PERSIST) //Implementar en tour
     @JoinColumn(name = "album_id")
-    private Album album = new Album();
+    private Album album;
 
     @ManyToMany
     @JoinTable(

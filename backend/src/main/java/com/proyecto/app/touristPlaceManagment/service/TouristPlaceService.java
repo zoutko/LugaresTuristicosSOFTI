@@ -1,6 +1,7 @@
 package com.proyecto.app.touristPlaceManagment.service;
 
 import com.proyecto.app.common.Environment;
+import com.proyecto.app.media.domain.Album;
 import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.app.touristPlaceManagment.dto.request.TouristPlaceRequest;
 import com.proyecto.app.touristPlaceManagment.dto.response.ActivityResponse;
@@ -100,6 +101,12 @@ public class TouristPlaceService {
         p.setDuration(req.getDuration());
         p.setEnvironment(req.getEnvironment());
         p.setLocation(req.getLocation());
+
+        if (p.getAlbum() == null) {
+        Album album = new Album();
+        album.setName(req.getName());
+        p.setAlbum(album);
+    }
     }
 
     private TouristPlaceResponse toResponse(TouristPlace p) {
