@@ -43,7 +43,8 @@ public class TouristPlace {
     private Location location;
 
 
-    @Embedded
+    @ManyToOne(cascade = CascadeType.PERSIST) //Implementar en tour
+    @JoinColumn(name = "album_id")
     private Album album = new Album();
 
     @ManyToMany

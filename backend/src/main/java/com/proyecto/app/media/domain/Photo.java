@@ -3,11 +3,16 @@ package com.proyecto.app.media.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Embeddable
+@Entity
+@Table(name = "photos")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Photo {
+
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @Column(name = "file_path")
     private String filePath;

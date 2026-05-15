@@ -4,22 +4,33 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
-@Embeddable
+@Entity
+@Table(name = "albums")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Album {
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "album_photos",
-            joinColumns = @JoinColumn(name = "place_id")
-    )
+    @Id
+    @GeneratedValue
+    private UUID id;
+
+    @Column(unique = true, nullable = false)
+    private String name;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "album_id")
     private List<Photo> photos = new ArrayList<>();
 
     private int currentIndex;
+
+    public Album(String name) {
+        this.name = name;
+    }
+
 
     public void insertPhoto(Photo photo) {
         photos.add(photo);

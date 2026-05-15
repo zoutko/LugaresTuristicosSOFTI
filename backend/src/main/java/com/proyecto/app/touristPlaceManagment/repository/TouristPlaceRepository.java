@@ -17,6 +17,5 @@ public interface TouristPlaceRepository extends JpaRepository<TouristPlace, UUID
 
     List<TouristPlace> findByEnvironment(Environment environment);
 
-    // Busca por categoría usando la tabla join
     List<TouristPlace> findByCategoriesId(Long categoryId);
 }

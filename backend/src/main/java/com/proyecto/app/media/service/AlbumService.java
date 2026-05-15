@@ -8,6 +8,7 @@ import com.proyecto.app.media.dto.response.PhotoResponse;
 import com.proyecto.app.media.exception.InvalidAlbumOperationException;
 import com.proyecto.app.media.exception.InvalidPhotoException;
 import com.proyecto.app.media.exception.MediaNotFoundException;
+import com.proyecto.app.media.repository.AlbumRepository;
 import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
 
@@ -22,9 +23,11 @@ import java.util.stream.Collectors;
 public class AlbumService {
 
     private final TouristPlaceRepository placeRepository;
+    private final AlbumRepository albumRepository;
 
-    public AlbumService(TouristPlaceRepository placeRepository) {
+    public AlbumService(TouristPlaceRepository placeRepository, AlbumRepository albumRepository) {
         this.placeRepository = placeRepository;
+        this.albumRepository = albumRepository;
     }
 
     public AlbumResponse getAlbum(UUID placeId) {
@@ -124,5 +127,10 @@ public class AlbumService {
                 .currentPhoto(album.isEmpty() ? null : toPhotoResponse(album.getCurrent()))
                 .photos(album.getPhotos().stream().map(this::toPhotoResponse).collect(Collectors.toList()))
                 .build();
+    }
+
+    public Album findOrCreate(String albumName) {
+        return albumRepository.findByName(albumName)
+                .orElseGet(() -> albumRepository.save(new Album(albumName)));
     }
 }
