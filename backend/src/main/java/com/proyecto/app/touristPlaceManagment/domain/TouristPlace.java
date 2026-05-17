@@ -10,7 +10,6 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -21,7 +20,7 @@ public class TouristPlace {
 
     @Id
     @GeneratedValue
-    private UUID id;
+    private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;

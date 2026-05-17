@@ -5,12 +5,7 @@ import com.proyecto.app.common.Location;
 import lombok.*;
 
 import java.util.List;
-import java.util.UUID;
 
-/**
- * DTO de salida para TouristPlace.
- * Incluye resumen del álbum (totalPhotos) pero no expone la lista interna.
- */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class TouristPlaceResponse {
 
-    private UUID id;
+    private Long id;
     private String name;
     private String description;
     private String duration;

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 @Entity
@@ -16,7 +15,7 @@ public class Album {
 
     @Id
     @GeneratedValue
-    private UUID id;
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String name;

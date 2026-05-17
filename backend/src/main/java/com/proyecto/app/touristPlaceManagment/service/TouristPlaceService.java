@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +37,7 @@ public class TouristPlaceService {
                 .collect(Collectors.toList());
     }
 
-    public TouristPlaceResponse getById(UUID id) {
+    public TouristPlaceResponse getById(Long id) {
         return toResponse(resolveOrThrow(id));
     }
 
@@ -69,7 +68,7 @@ public class TouristPlaceService {
     }
 
     @Transactional
-    public TouristPlaceResponse update(UUID id, TouristPlaceRequest request) {
+    public TouristPlaceResponse update(Long id, TouristPlaceRequest request) {
         validateRequest(request);
         TouristPlace existing = resolveOrThrow(id);
         applyUpdate(existing, request);
@@ -77,12 +76,12 @@ public class TouristPlaceService {
     }
 
     @Transactional
-    public void delete(UUID id) {
+    public void delete(Long id) {
         TouristPlace place = resolveOrThrow(id);
         placeRepository.delete(place);
     }
 
-    public TouristPlace resolveOrThrow(UUID id) {
+    public TouristPlace resolveOrThrow(Long id) {
         return placeRepository.findById(id)
                 .orElseThrow(() -> new TouristPlaceNotFoundException(id.toString()));
     }

@@ -20,10 +20,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,25 +38,21 @@ class ActivityServiceTest {
     @InjectMocks
     private ActivityService activityService;
 
-    private UUID placeId;
     private TouristPlace place;
     private Activity activity1;
     private Activity activity2;
 
     @BeforeEach
     void setUp() {
-        placeId = UUID.randomUUID();
+        activity1 = new Activity();
+        activity1.setId(Long.valueOf(1));
+        activity1.setDescription("Senderismo");
 
-        activity1 = mock(Activity.class);
-        when(activity1.getId()).thenReturn(1);
-        when(activity1.getDescription()).thenReturn("Senderismo");
-
-        activity2 = mock(Activity.class);
-        when(activity2.getId()).thenReturn(2);
-        when(activity2.getDescription()).thenReturn("Ciclismo");
+        activity2 = new Activity();
+        activity2.setId(Long.valueOf(2));
+        activity2.setDescription("Ciclismo");
 
         place = mock(TouristPlace.class);
-        when(place.getActivities()).thenReturn(new ArrayList<>(List.of(activity1, activity2)));
     }
 
     // ----------------------------------------------------------------
@@ -67,22 +62,31 @@ class ActivityServiceTest {
     @Test
     @DisplayName("getActivitiesByPlace: retorna lista de actividades del lugar")
     void getActivitiesByPlace_returnsMappedActivities() {
-        when(touristPlaceService.resolveOrThrow(placeId)).thenReturn(place);
 
-        List<ActivityResponse> result = activityService.getActivitiesByPlace(placeId);
+        List<Activity> activities = new ArrayList<>(List.of(activity1, activity2));
+
+        when(place.getActivities()).thenReturn(activities);
+        when(touristPlaceService.resolveOrThrow(1L)).thenReturn(place);
+
+        List<ActivityResponse> result =
+                activityService.getActivitiesByPlace(1L);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getDescription()).isEqualTo("Senderismo");
-        assertThat(result.get(1).getDescription()).isEqualTo("Ciclismo");
+        assertThat(result.get(0).getDescription())
+                .isEqualTo("Senderismo");
+        assertThat(result.get(1).getDescription())
+                .isEqualTo("Ciclismo");
     }
 
     @Test
     @DisplayName("getActivitiesByPlace: retorna lista vacía si el lugar no tiene actividades")
     void getActivitiesByPlace_returnsEmptyIfNoActivities() {
-        when(place.getActivities()).thenReturn(new ArrayList<>());
-        when(touristPlaceService.resolveOrThrow(placeId)).thenReturn(place);
 
-        List<ActivityResponse> result = activityService.getActivitiesByPlace(placeId);
+        when(place.getActivities()).thenReturn(new ArrayList<>());
+        when(touristPlaceService.resolveOrThrow(1L)).thenReturn(place);
+
+        List<ActivityResponse> result =
+                activityService.getActivitiesByPlace(1L);
 
         assertThat(result).isEmpty();
     }
@@ -94,33 +98,44 @@ class ActivityServiceTest {
     @Test
     @DisplayName("addActivity: agrega actividad y guarda el lugar")
     void addActivity_addsActivityAndSavesPlace() {
+
         ActivityRequest request = new ActivityRequest();
         request.setDescription("Kayak");
 
-        TouristPlaceResponse expectedResponse = mock(TouristPlaceResponse.class);
+        TouristPlaceResponse expectedResponse =
+                mock(TouristPlaceResponse.class);
 
-        when(touristPlaceService.resolveOrThrow(placeId)).thenReturn(place);
-        when(placeRepository.save(place)).thenReturn(place);
-        when(touristPlaceService.getById(placeId)).thenReturn(expectedResponse);
+        when(touristPlaceService.resolveOrThrow(1L))
+                .thenReturn(place);
 
-        TouristPlaceResponse result = activityService.addActivity(placeId, request);
+        when(placeRepository.save(place))
+                .thenReturn(place);
+
+        when(touristPlaceService.getById(1L))
+                .thenReturn(expectedResponse);
+
+        TouristPlaceResponse result =
+                activityService.addActivity(1L, request);
 
         assertThat(result).isNotNull();
+
         verify(place).addActivity(any(Activity.class));
         verify(placeRepository).save(place);
-        verify(touristPlaceService).getById(placeId);
+        verify(touristPlaceService).getById(1L);
     }
 
     @Test
     @DisplayName("addActivity: lanza excepción si el lugar no existe")
     void addActivity_throwsIfPlaceNotFound() {
+
         ActivityRequest request = new ActivityRequest();
         request.setDescription("Pesca");
 
-        when(touristPlaceService.resolveOrThrow(placeId))
+        when(touristPlaceService.resolveOrThrow(1L))
                 .thenThrow(new RuntimeException("Lugar no encontrado"));
 
-        assertThatThrownBy(() -> activityService.addActivity(placeId, request))
+        assertThatThrownBy(() ->
+                activityService.addActivity(1L, request))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Lugar no encontrado");
     }
@@ -132,15 +147,28 @@ class ActivityServiceTest {
     @Test
     @DisplayName("removeActivity: elimina actividad existente")
     void removeActivity_removesExistingActivity() {
-        TouristPlaceResponse expectedResponse = mock(TouristPlaceResponse.class);
 
-        when(touristPlaceService.resolveOrThrow(placeId)).thenReturn(place);
-        when(placeRepository.save(place)).thenReturn(place);
-        when(touristPlaceService.getById(placeId)).thenReturn(expectedResponse);
+        List<Activity> activities = new ArrayList<>(List.of(activity1, activity2));
 
-        TouristPlaceResponse result = activityService.removeActivity(placeId, 1);
+        TouristPlaceResponse expectedResponse =
+                mock(TouristPlaceResponse.class);
+
+        when(place.getActivities()).thenReturn(activities);
+
+        when(touristPlaceService.resolveOrThrow(1L))
+                .thenReturn(place);
+
+        when(placeRepository.save(place))
+                .thenReturn(place);
+
+        when(touristPlaceService.getById(1L))
+                .thenReturn(expectedResponse);
+
+        TouristPlaceResponse result =
+                activityService.removeActivity(1L, 1);
 
         assertThat(result).isNotNull();
+
         verify(place).removeActivity(activity1);
         verify(placeRepository).save(place);
     }
@@ -148,9 +176,16 @@ class ActivityServiceTest {
     @Test
     @DisplayName("removeActivity: lanza excepción si la actividad no existe")
     void removeActivity_throwsActivityNotFound() {
-        when(touristPlaceService.resolveOrThrow(placeId)).thenReturn(place);
 
-        assertThatThrownBy(() -> activityService.removeActivity(placeId, 999))
+        List<Activity> activities = new ArrayList<>(List.of(activity1, activity2));
+
+        when(place.getActivities()).thenReturn(activities);
+
+        when(touristPlaceService.resolveOrThrow(1L))
+                .thenReturn(place);
+
+        assertThatThrownBy(() ->
+                activityService.removeActivity(1L, 999))
                 .isInstanceOf(ActivityNotFoundException.class);
     }
 
@@ -161,21 +196,36 @@ class ActivityServiceTest {
     @Test
     @DisplayName("getActivityById: retorna la actividad correcta")
     void getActivityById_returnsCorrectActivity() {
-        when(touristPlaceService.resolveOrThrow(placeId)).thenReturn(place);
 
-        ActivityResponse result = activityService.getActivityById(placeId, 2);
+        List<Activity> activities = new ArrayList<>(List.of(activity1, activity2));
+
+        when(place.getActivities()).thenReturn(activities);
+
+        when(touristPlaceService.resolveOrThrow(1L))
+                .thenReturn(place);
+
+        ActivityResponse result =
+                activityService.getActivityById(1L, 2);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(2);
-        assertThat(result.getDescription()).isEqualTo("Ciclismo");
+        assertThat(result.getDescription())
+                .isEqualTo("Ciclismo");
     }
 
     @Test
     @DisplayName("getActivityById: lanza excepción si la actividad no existe")
     void getActivityById_throwsIfActivityNotFound() {
-        when(touristPlaceService.resolveOrThrow(placeId)).thenReturn(place);
 
-        assertThatThrownBy(() -> activityService.getActivityById(placeId, 999))
+        List<Activity> activities = new ArrayList<>(List.of(activity1, activity2));
+
+        when(place.getActivities()).thenReturn(activities);
+
+        when(touristPlaceService.resolveOrThrow(1L))
+                .thenReturn(place);
+
+        assertThatThrownBy(() ->
+                activityService.getActivityById(1L, 999))
                 .isInstanceOf(ActivityNotFoundException.class);
     }
 }

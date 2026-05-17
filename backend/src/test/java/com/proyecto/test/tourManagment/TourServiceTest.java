@@ -1,4 +1,4 @@
-package com.proyecto.tourManagment;
+package com.proyecto.test.tourManagment;
 
 import com.proyecto.app.catalog.domain.Category;
 import com.proyecto.app.catalog.repository.CategoryRepository;
@@ -143,9 +143,6 @@ class TourServiceTest {
     void createTour_environmentInvalido_lanzaInvalidTourDataException() {
         CreateTourRequest request = buildCreateRequest();
         request.setEnvironment("INVALIDO");
-
-        when(categoryRepository.findAllById(any())).thenReturn(List.of(category));
-        when(tourRepository.save(any())).thenReturn(tour);
 
         assertThrows(InvalidTourDataException.class, () -> tourService.createTour(request));
     }

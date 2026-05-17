@@ -2,7 +2,6 @@ package com.proyecto.app.touristPlaceManagment.dto.request;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.proyecto.app.common.Environment;
 import com.proyecto.app.common.Location;
@@ -24,5 +23,5 @@ public class TouristPlaceRequest {
     private String duration;
     private Environment environment;
     private Location location;
-    private List<UUID> categoryIds = new ArrayList<>(); 
+    private List<Long> categoryIds = new ArrayList<>(); 
 }

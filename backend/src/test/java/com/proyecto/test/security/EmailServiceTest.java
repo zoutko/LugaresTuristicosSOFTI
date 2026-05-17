@@ -1,4 +1,4 @@
-package com.proyecto.app.security.service;
+package com.proyecto.test.security;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+
+import com.proyecto.app.security.service.EmailService;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;

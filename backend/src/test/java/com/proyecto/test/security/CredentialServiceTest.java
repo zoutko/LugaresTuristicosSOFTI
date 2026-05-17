@@ -1,4 +1,4 @@
-package com.proyecto.app.security.service;
+package com.proyecto.test.security;
 
 import com.proyecto.app.security.domain.Credential;
 import com.proyecto.app.security.domain.Token;
@@ -8,6 +8,9 @@ import com.proyecto.app.security.dto.request.RegisterRequest;
 import com.proyecto.app.security.dto.response.LoginResponse;
 import com.proyecto.app.security.dto.response.RoleDTO;
 import com.proyecto.app.security.repository.CredentialRepository;
+import com.proyecto.app.security.service.CredentialService;
+import com.proyecto.app.security.service.TokenService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -53,12 +57,7 @@ class CredentialServiceTest {
     void setUp() {
         credential = mock(Credential.class);
         token = mock(Token.class);
-
-        when(credential.getEmail()).thenReturn("test@example.com");
-        when(credential.getRole()).thenReturn("USER");
-        when(token.getToken()).thenReturn("jwt-token-123");
     }
-
     // ----------------------------------------------------------------
     // login
     // ----------------------------------------------------------------
@@ -66,19 +65,30 @@ class CredentialServiceTest {
     @Test
     @DisplayName("login: autentica y retorna token exitosamente")
     void login_successfullyAuthenticatesAndReturnsToken() {
+
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
         request.setPassword("password123");
 
-        when(credentialRepository.findByEmail("test@example.com")).thenReturn(Optional.of(credential));
-        when(tokenService.generateToken(credential)).thenReturn(token);
+        when(credentialRepository.findByEmail("test@example.com"))
+                .thenReturn(Optional.of(credential));
+
+        when(tokenService.generateToken(credential))
+                .thenReturn(token);
+
+        when(token.getToken()).thenReturn("jwt-token-123");
+        when(credential.getEmail()).thenReturn("test@example.com");
+        when(credential.getRole()).thenReturn("USER");
+        when(credential.getUserId()).thenReturn(1L);
 
         LoginResponse response = credentialService.login(request);
 
         assertThat(response).isNotNull();
         assertThat(response.getToken()).isEqualTo("jwt-token-123");
         assertThat(response.getEmail()).isEqualTo("test@example.com");
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+
+        verify(authenticationManager)
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
     @Test
@@ -142,15 +152,13 @@ class CredentialServiceTest {
         Credential result = credentialService.createCredential(request);
 
         assertThat(result).isNotNull();
-        verify(credentialRepository).save(argThat(c ->
-                c.getClass().equals(Credential.class)
-        ));
+        verify(credentialRepository).save(argThat(c -> c.getClass().equals(Credential.class)));
     }
 
     @Test
     @DisplayName("createCredential: crea credencial con rol explícito")
     void createCredential_createsWithExplicitRole() {
-        RoleDTO roleDTO = new RoleDTO("VISITOR", List.of());
+        RoleDTO roleDTO = new RoleDTO("VISITOR", Set.of());
 
         RegisterRequest request = new RegisterRequest();
         request.setEmail("visitor@example.com");
@@ -268,17 +276,18 @@ class CredentialServiceTest {
     @Test
     @DisplayName("getCredentialByUserId: retorna credencial si existe")
     void getCredentialByUserId_returnsCredentialIfFound() {
-        when(credentialRepository.findByUserId(1L)).thenReturn(Optional.of(credential));
+
+        when(credentialRepository.findByUserId(1L))
+                .thenReturn(Optional.of(credential));
+
+        when(credential.getEmail())
+                .thenReturn("test@example.com");
 
         Credential result = credentialService.getCredentialByUserId(1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getEmail()).isEqualTo("test@example.com");
     }
-
-    // ----------------------------------------------------------------
-    // getCredentialById
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("getCredentialById: lanza excepción si no existe")

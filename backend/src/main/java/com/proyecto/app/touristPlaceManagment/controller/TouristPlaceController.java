@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/places")
@@ -39,7 +38,7 @@ public class TouristPlaceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TouristPlaceResponse> getById(@PathVariable UUID id) {
+    public ResponseEntity<TouristPlaceResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(touristPlaceService.getById(id));
     }
 
@@ -60,13 +59,9 @@ public class TouristPlaceController {
     }
 
     @GetMapping("/{id}/activities")
-    public ResponseEntity<List<ActivityResponse>> getActivities(@PathVariable UUID id) {
+    public ResponseEntity<List<ActivityResponse>> getActivities(@PathVariable Long id) {
         return ResponseEntity.ok(activityService.getActivitiesByPlace(id));
     }
-
-    // ----------------------------------------------------------------
-    // WRITE — solo ADMINISTRATOR
-    // ----------------------------------------------------------------
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRATOR')")
@@ -77,14 +72,14 @@ public class TouristPlaceController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TouristPlaceResponse> update(
-            @PathVariable UUID id,
+            @PathVariable Long id,
             @Valid @RequestBody TouristPlaceRequest request) {
         return ResponseEntity.ok(touristPlaceService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         touristPlaceService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -92,7 +87,7 @@ public class TouristPlaceController {
     @PostMapping("/{id}/activities")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TouristPlaceResponse> addActivity(
-            @PathVariable UUID id,
+            @PathVariable Long id,
             @Valid @RequestBody ActivityRequest request) {
         return ResponseEntity.ok(activityService.addActivity(id, request));
     }
@@ -100,7 +95,7 @@ public class TouristPlaceController {
     @DeleteMapping("/{id}/activities/{activityId}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TouristPlaceResponse> removeActivity(
-            @PathVariable UUID id,
+            @PathVariable Long id,
             @PathVariable int activityId) {
         return ResponseEntity.ok(activityService.removeActivity(id, activityId));
     }

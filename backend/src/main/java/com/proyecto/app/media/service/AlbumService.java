@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,38 +29,38 @@ public class AlbumService {
         this.albumRepository = albumRepository;
     }
 
-    public AlbumResponse getAlbum(UUID placeId) {
+    public AlbumResponse getAlbum(Long placeId) {
         Album album = resolveAlbum(placeId);
         return toAlbumResponse(album);
     }
 
-    public List<PhotoResponse> getPhotos(UUID placeId) {
+    public List<PhotoResponse> getPhotos(Long placeId) {
         return resolveAlbum(placeId).getPhotos()
                 .stream()
                 .map(this::toPhotoResponse)
                 .collect(Collectors.toList());
     }
 
-    public PhotoResponse getCurrentPhoto(UUID placeId) {
+    public PhotoResponse getCurrentPhoto(Long placeId) {
         Album album = resolveAlbum(placeId);
         requireNonEmpty(album);
         return toPhotoResponse(album.getCurrent());
     }
 
-    public PhotoResponse nextPhoto(UUID placeId) {
+    public PhotoResponse nextPhoto(Long placeId) {
         Album album = resolveAlbum(placeId);
         requireNonEmpty(album);
         return toPhotoResponse(album.nextPhoto());
     }
 
-    public PhotoResponse previousPhoto(UUID placeId) {
+    public PhotoResponse previousPhoto(Long placeId) {
         Album album = resolveAlbum(placeId);
         requireNonEmpty(album);
         return toPhotoResponse(album.previousPhoto());
     }
 
     @Transactional
-    public AlbumResponse addPhoto(UUID placeId, PhotoRequest request) {
+    public AlbumResponse addPhoto(Long placeId, PhotoRequest request) {
         validatePhotoRequest(request);
         TouristPlace place = resolvePlaceOrThrow(placeId);
         place.getAlbum().insertPhoto(toPhoto(request));
@@ -70,7 +69,7 @@ public class AlbumService {
     }
 
     @Transactional
-    public AlbumResponse removePhotoByIndex(UUID placeId, int index) {
+    public AlbumResponse removePhotoByIndex(Long placeId, int index) {
         TouristPlace place = resolvePlaceOrThrow(placeId);
         Album album = place.getAlbum();
         List<Photo> photos = album.getPhotos();
@@ -84,11 +83,11 @@ public class AlbumService {
         return toAlbumResponse(album);
     }
 
-    private Album resolveAlbum(UUID placeId) {
+    private Album resolveAlbum(Long placeId) {
         return resolvePlaceOrThrow(placeId).getAlbum();
     }
 
-    private TouristPlace resolvePlaceOrThrow(UUID placeId) {
+    private TouristPlace resolvePlaceOrThrow(Long placeId) {
         return placeRepository.findById(placeId)
                 .orElseThrow(() -> new MediaNotFoundException("Lugar no encontrado: " + placeId));
     }

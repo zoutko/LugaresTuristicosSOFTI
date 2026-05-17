@@ -1,15 +1,23 @@
-package com.proyecto.app.tourManagment.exception;
+package com.proyecto.app.common;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.proyecto.app.tourManagment.exception.InvalidTourDataException;
+import com.proyecto.app.tourManagment.exception.TourNotFoundException;
+import com.proyecto.app.tourManagment.exception.TourOfferNotFoundException;
+import com.proyecto.app.tourManagment.exception.UserTypeNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(TourNotFoundException.class)

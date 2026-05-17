@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +26,7 @@ public class ActivityService {
         this.placeRepository = placeRepository;
     }
 
-    public List<ActivityResponse> getActivitiesByPlace(UUID placeId) {
+    public List<ActivityResponse> getActivitiesByPlace(Long placeId) {
         return touristPlaceService.resolveOrThrow(placeId).getActivities()
                 .stream()
                 .map(a -> new ActivityResponse(a.getId(), a.getDescription()))
@@ -35,7 +34,7 @@ public class ActivityService {
     }
 
     @Transactional
-    public TouristPlaceResponse addActivity(UUID placeId, ActivityRequest request) {
+    public TouristPlaceResponse addActivity(Long placeId, ActivityRequest request) {
         TouristPlace place = touristPlaceService.resolveOrThrow(placeId);
         Activity activity = new Activity();
         activity.setDescription(request.getDescription());
@@ -45,7 +44,7 @@ public class ActivityService {
     }
 
     @Transactional
-    public TouristPlaceResponse removeActivity(UUID placeId, int activityId) {
+    public TouristPlaceResponse removeActivity(Long placeId, int activityId) {
         TouristPlace place = touristPlaceService.resolveOrThrow(placeId);
         Activity activity = resolveActivityOrThrow(place, activityId);
         place.removeActivity(activity);
@@ -53,7 +52,7 @@ public class ActivityService {
         return touristPlaceService.getById(placeId);
     }
 
-    public ActivityResponse getActivityById(UUID placeId, int activityId) {
+    public ActivityResponse getActivityById(Long placeId, int activityId) {
         TouristPlace place = touristPlaceService.resolveOrThrow(placeId);
         Activity a = resolveActivityOrThrow(place, activityId);
         return new ActivityResponse(a.getId(), a.getDescription());
