@@ -21,7 +21,6 @@ public class TouristPlaceResponse {
     private UUID id;
     private String name;
     private String description;
-    private String cancelationPolicy;
     private String duration;
     private Environment environment;
     private Location location;
