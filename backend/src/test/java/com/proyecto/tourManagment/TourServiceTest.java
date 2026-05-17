@@ -7,7 +7,6 @@ import com.proyecto.app.common.Location;
 import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
 import com.proyecto.app.tourManagment.domain.*;
-import com.proyecto.app.tourManagment.dto.*;
 import com.proyecto.app.tourManagment.dto.request.CreateTourRequest;
 import com.proyecto.app.tourManagment.dto.request.DiscountRequest;
 import com.proyecto.app.tourManagment.dto.request.UpdateTourRequest;

@@ -1,6 +1,6 @@
 package com.proyecto.app.touristPlaceManagment.repository;
 
-import com.proyecto.app.common.Category;
+import com.proyecto.app.catalog.domain.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

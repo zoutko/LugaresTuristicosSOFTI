@@ -1,10 +1,12 @@
 package com.proyecto.app.tourManagment.dto.request;
 
-import java.util.List;
+import com.proyecto.app.common.Location;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,11 +15,10 @@ public class UpdateTourRequest {
 
     private String name;
     private List<Long> categoryIds;
-    private Long enviromentId;
+    private String environment;        // "INTERIOR", "MIXED", "EXTERIOR"
     private String description;
     private String recommendations;
     private Double price;
-    private Long locationId;
-    private Long meetingPointId;
-
- }
+    private Location location;
+    private Location meetingPoint;
+}

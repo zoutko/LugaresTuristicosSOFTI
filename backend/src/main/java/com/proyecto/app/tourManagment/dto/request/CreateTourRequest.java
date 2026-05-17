@@ -21,6 +21,6 @@ public class CreateTourRequest {
     private double price;
     private Location location;
     private Location meetingPoint;
-    private List<Long> itineraryPlaceIds;  // placeIds en orden
+    private List<Long> itineraryPlaceIds;
     private double basePrice;
 }

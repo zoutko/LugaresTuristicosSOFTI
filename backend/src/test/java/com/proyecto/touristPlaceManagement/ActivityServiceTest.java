@@ -1,4 +1,4 @@
-package com.proyecto.app.touristplaceManagment.service;
+package com.proyecto.touristPlaceManagement;
 
 import com.proyecto.app.touristPlaceManagment.domain.Activity;
 import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;

@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "discounts")
 @Getter
 @Setter
 @NoArgsConstructor
+@Entity
+@Table(name = "discounts")
 public class Discount {
 
     @Id
