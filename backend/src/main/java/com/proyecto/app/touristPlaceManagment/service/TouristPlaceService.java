@@ -82,7 +82,7 @@ public class TouristPlaceService {
         placeRepository.delete(place);
     }
 
-    TouristPlace resolveOrThrow(UUID id) {
+    public TouristPlace resolveOrThrow(UUID id) {
         return placeRepository.findById(id)
                 .orElseThrow(() -> new TouristPlaceNotFoundException(id.toString()));
     }
