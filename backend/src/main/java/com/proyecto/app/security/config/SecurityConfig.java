@@ -50,6 +50,10 @@ public class SecurityConfig {
                                 "/places/**",
                                 "/h2-console/**")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tours/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/tours/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/tours/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/tours/**").hasRole("ADMINISTRATOR")
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

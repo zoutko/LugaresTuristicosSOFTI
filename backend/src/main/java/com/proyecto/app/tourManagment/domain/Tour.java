@@ -3,6 +3,8 @@ package com.proyecto.app.tourManagment.domain;
 import com.proyecto.app.catalog.domain.Category;
 import com.proyecto.app.common.Environment;
 import com.proyecto.app.common.Location;
+import com.proyecto.app.media.domain.Album;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -70,4 +72,8 @@ public class Tour {
 
     @OneToOne(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
     private TourOffer tourOffer;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "album_id")
+    private Album album;
 }

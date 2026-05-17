@@ -3,6 +3,10 @@ package com.proyecto.app.tourManagment.service;
 import com.proyecto.app.catalog.domain.Category;
 import com.proyecto.app.catalog.repository.CategoryRepository;
 import com.proyecto.app.common.Environment;
+import com.proyecto.app.media.domain.Album;
+import com.proyecto.app.media.dto.response.AlbumResponse;
+import com.proyecto.app.media.dto.response.PhotoResponse;
+import com.proyecto.app.media.service.AlbumService;
 import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
 import com.proyecto.app.tourManagment.domain.*;
@@ -31,19 +35,22 @@ public class TourService {
     private final UserTypeRepository userTypeRepository;
     private final CategoryRepository categoryRepository;
     private final TouristPlaceRepository touristPlaceRepository;
+    private final AlbumService albumService;
 
     public TourService(TourRepository tourRepository,
                        TourOfferRepository tourOfferRepository,
                        ItineraryRepository itineraryRepository,
                        UserTypeRepository userTypeRepository,
                        CategoryRepository categoryRepository,
-                       TouristPlaceRepository touristPlaceRepository) {
+                       TouristPlaceRepository touristPlaceRepository,
+                       AlbumService albumService) {
         this.tourRepository = tourRepository;
         this.tourOfferRepository = tourOfferRepository;
         this.itineraryRepository = itineraryRepository;
         this.userTypeRepository = userTypeRepository;
         this.categoryRepository = categoryRepository;
         this.touristPlaceRepository = touristPlaceRepository;
+        this.albumService = albumService;
     }
 
     // ── TOUR CRUD ──────────────────────────────────
@@ -73,18 +80,17 @@ public class TourService {
             }
         }
 
-        if (request.getLocation() != null) {
-            tour.setLocation(request.getLocation());
-        }
-
-        if (request.getMeetingPoint() != null) {
-            tour.setMeetingPoint(request.getMeetingPoint());
-        }
+        if (request.getLocation() != null)     tour.setLocation(request.getLocation());
+        if (request.getMeetingPoint() != null) tour.setMeetingPoint(request.getMeetingPoint());
 
         if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
             List<Category> categories = categoryRepository.findAllById(request.getCategoryIds());
             tour.setCategories(categories);
         }
+
+        // Álbum — se crea automáticamente al crear el tour
+        Album album = albumService.findOrCreate("tour-" + request.getName());
+        tour.setAlbum(album);
 
         Tour saved = tourRepository.save(tour);
 
@@ -190,8 +196,7 @@ public class TourService {
         }
 
         int nextPosition = itineraryRepository.findByTourIdOrderByPositionAsc(tourId).size() + 1;
-        Itinerary item = new Itinerary(tour, place, nextPosition);
-        itineraryRepository.save(item);
+        itineraryRepository.save(new Itinerary(tour, place, nextPosition));
 
         return toResponse(tourRepository.findById(tourId).get());
     }
@@ -203,7 +208,6 @@ public class TourService {
         }
         itineraryRepository.deleteByTourIdAndTouristPlaceId(tourId, placeId);
 
-        // Reordenar posiciones
         List<Itinerary> remaining = itineraryRepository.findByTourIdOrderByPositionAsc(tourId);
         for (int i = 0; i < remaining.size(); i++) {
             remaining.get(i).setPosition(i + 1);
@@ -294,6 +298,27 @@ public class TourService {
 
         if (tour.getTourOffer() != null)
             response.setTourOffer(toOfferResponse(tour.getTourOffer()));
+
+        // Álbum
+        if (tour.getAlbum() != null) {
+            List<PhotoResponse> photos = tour.getAlbum().getPhotos().stream()
+                .map(p -> new PhotoResponse(p.getFilePath(), p.getFileName(), p.getDescription()))
+                .collect(Collectors.toList());
+
+            PhotoResponse current = tour.getAlbum().getCurrent() != null
+                ? new PhotoResponse(
+                    tour.getAlbum().getCurrent().getFilePath(),
+                    tour.getAlbum().getCurrent().getFileName(),
+                    tour.getAlbum().getCurrent().getDescription())
+                : null;
+
+            response.setAlbum(new AlbumResponse(
+                tour.getAlbum().getCurrentIndex(),
+                tour.getAlbum().getPhotos().size(),
+                current,
+                photos
+            ));
+        }
 
         return response;
     }
