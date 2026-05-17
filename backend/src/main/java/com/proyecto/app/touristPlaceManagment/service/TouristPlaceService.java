@@ -102,7 +102,6 @@ public class TouristPlaceService {
     private void applyUpdate(TouristPlace p, TouristPlaceRequest req) {
         p.setName(req.getName());
         p.setDescription(req.getDescription());
-        p.setCancelationPolicy(req.getCancelationPolicy());
         p.setDuration(req.getDuration());
         p.setEnvironment(req.getEnvironment());
         p.setLocation(req.getLocation());
@@ -134,7 +133,6 @@ return TouristPlaceResponse.builder()
         .id(p.getId())
         .name(p.getName())
         .description(p.getDescription())
-        .cancelationPolicy(p.getCancelationPolicy())
         .duration(p.getDuration())
         .environment(p.getEnvironment())
         .location(p.getLocation())
