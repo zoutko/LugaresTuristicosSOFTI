@@ -42,7 +42,7 @@ public class TouristPlace {
     private Location location;
 
 
-    @ManyToOne(cascade = CascadeType.PERSIST) //Implementar en tour
+    @ManyToOne(cascade = CascadeType.PERSIST) //Implementar en modulo tour 
     @JoinColumn(name = "album_id")
     private Album album;
 
