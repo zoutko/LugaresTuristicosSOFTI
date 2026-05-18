@@ -3,6 +3,7 @@ package com.proyecto.app.tourManagment.controller;
 import com.proyecto.app.tourManagment.dto.*;
 import com.proyecto.app.tourManagment.dto.request.CreateTourRequest;
 import com.proyecto.app.tourManagment.dto.request.DiscountRequest;
+import com.proyecto.app.tourManagment.dto.request.TourFilterRequest;
 import com.proyecto.app.tourManagment.dto.request.UpdateTourRequest;
 import com.proyecto.app.tourManagment.dto.response.TourOfferResponse;
 import com.proyecto.app.tourManagment.dto.response.TourResponse;
@@ -93,5 +94,21 @@ public class TourController {
             @PathVariable Long tourId,
             @PathVariable Long discountId) {
         return ResponseEntity.ok(tourService.removeDiscount(tourId, discountId));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<TourResponse>> filterTours(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) List<String> environments,
+            @RequestParam(required = false) List<Long> categoryIds,
+            @RequestParam(required = false) Double maxPrice) {
+
+        TourFilterRequest filters = new TourFilterRequest();
+        filters.setName(name);
+        filters.setEnvironments(environments);
+        filters.setCategoryIds(categoryIds);
+        filters.setMaxPrice(maxPrice);
+
+        return ResponseEntity.ok(tourService.filterTours(filters));
     }
 }

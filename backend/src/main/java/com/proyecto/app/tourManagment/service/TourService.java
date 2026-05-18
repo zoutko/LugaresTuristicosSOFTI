@@ -7,11 +7,11 @@ import com.proyecto.app.media.domain.Album;
 import com.proyecto.app.media.dto.response.AlbumResponse;
 import com.proyecto.app.media.dto.response.PhotoResponse;
 import com.proyecto.app.media.service.AlbumService;
-import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
 import com.proyecto.app.tourManagment.domain.*;
 import com.proyecto.app.tourManagment.dto.request.CreateTourRequest;
 import com.proyecto.app.tourManagment.dto.request.DiscountRequest;
+import com.proyecto.app.tourManagment.dto.request.TourFilterRequest;
 import com.proyecto.app.tourManagment.dto.request.UpdateTourRequest;
 import com.proyecto.app.tourManagment.dto.response.DiscountResponse;
 import com.proyecto.app.tourManagment.dto.response.ItineraryItemResponse;
@@ -19,6 +19,8 @@ import com.proyecto.app.tourManagment.dto.response.TourOfferResponse;
 import com.proyecto.app.tourManagment.dto.response.TourResponse;
 import com.proyecto.app.tourManagment.exception.*;
 import com.proyecto.app.tourManagment.repository.*;
+
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,10 +101,11 @@ public class TourService {
             List<Itinerary> items = new ArrayList<>();
             for (int i = 0; i < request.getItineraryPlaceIds().size(); i++) {
                 Long placeId = request.getItineraryPlaceIds().get(i);
-                TouristPlace place = touristPlaceRepository.findById(placeId)
-                        .orElseThrow(() -> new InvalidTourDataException(
-                            "TouristPlace no encontrado con id: " + placeId));
-                items.add(new Itinerary(saved, place, i + 1));
+                if (!touristPlaceRepository.existsById(placeId)) {
+                throw new InvalidTourDataException(
+                    "TouristPlace no encontrado con id: " + placeId);
+            }
+            items.add(new Itinerary(saved, placeId, i + 1));
             }
             itineraryRepository.saveAll(items);
             saved.setItinerary(items);
@@ -183,22 +186,20 @@ public class TourService {
     public TourResponse addPlaceToItinerary(Long tourId, Long placeId) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new TourNotFoundException(tourId));
-        TouristPlace place = touristPlaceRepository.findById(placeId)
-                .orElseThrow(() -> new InvalidTourDataException(
-                    "TouristPlace no encontrado con id: " + placeId));
-
-        boolean alreadyExists = itineraryRepository
-                .findByTourIdOrderByPositionAsc(tourId).stream()
-                .anyMatch(i -> i.getTouristPlace().getId().equals(placeId));
-        if (alreadyExists) {
-            throw new InvalidTourDataException(
-                "El lugar con id " + placeId + " ya existe en el itinerario del tour");
-        }
-
-        int nextPosition = itineraryRepository.findByTourIdOrderByPositionAsc(tourId).size() + 1;
-        itineraryRepository.save(new Itinerary(tour, place, nextPosition));
-
-        return toResponse(tourRepository.findById(tourId).get());
+        if (!touristPlaceRepository.existsById(placeId)) {
+    throw new InvalidTourDataException(
+        "TouristPlace no encontrado con id: " + placeId);
+}
+boolean alreadyExists = itineraryRepository
+        .findByTourIdOrderByPositionAsc(tourId).stream()
+        .anyMatch(i -> i.getTouristPlaceId().equals(placeId));
+            if (alreadyExists) {
+                throw new InvalidTourDataException(
+                    "El lugar con id " + placeId + " ya existe en el itinerario del tour");
+            }
+            int nextPosition = itineraryRepository.findByTourIdOrderByPositionAsc(tourId).size() + 1;
+            itineraryRepository.save(new Itinerary(tour, placeId, nextPosition));
+                    return toResponse(tourRepository.findById(tourId).get());
     }
 
     @Transactional
@@ -291,8 +292,8 @@ public class TourService {
                 .map(i -> new ItineraryItemResponse(
                     i.getId(),
                     i.getPosition(),
-                    i.getTouristPlace().getId(),
-                    i.getTouristPlace().getName()))
+                    i.getTouristPlaceId(),
+                    null))
                 .collect(Collectors.toList())
         );
 
@@ -328,5 +329,13 @@ public class TourService {
                 .map(d -> new DiscountResponse(d.getId(), d.getUserType().getName(), d.getPercentage()))
                 .collect(Collectors.toList());
         return new TourOfferResponse(offer.getId(), offer.getBasePrice(), discounts);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TourResponse> filterTours(TourFilterRequest filters) {
+        Specification<Tour> spec = TourSpecification.withFilters(filters);
+        return tourRepository.findAll(spec).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 }

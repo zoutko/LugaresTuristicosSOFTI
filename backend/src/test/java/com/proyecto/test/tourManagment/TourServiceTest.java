@@ -4,11 +4,11 @@ import com.proyecto.app.catalog.domain.Category;
 import com.proyecto.app.catalog.repository.CategoryRepository;
 import com.proyecto.app.common.Environment;
 import com.proyecto.app.common.Location;
-import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
 import com.proyecto.app.tourManagment.domain.*;
 import com.proyecto.app.tourManagment.dto.request.CreateTourRequest;
 import com.proyecto.app.tourManagment.dto.request.DiscountRequest;
+import com.proyecto.app.tourManagment.dto.request.TourFilterRequest;
 import com.proyecto.app.tourManagment.dto.request.UpdateTourRequest;
 import com.proyecto.app.tourManagment.dto.response.TourOfferResponse;
 import com.proyecto.app.tourManagment.dto.response.TourResponse;
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 class TourServiceTest {
 
@@ -48,7 +50,6 @@ class TourServiceTest {
 
     private Tour tour;
     private TourOffer tourOffer;
-    private TouristPlace touristPlace;
     private UserType userType;
     private Category category;
     private Location location;
@@ -68,10 +69,6 @@ class TourServiceTest {
         userType = new UserType();
         userType.setId(1L);
         userType.setName("STUDENT");
-
-        touristPlace = new TouristPlace();
-        touristPlace.setId(1L);
-        touristPlace.setName("Monserrate");
 
         tour = new Tour();
         tour.setId(1L);
@@ -98,7 +95,7 @@ class TourServiceTest {
         CreateTourRequest request = buildCreateRequest();
 
         when(categoryRepository.findAllById(any())).thenReturn(List.of(category));
-        when(touristPlaceRepository.findById(1L)).thenReturn(Optional.of(touristPlace));
+        when(touristPlaceRepository.existsById(1L)).thenReturn(true);
         when(tourRepository.save(any())).thenReturn(tour);
         when(itineraryRepository.saveAll(any())).thenReturn(List.of());
         when(tourOfferRepository.save(any())).thenReturn(tourOffer);
@@ -153,7 +150,7 @@ class TourServiceTest {
 
         when(categoryRepository.findAllById(any())).thenReturn(List.of(category));
         when(tourRepository.save(any())).thenReturn(tour);
-        when(touristPlaceRepository.findById(1L)).thenReturn(Optional.empty());
+        when(touristPlaceRepository.existsById(1L)).thenReturn(false);
 
         assertThrows(InvalidTourDataException.class, () -> tourService.createTour(request));
     }
@@ -282,9 +279,9 @@ class TourServiceTest {
     @Test
     void addPlaceToItinerary_exitoso() {
         when(tourRepository.findById(1L)).thenReturn(Optional.of(tour));
-        when(touristPlaceRepository.findById(1L)).thenReturn(Optional.of(touristPlace));
+        when(touristPlaceRepository.existsById(1L)).thenReturn(true);
         when(itineraryRepository.findByTourIdOrderByPositionAsc(1L)).thenReturn(new ArrayList<>());
-        when(itineraryRepository.save(any())).thenReturn(new Itinerary(tour, touristPlace, 1));
+        when(itineraryRepository.save(any())).thenReturn(new Itinerary(tour, 1L, 1));
 
         TourResponse response = tourService.addPlaceToItinerary(1L, 1L);
 
@@ -303,7 +300,7 @@ class TourServiceTest {
     @Test
     void addPlaceToItinerary_placeNoExiste_lanzaInvalidTourDataException() {
         when(tourRepository.findById(1L)).thenReturn(Optional.of(tour));
-        when(touristPlaceRepository.findById(99L)).thenReturn(Optional.empty());
+        when(touristPlaceRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(InvalidTourDataException.class,
                 () -> tourService.addPlaceToItinerary(1L, 99L));
@@ -311,9 +308,9 @@ class TourServiceTest {
 
     @Test
     void addPlaceToItinerary_placeDuplicado_lanzaInvalidTourDataException() {
-        Itinerary existingItem = new Itinerary(tour, touristPlace, 1);
+        Itinerary existingItem = new Itinerary(tour, 1L, 1);
         when(tourRepository.findById(1L)).thenReturn(Optional.of(tour));
-        when(touristPlaceRepository.findById(1L)).thenReturn(Optional.of(touristPlace));
+        when(touristPlaceRepository.existsById(1L)).thenReturn(true);
         when(itineraryRepository.findByTourIdOrderByPositionAsc(1L))
                 .thenReturn(new ArrayList<>(List.of(existingItem)));
 
@@ -453,6 +450,107 @@ class TourServiceTest {
 
         assertThrows(InvalidTourDataException.class,
                 () -> tourService.removeDiscount(1L, 999L));
+    }
+
+    // ── filterTours ────────────────────────────────
+
+    @Test
+    void filterTours_sinFiltros_retornaTodos() {
+        when(tourRepository.findAll(any(Specification.class))).thenReturn(List.of(tour));
+        when(itineraryRepository.findByTourIdOrderByPositionAsc(1L)).thenReturn(List.of());
+
+        TourFilterRequest filters = new TourFilterRequest();
+        List<TourResponse> result = tourService.filterTours(filters);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void filterTours_conNombre_retornaCoincidencias() {
+        when(tourRepository.findAll(any(Specification.class))).thenReturn(List.of(tour));
+        when(itineraryRepository.findByTourIdOrderByPositionAsc(1L)).thenReturn(List.of());
+
+        TourFilterRequest filters = new TourFilterRequest();
+        filters.setName("Bogotá");
+
+        List<TourResponse> result = tourService.filterTours(filters);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Tour Bogotá", result.get(0).getName());
+    }
+
+    @Test
+    void filterTours_sinCoincidencias_retornaListaVacia() {
+        when(tourRepository.findAll(any(Specification.class))).thenReturn(List.of());
+
+        TourFilterRequest filters = new TourFilterRequest();
+        filters.setName("xyz_no_existe");
+
+        List<TourResponse> result = tourService.filterTours(filters);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void filterTours_conEnvironment_retornaFiltrados() {
+        when(tourRepository.findAll(any(Specification.class))).thenReturn(List.of(tour));
+        when(itineraryRepository.findByTourIdOrderByPositionAsc(1L)).thenReturn(List.of());
+
+        TourFilterRequest filters = new TourFilterRequest();
+        filters.setEnvironments(List.of("EXTERIOR"));
+
+        List<TourResponse> result = tourService.filterTours(filters);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void filterTours_conMaxPrice_retornaFiltrados() {
+        when(tourRepository.findAll(any(Specification.class))).thenReturn(List.of(tour));
+        when(itineraryRepository.findByTourIdOrderByPositionAsc(1L)).thenReturn(List.of());
+
+        TourFilterRequest filters = new TourFilterRequest();
+        filters.setMaxPrice(200000.0);
+
+        List<TourResponse> result = tourService.filterTours(filters);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void filterTours_conCategorias_retornaFiltrados() {
+        when(tourRepository.findAll(any(Specification.class))).thenReturn(List.of(tour));
+        when(itineraryRepository.findByTourIdOrderByPositionAsc(1L)).thenReturn(List.of());
+
+        TourFilterRequest filters = new TourFilterRequest();
+        filters.setCategoryIds(List.of(1L));
+
+        List<TourResponse> result = tourService.filterTours(filters);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void filterTours_filtrosCombinados_retornaFiltrados() {
+        when(tourRepository.findAll(any(Specification.class))).thenReturn(List.of(tour));
+        when(itineraryRepository.findByTourIdOrderByPositionAsc(1L)).thenReturn(List.of());
+
+        TourFilterRequest filters = new TourFilterRequest();
+        filters.setName("Bogotá");
+        filters.setEnvironments(List.of("EXTERIOR"));
+        filters.setMaxPrice(200000.0);
+        filters.setCategoryIds(List.of(1L));
+
+        List<TourResponse> result = tourService.filterTours(filters);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
     }
 
     // ── Helper ─────────────────────────────────────
