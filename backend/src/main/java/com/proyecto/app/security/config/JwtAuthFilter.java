@@ -45,13 +45,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
+<<<<<<< HEAD
             // Cargamos Credential directamente (ya implementa UserDetails y tiene userId)
+=======
+
+>>>>>>> origin/feat/users-front-end
             Credential credential = credentialRepository.findByEmail(email).orElse(null);
 
             if (credential != null && tokenService.validateToken(token, credential)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                credential,      // ← principal ES el Credential con userId
+                                credential,      
                                 null,
                                 credential.getAuthorities()
                         );

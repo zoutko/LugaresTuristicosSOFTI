@@ -43,7 +43,7 @@ export class AuthPage {
   constructor(
     private readonly router: Router,
     private readonly authApi: AuthService,
-    private readonly userApi: UserService
+    private readonly userApi: UserService,
   ) {}
 
   openRecoverModal(): void {
@@ -97,7 +97,7 @@ export class AuthPage {
           localStorage.setItem('auth.token', res.token);
           localStorage.setItem('auth.email', res.email);
           localStorage.setItem('auth.role', res.role);
-         // localStorage.setItem('auth.userId', res.userId.toString());
+          localStorage.setItem('auth.userId', res.userId.toString());
           this.loginSuccessMessage = 'Inicio de sesión exitoso.';
 
           this.loginEmail = '';
@@ -135,63 +135,33 @@ export class AuthPage {
 
   this.isRegistering = true;
 
-  // PASO 1: crear usuario
-  this.userApi.createUser({ name, document, roleName: 'USER',phoneNumbers: phoneNumber ? [phoneNumber] : [], email, password })
-    .subscribe({
-      next: (userResponse) => {
-        this.authApi.register({
-          email,
-          password,       
-          role: { name: 'USER' }
-        }).subscribe({
-          next: () => {
-            this.isRegistering = false;
-            this.toastVariant = 'success';
-            this.toastMessage = 'Cuenta creada exitosamente.';
-            this.toastOpen = true;
-            this.registerName = '';
-            this.registerEmail = '';
-            this.registerPhoneNumber = '';
-            this.registerDocument = '';
-            this.registerPassword = '';
-            this.registerConfirmPassword = '';
-            this.loginEmail = email;
-          },
-          error: () => {
-            this.isRegistering = false;
-            this.registerErrorMessage = 'Error al crear credencial.';
-          }
-        });
-      },
-      error: () => {
-        this.isRegistering = false;
-        this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
-      }
-    });
-    /*this.authApi
-      .register({ name, email, document, phoneNumber: phoneNumber || undefined, password })
-      .subscribe({
-        next: () => {
-          this.isRegistering = false;
+  // Una sola llamada a /api/users/register
+  this.userApi.createUser({
+    name,
+    email,
+    password,
+    document,
+    phoneNumbers: phoneNumber ? [phoneNumber] : [],
+    roleName: 'USER'
+  }).subscribe({
+    next: () => {
+      this.isRegistering = false;
+      this.toastVariant = 'success';
+      this.toastMessage = 'Cuenta creada exitosamente.';
+      this.toastOpen = true;
+      this.registerName = '';
+      this.registerEmail = '';
+      this.registerPhoneNumber = '';
+      this.registerDocument = '';
+      this.registerPassword = '';
+      this.registerConfirmPassword = '';
+      this.loginEmail = email;
+    },
+    error: () => {
+      this.isRegistering = false;
+      this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
+    }
+  });
 
-          this.toastVariant = 'success';
-          this.toastMessage = 'Cuenta creada exitosamente.';
-          this.toastOpen = true;
-
-          this.registerName = '';
-          this.registerEmail = '';
-          this.registerPhoneNumber = '';
-          this.registerDocument = '';
-          this.registerPassword = '';
-          this.registerConfirmPassword = '';
-
-          this.loginEmail = email;
-          this.loginPassword = '';
-        },
-        error: () => {
-          this.isRegistering = false;
-          this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
-        },
-      });*/
 }
 }
