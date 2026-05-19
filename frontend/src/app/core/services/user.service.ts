@@ -92,6 +92,7 @@ export class UserService {
    * Obtener perfil de usuario
    * GET /api/users/{userId}
    */
+  
   getProfile(userId: number): Observable<UserResponse> {
     return this.http.get<UserResponse>(`/api/users/${userId}`);
   }
@@ -150,4 +151,8 @@ export class UserService {
   deleteContact(userId: number, contactId: number): Observable<void> {
     return this.http.delete<void>(`/api/users/${userId}/contacts/${contactId}`);
   }
+
+  createUser(request: Omit<CreateUserRequest, 'password'>): Observable<UserResponse> {
+  return this.http.post<UserResponse>('/api/users/register', request);
+}
 }

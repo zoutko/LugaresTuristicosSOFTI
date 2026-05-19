@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { RecoverPasswordModalComponent } from '../recover-password-modal/recover-password-modal';
 import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-auth-page',
@@ -41,7 +42,8 @@ export class AuthPage {
 
   constructor(
     private readonly router: Router,
-    private readonly authApi: AuthService
+    private readonly authApi: AuthService,
+    //private readonly userApi: UserService
   ) {}
 
   openRecoverModal(): void {
@@ -95,6 +97,7 @@ export class AuthPage {
           localStorage.setItem('auth.token', res.token);
           localStorage.setItem('auth.email', res.email);
           localStorage.setItem('auth.role', res.role);
+         // localStorage.setItem('auth.userId', res.userId.toString());
           this.loginSuccessMessage = 'Inicio de sesión exitoso.';
 
           this.loginEmail = '';
@@ -111,29 +114,62 @@ export class AuthPage {
     });
   }
 
-  submitRegister(): void {
-    if (this.isRegistering) return;
+ submitRegister(): void {
+  if (this.isRegistering) return;
+  this.registerErrorMessage = '';
 
-    this.registerErrorMessage = '';
+  const name = this.registerName.trim();
+  const email = this.registerEmail.trim();
+  const phoneNumber = this.registerPhoneNumber.trim();
+  const document = this.registerDocument.trim();
+  const password = this.registerPassword;
 
-    const name = this.registerName.trim();
-    const email = this.registerEmail.trim();
-    const phoneNumber = this.registerPhoneNumber.trim();
-    const document = this.registerDocument.trim();
-    const password = this.registerPassword;
+  if (!name || !email || !document || !password) {
+    this.registerErrorMessage = 'Completa los campos obligatorios.';
+    return;
+  }
+  if (password !== this.registerConfirmPassword) {
+    this.registerErrorMessage = 'Las contraseñas no coinciden.';
+    return;
+  }
 
-    if (!name || !email || !document || !password) {
-      this.registerErrorMessage = 'Completa los campos obligatorios.';
-      return;
-    }
+  this.isRegistering = true;
 
-    if (password !== this.registerConfirmPassword) {
-      this.registerErrorMessage = 'Las contraseñas no coinciden.';
-      return;
-    }
-
-    this.isRegistering = true;
-
+  // PASO 1: crear usuario
+  /*this.userApi.createUser({ name, email, document, phoneNumbers: phoneNumber ? [phoneNumber] : [] , roleName: 'USER'})
+    .subscribe({
+      next: (userResponse) => {
+        // PASO 2: crear credencial con el userId generado
+        this.authApi.register({
+          email,
+          userId: userResponse.id,    
+          password,       
+          role: { name: 'USER' }
+        }).subscribe({
+          next: () => {
+            this.isRegistering = false;
+            this.toastVariant = 'success';
+            this.toastMessage = 'Cuenta creada exitosamente.';
+            this.toastOpen = true;
+            this.registerName = '';
+            this.registerEmail = '';
+            this.registerPhoneNumber = '';
+            this.registerDocument = '';
+            this.registerPassword = '';
+            this.registerConfirmPassword = '';
+            this.loginEmail = email;
+          },
+          error: () => {
+            this.isRegistering = false;
+            this.registerErrorMessage = 'Error al crear credencial.';
+          }
+        });
+      },
+      error: () => {
+        this.isRegistering = false;
+        this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
+      }
+    });*/
     this.authApi
       .register({ name, email, document, phoneNumber: phoneNumber || undefined, password })
       .subscribe({
@@ -159,5 +195,5 @@ export class AuthPage {
           this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
         },
       });
-  }
+}
 }

@@ -81,7 +81,7 @@ public class UserService {
         User user = new User(profile);
         userRepository.save(user);
 
-        
+        System.out.println("🔵 userId antes de crear Credential: " + user.getId());
         RoleDTO roleDTO = new RoleDTO(role.getNameRole(), role.getPermissions());
         RegisterRequest registerRequest = new RegisterRequest(
                 request.getEmail(),

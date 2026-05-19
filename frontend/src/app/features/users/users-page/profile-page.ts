@@ -43,7 +43,7 @@ export class ProfilePage implements OnInit {
 
   // Métodos de navegación
 goToMisRecorridos(): void {
-    this.router.navigate(['/mis-recorridos']);
+    this.router.navigate(['/mis-reservas']);
 }
 
 goToRecorridosGuardados(): void {
@@ -61,8 +61,16 @@ goToConfiguracion(): void {
   private loadProfile(): void {
     // TODO: Obtener el userId real del token cuando el backend lo incluya
     // Por ahora usamos ID 1 como temporal
-    const userId = 1;
+    //const userIdStr = localStorage.getItem('1');
+    const userIdStr = '1';
+    if (!userIdStr) {
+    this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
+    this.loading = false;
+    return;
+  }
     
+    const userId = parseInt(userIdStr, 10);
+
     this.userService.getProfile(userId).subscribe({
       next: (data) => {
         this.user = data;
