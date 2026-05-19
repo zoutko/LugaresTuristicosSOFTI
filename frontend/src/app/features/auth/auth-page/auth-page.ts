@@ -43,10 +43,7 @@ export class AuthPage {
   constructor(
     private readonly router: Router,
     private readonly authApi: AuthService,
-<<<<<<< HEAD
-=======
     private readonly userApi: UserService
->>>>>>> 1fed592c375e04e377e04453a2c4ce6d720a6850
   ) {}
 
   openRecoverModal(): void {
@@ -142,7 +139,6 @@ export class AuthPage {
   this.userApi.createUser({ name, document, roleName: 'USER',phoneNumbers: phoneNumber ? [phoneNumber] : [], email, password })
     .subscribe({
       next: (userResponse) => {
-        console.log('USER ID FROM CREATE USER FRONT->' + userResponse.id )
         this.authApi.register({
           email,
           password,       
