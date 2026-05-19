@@ -42,7 +42,7 @@ export class ProfilePage implements OnInit {
   }
 
   // Métodos de navegación
-goToMisRecorridos(): void {
+goToMisReservas(): void {
     this.router.navigate(['/mis-reservas']);
 }
 

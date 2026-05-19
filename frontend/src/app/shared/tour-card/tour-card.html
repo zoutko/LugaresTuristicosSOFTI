@@ -1,0 +1,19 @@
+<div class="tour-card">
+  <div class="tour-image" *ngIf="tour.imagen">
+    <img [src]="tour.imagen" [alt]="tour.titulo">
+  </div>
+  <div class="tour-info">
+    <div class="tour-city">{{ tour.ciudad }}</div>
+    <h3 class="tour-title">{{ tour.titulo }}</h3>
+    <div class="tour-tags">
+      @for (tag of tour.etiquetas; track $index) {
+        <span class="tag">{{ getTagName(tag) }}</span>
+      }
+    </div>
+    <div class="tour-price">{{ formatPrice(tour.precio) }}</div>
+    <div class="tour-actions">
+      <button class="btn-view" (click)="onView()">Ver</button>
+      <button class="btn-remove" *ngIf="showRemoveButton" (click)="onRemove()">Eliminar</button>
+    </div>
+  </div>
+</div>
