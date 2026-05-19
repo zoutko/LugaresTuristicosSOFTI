@@ -8,7 +8,6 @@ import com.proyecto.app.media.dto.response.AlbumResponse;
 import com.proyecto.app.media.dto.response.PhotoResponse;
 import com.proyecto.app.media.service.AlbumService;
 import com.proyecto.app.touristPlaceManagment.api.PlaceQueryService;
-import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
 import com.proyecto.app.tourManagment.domain.*;
 import com.proyecto.app.tourManagment.dto.request.CreateTourRequest;
 import com.proyecto.app.tourManagment.dto.request.DiscountRequest;
@@ -46,8 +45,8 @@ public class TourService {
             ItineraryRepository itineraryRepository,
             UserTypeRepository userTypeRepository,
             CategoryRepository categoryRepository,
-            TouristPlaceRepository touristPlaceRepository,
-            AlbumService albumService, PlaceQueryService placeQueryService,
+            AlbumService albumService,
+            PlaceQueryService placeQueryService,
             TourEnvironmentValidator environmentValidator) {
         this.tourRepository = tourRepository;
         this.tourOfferRepository = tourOfferRepository;

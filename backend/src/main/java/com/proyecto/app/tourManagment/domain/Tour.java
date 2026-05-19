@@ -13,7 +13,6 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,11 +28,7 @@ public class Tour {
     private String name;
 
     @ManyToMany
-    @JoinTable(
-        name = "tour_categories",
-        joinColumns = @JoinColumn(name = "tour_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @JoinTable(name = "tour_categories", joinColumns = @JoinColumn(name = "tour_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     private List<Category> categories = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -54,21 +49,21 @@ public class Tour {
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(name = "city",       column = @Column(name = "location_city")),
-        @AttributeOverride(name = "department", column = @Column(name = "location_department")),
-        @AttributeOverride(name = "country",    column = @Column(name = "location_country")),
-        @AttributeOverride(name = "latitude",   column = @Column(name = "location_latitude")),
-        @AttributeOverride(name = "longitude",  column = @Column(name = "location_longitude"))
+            @AttributeOverride(name = "city", column = @Column(name = "location_city")),
+            @AttributeOverride(name = "department", column = @Column(name = "location_department")),
+            @AttributeOverride(name = "country", column = @Column(name = "location_country")),
+            @AttributeOverride(name = "latitude", column = @Column(name = "location_latitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "location_longitude"))
     })
     private Location location;
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(name = "city",       column = @Column(name = "meeting_point_city")),
-        @AttributeOverride(name = "department", column = @Column(name = "meeting_point_department")),
-        @AttributeOverride(name = "country",    column = @Column(name = "meeting_point_country")),
-        @AttributeOverride(name = "latitude",   column = @Column(name = "meeting_point_latitude")),
-        @AttributeOverride(name = "longitude",  column = @Column(name = "location_longitude"))
+            @AttributeOverride(name = "city", column = @Column(name = "meeting_point_city")),
+            @AttributeOverride(name = "department", column = @Column(name = "meeting_point_department")),
+            @AttributeOverride(name = "country", column = @Column(name = "meeting_point_country")),
+            @AttributeOverride(name = "latitude", column = @Column(name = "meeting_point_latitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "meeting_point_longitude"))
     })
     private Location meetingPoint;
 

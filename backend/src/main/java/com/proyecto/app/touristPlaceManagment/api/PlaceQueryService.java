@@ -8,7 +8,7 @@ import com.proyecto.app.touristPlaceManagment.dto.response.TouristPlaceResponse;
 public interface PlaceQueryService {
     TouristPlaceResponse findById(Long placeId);
     boolean exists(Long placeId);
-    List<TouristPlaceResponse> findByIds(List<Long> placeIds);
+    List<TouristPlaceResponse> findAllByIds(List<Long> placeIds);
     Environment getEnvironment(Long placeId);
 
 }
