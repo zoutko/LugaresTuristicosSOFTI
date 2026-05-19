@@ -1,4 +1,4 @@
-package com.proyecto.app.common;
+package com.proyecto.app.catalog.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -18,6 +18,10 @@ public class Category {
     private String name;
 
     public Category() {}
+
+    public Category(String name) {
+        this.name = name;
+    }
 
     public boolean hasName(String name) {
         return this.name.equalsIgnoreCase(name);

@@ -1,84 +1,79 @@
 package com.proyecto.app.tourManagment.domain;
 
-import java.util.List;
-
-import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
-import com.proyecto.app.common.Category;
+import com.proyecto.app.catalog.domain.Category;
 import com.proyecto.app.common.Environment;
 import com.proyecto.app.common.Location;
+import com.proyecto.app.media.domain.Album;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "tours")
 public class Tour {
-    private long id;
-    private String name;
-    private Category categories;
-    private Environment enviroment;
-    private List<TouristPlace> itinerary;
-    private String description;
-    private String recommendations;
-    private List<Rate> rates;
-    private Location location;
-    private Location meetingPoint;
-    public long getId() {
-        return id;
-    }
-    public void setId(long id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Category getCategories() {
-        return categories;
-    }
-    public void setCategories(Category categories) {
-        this.categories = categories;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    public String getRecommendations() {
-        return recommendations;
-    }
 
-    public void setRecommendations(String recommendations) {
-        this.recommendations = recommendations;
-    }
-    public Environment getEnviroment() {
-        return enviroment;
-    }
-    public void setEnviroment(Environment enviroment) {
-        this.enviroment = enviroment;
-    }
-    public List<TouristPlace> getItinerary() {
-        return itinerary;
-    }
-    public void setItinerary(List<TouristPlace> itinerary) {
-        this.itinerary = itinerary;
-    }
-    public List<Rate> getRates() {
-        return rates;
-    }
-    public void setRates(List<Rate> rates) {
-        this.rates = rates;
-    }
-    public Location getLocation() {
-        return location;
-    }
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-    public Location getMeetingPoint() {
-        return meetingPoint;
-    }
-    public void setMeetingPoint(Location meetingPoint) {
-        this.meetingPoint = meetingPoint;
-    }
-    
-    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @ManyToMany
+    @JoinTable(
+        name = "tour_categories",
+        joinColumns = @JoinColumn(name = "tour_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "environment")
+    private Environment environment;
+
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("position ASC")
+    private List<Itinerary> itinerary = new ArrayList<>();
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String recommendations;
+
+    private double price;
+
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "city",       column = @Column(name = "location_city")),
+        @AttributeOverride(name = "department", column = @Column(name = "location_department")),
+        @AttributeOverride(name = "country",    column = @Column(name = "location_country")),
+        @AttributeOverride(name = "latitude",   column = @Column(name = "location_latitude"))
+    })
+    private Location location;
+
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "city",       column = @Column(name = "meeting_point_city")),
+        @AttributeOverride(name = "department", column = @Column(name = "meeting_point_department")),
+        @AttributeOverride(name = "country",    column = @Column(name = "meeting_point_country")),
+        @AttributeOverride(name = "latitude",   column = @Column(name = "meeting_point_latitude"))
+    })
+    private Location meetingPoint;
+
+    @OneToOne(mappedBy = "tour", cascade = CascadeType.ALL, orphanRemoval = true)
+    private TourOffer tourOffer;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "album_id")
+    private Album album;
 }

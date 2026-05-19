@@ -5,12 +5,9 @@ import com.proyecto.app.security.domain.Credential;
 import com.proyecto.app.security.dto.request.RegisterRequest;
 import com.proyecto.app.security.dto.response.RoleDTO;
 import com.proyecto.app.security.service.CredentialService;
-import com.proyecto.app.userManagment.domain.Administrator;
-import com.proyecto.app.userManagment.domain.Contact;
-import com.proyecto.app.userManagment.domain.Role;
-import com.proyecto.app.userManagment.domain.UserProfile;
-import com.proyecto.app.userManagment.domain.UserRole;
-import com.proyecto.app.userManagment.domain.Visitor;
+import com.proyecto.app.tourManagment.api.TourQueryService;
+import com.proyecto.app.tourManagment.dto.response.TourResponse;
+import com.proyecto.app.userManagment.domain.*;
 import com.proyecto.app.userManagment.dto.request.CreateUserRequest;
 import com.proyecto.app.userManagment.dto.request.UpdateContactRequest;
 import com.proyecto.app.userManagment.dto.request.UpdateUserRequest;
@@ -18,6 +15,7 @@ import com.proyecto.app.userManagment.dto.response.ContactResponse;
 import com.proyecto.app.userManagment.dto.response.UserProfileResponse;
 import com.proyecto.app.userManagment.dto.response.UserResponse;
 import com.proyecto.app.userManagment.repository.ContactRepository;
+import com.proyecto.app.userManagment.repository.SavedTourRepository;
 import com.proyecto.app.userManagment.repository.UserProfileRepository;
 import com.proyecto.app.userManagment.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -32,15 +30,21 @@ public class UserService {
     private final UserProfileRepository userProfileRepository;
     private final ContactRepository contactRepository;
     private final CredentialService credentialService;
+    private final SavedTourRepository savedTourRepository;
+    private final TourQueryService tourQueryService;
 
     public UserService(UserRepository userRepository,
                        UserProfileRepository userProfileRepository,
                        ContactRepository contactRepository,
-                       CredentialService credentialService) {
+                       CredentialService credentialService,
+                       SavedTourRepository savedTourRepository,
+                       TourQueryService tourQueryService) {
         this.userRepository = userRepository;
         this.userProfileRepository = userProfileRepository;
         this.contactRepository = contactRepository;
         this.credentialService = credentialService;
+        this.savedTourRepository = savedTourRepository;
+        this.tourQueryService = tourQueryService;
     }
 
     // ----------------------------------------------------------------
@@ -77,11 +81,9 @@ public class UserService {
 
         userProfileRepository.save(profile);
 
-        
         User user = new User(profile);
         userRepository.save(user);
 
-        System.out.println("🔵 userId antes de crear Credential: " + user.getId());
         RoleDTO roleDTO = new RoleDTO(role.getNameRole(), role.getPermissions());
         RegisterRequest registerRequest = new RegisterRequest(
                 request.getEmail(),
@@ -181,8 +183,48 @@ public class UserService {
         contactRepository.delete(contact);
     }
 
+    // ----------------------------------------------------------------
+    // SAVED TOURS
+    // ----------------------------------------------------------------
 
-    
+    @Transactional
+    public void saveTour(Long userId, Long tourId) {
+        User user = findUserById(userId);
+
+        if (!tourQueryService.exists(tourId)) {
+            throw new IllegalArgumentException("Recorrido no encontrado con id: " + tourId);
+        }
+        if (savedTourRepository.existsByUserIdAndTourId(userId, tourId)) {
+            throw new IllegalStateException("El recorrido ya está guardado.");
+        }
+
+        savedTourRepository.save(new SavedTour(user, tourId));
+    }
+
+    @Transactional
+    public void removeSavedTour(Long userId, Long tourId) {
+        findUserById(userId);
+
+        if (!savedTourRepository.existsByUserIdAndTourId(userId, tourId)) {
+            throw new IllegalArgumentException("El recorrido no está en la lista de guardados.");
+        }
+
+        savedTourRepository.deleteByUserIdAndTourId(userId, tourId);
+    }
+
+    public List<TourResponse> getSavedTours(Long userId) {
+        findUserById(userId);
+
+        List<Long> tourIds = savedTourRepository.findAllByUserId(userId).stream()
+                .map(SavedTour::getTourId)
+                .toList();
+
+        return tourQueryService.findAllByIds(tourIds);
+    }
+
+    // ----------------------------------------------------------------
+    // HELPERS
+    // ----------------------------------------------------------------
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)

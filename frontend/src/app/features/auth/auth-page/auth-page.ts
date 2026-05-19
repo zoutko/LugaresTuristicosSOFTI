@@ -43,7 +43,6 @@ export class AuthPage {
   constructor(
     private readonly router: Router,
     private readonly authApi: AuthService,
-    private readonly userApi: UserService
   ) {}
 
   openRecoverModal(): void {
