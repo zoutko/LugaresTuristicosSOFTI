@@ -265,7 +265,7 @@ boolean alreadyExists = itineraryRepository
 
     // ── MAPPERS ────────────────────────────────────
 
-    private TourResponse toResponse(Tour tour) {
+    public TourResponse toResponse(Tour tour) {
         TourResponse response = new TourResponse();
         response.setId(tour.getId());
         response.setName(tour.getName());
