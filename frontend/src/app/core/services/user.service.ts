@@ -152,7 +152,7 @@ export class UserService {
     return this.http.delete<void>(`/api/users/${userId}/contacts/${contactId}`);
   }
 
-  createUser(request: Omit<CreateUserRequest, 'password'>): Observable<UserResponse> {
+  createUser(request: CreateUserRequest): Observable<UserResponse> {
   return this.http.post<UserResponse>('/api/users/register', request);
 }
 }

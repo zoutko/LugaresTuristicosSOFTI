@@ -1,8 +1,6 @@
 package com.proyecto.app.userManagment.domain;
 import com.proyecto.app.userManagment.domain.Contact;
-
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

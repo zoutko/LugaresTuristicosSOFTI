@@ -43,7 +43,7 @@ export class AuthPage {
   constructor(
     private readonly router: Router,
     private readonly authApi: AuthService,
-    //private readonly userApi: UserService
+    private readonly userApi: UserService
   ) {}
 
   openRecoverModal(): void {
@@ -136,13 +136,12 @@ export class AuthPage {
   this.isRegistering = true;
 
   // PASO 1: crear usuario
-  /*this.userApi.createUser({ name, email, document, phoneNumbers: phoneNumber ? [phoneNumber] : [] , roleName: 'USER'})
+  this.userApi.createUser({ name, document, roleName: 'USER',phoneNumbers: phoneNumber ? [phoneNumber] : [], email, password })
     .subscribe({
       next: (userResponse) => {
-        // PASO 2: crear credencial con el userId generado
+        console.log('USER ID FROM CREATE USER FRONT->' + userResponse.id )
         this.authApi.register({
           email,
-          userId: userResponse.id,    
           password,       
           role: { name: 'USER' }
         }).subscribe({
@@ -169,8 +168,8 @@ export class AuthPage {
         this.isRegistering = false;
         this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
       }
-    });*/
-    this.authApi
+    });
+    /*this.authApi
       .register({ name, email, document, phoneNumber: phoneNumber || undefined, password })
       .subscribe({
         next: () => {
@@ -194,6 +193,6 @@ export class AuthPage {
           this.isRegistering = false;
           this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
         },
-      });
+      });*/
 }
 }

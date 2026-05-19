@@ -31,7 +31,8 @@ export class SavedToursListComponent implements OnInit {
   }
 
   private loadSavedTours(): void {
-    const userIdStr = localStorage.getItem('auth.userId');
+    //const userIdStr = localStorage.getItem('auth.userId');
+    const userIdStr = "1";
     const userId = userIdStr ? parseInt(userIdStr, 10) : null;
 
     if (!userId) {

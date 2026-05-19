@@ -17,16 +17,15 @@
     </button>
   </div>
 
-  <div class="tours-list" *ngIf="!loading && !error && tours.length > 0">
-    @for (tour of tours; track tour.id) {
-      <app-tour-card 
-        [tour]="tour" 
-        [showRemoveButton]="true"
-        (view)="viewTour($event)"
-        (remove)="removeTour($event)">
-      </app-tour-card>
-    }
-  </div>
+<div class="tours-horizontal" *ngIf="!loading && !error && tours.length > 0">
+  @for (tour of tours; track tour.id) {
+    <app-tour-card 
+      [tour]="tour" 
+      [showRemoveButton]="true"
+      (view)="viewTour($event)"
+      (remove)="removeTour($event)">
+    </app-tour-card>
+  }
 </div>
 
 <app-toast

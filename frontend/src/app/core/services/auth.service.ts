@@ -15,9 +15,8 @@ export interface RegisterRequest {
   document?: string;
   phoneNumber?: string;
   email: string;
-  //userId: number;       
   password: string;    // ← Agregar
-  //role: { name: string };
+  role: { name: string };
 }
 
 @Injectable({ providedIn: 'root' })

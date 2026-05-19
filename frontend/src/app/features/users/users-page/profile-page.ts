@@ -41,7 +41,6 @@ export class ProfilePage implements OnInit {
     this.loadProfile();
   }
 
-  // Métodos de navegación
 goToMisReservas(): void {
     this.router.navigate(['/mis-reservas']);
 }
@@ -59,8 +58,7 @@ goToConfiguracion(): void {
 }
 
   private loadProfile(): void {
-    // TODO: Obtener el userId real del token cuando el backend lo incluya
-    // Por ahora usamos ID 1 como temporal
+    // Por ahora usamos ID 1 
     //const userIdStr = localStorage.getItem('1');
     const userIdStr = '1';
     if (!userIdStr) {
@@ -120,7 +118,7 @@ goToConfiguracion(): void {
     }
     
     this.isSaving = true;
-    const userId = 1; // TODO: Usar el userId real
+    const userId = 1; 
     
     this.userService.updateProfileField(userId, this.editFieldKey, this.editFieldValue).subscribe({
       next: (updatedUser) => {

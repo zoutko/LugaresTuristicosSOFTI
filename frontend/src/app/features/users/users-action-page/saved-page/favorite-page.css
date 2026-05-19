@@ -22,90 +22,148 @@
 .saved-tours-container {
     position: relative;
     z-index: 1;
-    max-width: 1000px;
+    width: 100vw ;        /* Ancho completo de la ventana */
+    max-width: 1400% ;     /* Elimina cualquier límite */
     margin: 0 auto;
-    padding: 140px 20px 40px;
+    padding: 140px 40px 40px 40px;
+    box-sizing: border-box ;
+    left: 50%;
+    right: 50%;
+    transform: translateX(-50%);
+}
+
+/* Contenedor horizontal - ocupa todo el ancho */
+.tours-horizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 28px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 20px 0 30px;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Cards más anchas */
+.tours-horizontal app-tour-card {
+    flex: 0 0 400px;  /* Cards más anchas */
+    scroll-snap-align: start;
+}
+
+/* Scrollbar */
+.tours-horizontal::-webkit-scrollbar {
+    height: 10px;
+}
+
+.tours-horizontal::-webkit-scrollbar-track {
+    background: #e8e4c9;
+    border-radius: 5px;
+}
+
+.tours-horizontal::-webkit-scrollbar-thumb {
+    background: #2f7c2f;
+    border-radius: 5px;
+}
+
+.tours-horizontal::-webkit-scrollbar-thumb:hover {
+    background: #236b23;
+}
+
+/* Grid alternativo */
+.tours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 28px;
+    width: 100%;
+    padding: 20px 0;
 }
 
 .saved-tours-header {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
 }
 
 .btn-back {
-  background: none;
-  border: none;
-  color: #2f7c2f;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+    background: none;
+    border: none;
+    color: #2f7c2f;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
 .btn-back:hover {
-  background-color: #efe9cf;
-  transform: translateX(-4px);
+    background-color: #efe9cf;
+    transform: translateX(-4px);
 }
 
 .saved-tours-header h1 {
-  color: #2f7c2f;
-  font-size: 28px;
-  margin: 0;
-  flex: 1;
-}
-
-.tours-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+    color: #2f7c2f;
+    font-size: 28px;
+    margin: 0;
+    flex: 1;
 }
 
 .loading, .error, .empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .error {
-  color: #b42318;
+    color: #b42318;
 }
 
 .empty-state p {
-  color: #666;
-  margin-bottom: 20px;
+    color: #666;
+    margin-bottom: 20px;
 }
 
 .btn-explore {
-  background-color: #e6851e;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
+    background-color: #e6851e;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
 
 .btn-explore:hover {
-  background-color: #d47719;
-  transform: scale(1.02);
+    background-color: #d47719;
+    transform: scale(1.02);
 }
 
-@media (max-width: 640px) {
-  .saved-tours-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  .saved-tours-container {
-    padding: 20px 16px;
-  }
+/* Responsive */
+@media (max-width: 1200px) {
+    .saved-tours-container {
+        padding: 140px 40px 40px 40px !important;
+    }
+    
+    .tours-horizontal app-tour-card {
+        flex: 0 0 360px;
+    }
+}
+
+@media (max-width: 768px) {
+    .saved-tours-container {
+        padding: 130px 20px 30px 20px !important;
+    }
+    
+    .tours-horizontal app-tour-card {
+        flex: 0 0 300px;
+    }
+    
+    .tours-grid {
+        grid-template-columns: 1fr;
+    }
 }
