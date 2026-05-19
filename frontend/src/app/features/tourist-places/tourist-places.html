@@ -1,0 +1,67 @@
+<section class="places-shell" aria-label="Lugares turisticos">
+  <div class="places-tools">
+    <label class="search-box">
+      <span aria-hidden="true"></span>
+      <input
+        type="search"
+        placeholder="Buscar lugar o ciudad"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+      />
+    </label>
+
+    <div class="filters" aria-label="Filtrar por ambiente">
+      <button
+        *ngFor="let option of environments"
+        type="button"
+        [class.is-active]="environment() === option.value"
+        (click)="setEnvironment(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="status-panel">Cargando lugares turisticos...</div>
+
+  <div *ngIf="!loading() && error()" class="status-panel status-panel--error">
+    <span>{{ error() }}</span>
+    <button type="button" (click)="loadPlaces()">Reintentar</button>
+  </div>
+
+  <div *ngIf="!loading() && !error() && filteredPlaces().length === 0" class="status-panel">
+    No hay lugares turisticos para mostrar.
+  </div>
+
+  <div *ngIf="!loading() && !error() && filteredPlaces().length > 0" class="places-grid">
+    <article *ngFor="let place of filteredPlaces(); let index = index" class="place-card">
+      <div class="image-frame">
+        <img [src]="getImage(place, index)" [alt]="place.name" loading="lazy" />
+      </div>
+
+      <div class="place-body">
+        <div class="place-meta">
+          <span class="pin" aria-hidden="true"></span>
+          <span>{{ getLocation(place) }}</span>
+        </div>
+
+        <div class="place-row">
+          <h2>{{ place.name }}</h2>
+          <div class="place-detail">
+            <strong>{{ place.duration || 'Consultar' }}</strong>
+            <span>{{ getEnvironmentLabel(place.environment) }}</span>
+          </div>
+        </div>
+
+        <p *ngIf="place.description" class="description">{{ place.description }}</p>
+
+        <div class="card-footer">
+          <div class="tags">
+            <span *ngFor="let category of getCategories(place)">{{ category }}</span>
+          </div>
+          <button type="button">Ver</button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

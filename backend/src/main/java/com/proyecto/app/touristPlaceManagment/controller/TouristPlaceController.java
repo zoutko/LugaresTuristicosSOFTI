@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/places")
+@RequestMapping("/api/places")
 public class TouristPlaceController {
 
     @Autowired
