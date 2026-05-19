@@ -43,7 +43,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/login",
-                                "/api/auth/register",
                                 "/api/auth/recover-password",
                                 "/api/auth/change-password",
                                 "/api/users/register",
