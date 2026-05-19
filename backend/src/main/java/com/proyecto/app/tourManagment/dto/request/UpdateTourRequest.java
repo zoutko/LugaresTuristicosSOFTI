@@ -21,4 +21,6 @@ public class UpdateTourRequest {
     private Double price;
     private Location location;
     private Location meetingPoint;
+    private List<Long> itineraryPlaceIds;
+
 }
