@@ -3,11 +3,15 @@ package com.proyecto.app.tourManagment.service;
 import com.proyecto.app.catalog.domain.Category;
 import com.proyecto.app.catalog.repository.CategoryRepository;
 import com.proyecto.app.common.Environment;
-import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
+import com.proyecto.app.media.domain.Album;
+import com.proyecto.app.media.dto.response.AlbumResponse;
+import com.proyecto.app.media.dto.response.PhotoResponse;
+import com.proyecto.app.media.service.AlbumService;
 import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
 import com.proyecto.app.tourManagment.domain.*;
 import com.proyecto.app.tourManagment.dto.request.CreateTourRequest;
 import com.proyecto.app.tourManagment.dto.request.DiscountRequest;
+import com.proyecto.app.tourManagment.dto.request.TourFilterRequest;
 import com.proyecto.app.tourManagment.dto.request.UpdateTourRequest;
 import com.proyecto.app.tourManagment.dto.response.DiscountResponse;
 import com.proyecto.app.tourManagment.dto.response.ItineraryItemResponse;
@@ -15,6 +19,8 @@ import com.proyecto.app.tourManagment.dto.response.TourOfferResponse;
 import com.proyecto.app.tourManagment.dto.response.TourResponse;
 import com.proyecto.app.tourManagment.exception.*;
 import com.proyecto.app.tourManagment.repository.*;
+
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,19 +37,22 @@ public class TourService {
     private final UserTypeRepository userTypeRepository;
     private final CategoryRepository categoryRepository;
     private final TouristPlaceRepository touristPlaceRepository;
+    private final AlbumService albumService;
 
     public TourService(TourRepository tourRepository,
                        TourOfferRepository tourOfferRepository,
                        ItineraryRepository itineraryRepository,
                        UserTypeRepository userTypeRepository,
                        CategoryRepository categoryRepository,
-                       TouristPlaceRepository touristPlaceRepository) {
+                       TouristPlaceRepository touristPlaceRepository,
+                       AlbumService albumService) {
         this.tourRepository = tourRepository;
         this.tourOfferRepository = tourOfferRepository;
         this.itineraryRepository = itineraryRepository;
         this.userTypeRepository = userTypeRepository;
         this.categoryRepository = categoryRepository;
         this.touristPlaceRepository = touristPlaceRepository;
+        this.albumService = albumService;
     }
 
     // ── TOUR CRUD ──────────────────────────────────
@@ -73,18 +82,17 @@ public class TourService {
             }
         }
 
-        if (request.getLocation() != null) {
-            tour.setLocation(request.getLocation());
-        }
-
-        if (request.getMeetingPoint() != null) {
-            tour.setMeetingPoint(request.getMeetingPoint());
-        }
+        if (request.getLocation() != null)     tour.setLocation(request.getLocation());
+        if (request.getMeetingPoint() != null) tour.setMeetingPoint(request.getMeetingPoint());
 
         if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
             List<Category> categories = categoryRepository.findAllById(request.getCategoryIds());
             tour.setCategories(categories);
         }
+
+        // Álbum — se crea automáticamente al crear el tour
+        Album album = albumService.findOrCreate("tour-" + request.getName());
+        tour.setAlbum(album);
 
         Tour saved = tourRepository.save(tour);
 
@@ -93,10 +101,11 @@ public class TourService {
             List<Itinerary> items = new ArrayList<>();
             for (int i = 0; i < request.getItineraryPlaceIds().size(); i++) {
                 Long placeId = request.getItineraryPlaceIds().get(i);
-                TouristPlace place = touristPlaceRepository.findById(placeId)
-                        .orElseThrow(() -> new InvalidTourDataException(
-                            "TouristPlace no encontrado con id: " + placeId));
-                items.add(new Itinerary(saved, place, i + 1));
+                if (!touristPlaceRepository.existsById(placeId)) {
+                throw new InvalidTourDataException(
+                    "TouristPlace no encontrado con id: " + placeId);
+            }
+            items.add(new Itinerary(saved, placeId, i + 1));
             }
             itineraryRepository.saveAll(items);
             saved.setItinerary(items);
@@ -177,23 +186,20 @@ public class TourService {
     public TourResponse addPlaceToItinerary(Long tourId, Long placeId) {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new TourNotFoundException(tourId));
-        TouristPlace place = touristPlaceRepository.findById(placeId)
-                .orElseThrow(() -> new InvalidTourDataException(
-                    "TouristPlace no encontrado con id: " + placeId));
-
-        boolean alreadyExists = itineraryRepository
-                .findByTourIdOrderByPositionAsc(tourId).stream()
-                .anyMatch(i -> i.getTouristPlace().getId().equals(placeId));
-        if (alreadyExists) {
-            throw new InvalidTourDataException(
-                "El lugar con id " + placeId + " ya existe en el itinerario del tour");
-        }
-
-        int nextPosition = itineraryRepository.findByTourIdOrderByPositionAsc(tourId).size() + 1;
-        Itinerary item = new Itinerary(tour, place, nextPosition);
-        itineraryRepository.save(item);
-
-        return toResponse(tourRepository.findById(tourId).get());
+        if (!touristPlaceRepository.existsById(placeId)) {
+    throw new InvalidTourDataException(
+        "TouristPlace no encontrado con id: " + placeId);
+}
+boolean alreadyExists = itineraryRepository
+        .findByTourIdOrderByPositionAsc(tourId).stream()
+        .anyMatch(i -> i.getTouristPlaceId().equals(placeId));
+            if (alreadyExists) {
+                throw new InvalidTourDataException(
+                    "El lugar con id " + placeId + " ya existe en el itinerario del tour");
+            }
+            int nextPosition = itineraryRepository.findByTourIdOrderByPositionAsc(tourId).size() + 1;
+            itineraryRepository.save(new Itinerary(tour, placeId, nextPosition));
+                    return toResponse(tourRepository.findById(tourId).get());
     }
 
     @Transactional
@@ -203,7 +209,6 @@ public class TourService {
         }
         itineraryRepository.deleteByTourIdAndTouristPlaceId(tourId, placeId);
 
-        // Reordenar posiciones
         List<Itinerary> remaining = itineraryRepository.findByTourIdOrderByPositionAsc(tourId);
         for (int i = 0; i < remaining.size(); i++) {
             remaining.get(i).setPosition(i + 1);
@@ -260,7 +265,7 @@ public class TourService {
 
     // ── MAPPERS ────────────────────────────────────
 
-    private TourResponse toResponse(Tour tour) {
+    public TourResponse toResponse(Tour tour) {
         TourResponse response = new TourResponse();
         response.setId(tour.getId());
         response.setName(tour.getName());
@@ -287,13 +292,34 @@ public class TourService {
                 .map(i -> new ItineraryItemResponse(
                     i.getId(),
                     i.getPosition(),
-                    i.getTouristPlace().getId(),
-                    i.getTouristPlace().getName()))
+                    i.getTouristPlaceId(),
+                    null))
                 .collect(Collectors.toList())
         );
 
         if (tour.getTourOffer() != null)
             response.setTourOffer(toOfferResponse(tour.getTourOffer()));
+
+        // Álbum
+        if (tour.getAlbum() != null) {
+            List<PhotoResponse> photos = tour.getAlbum().getPhotos().stream()
+                .map(p -> new PhotoResponse(p.getFilePath(), p.getFileName(), p.getDescription()))
+                .collect(Collectors.toList());
+
+            PhotoResponse current = tour.getAlbum().getCurrent() != null
+                ? new PhotoResponse(
+                    tour.getAlbum().getCurrent().getFilePath(),
+                    tour.getAlbum().getCurrent().getFileName(),
+                    tour.getAlbum().getCurrent().getDescription())
+                : null;
+
+            response.setAlbum(new AlbumResponse(
+                tour.getAlbum().getCurrentIndex(),
+                tour.getAlbum().getPhotos().size(),
+                current,
+                photos
+            ));
+        }
 
         return response;
     }
@@ -303,5 +329,13 @@ public class TourService {
                 .map(d -> new DiscountResponse(d.getId(), d.getUserType().getName(), d.getPercentage()))
                 .collect(Collectors.toList());
         return new TourOfferResponse(offer.getId(), offer.getBasePrice(), discounts);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TourResponse> filterTours(TourFilterRequest filters) {
+        Specification<Tour> spec = TourSpecification.withFilters(filters);
+        return tourRepository.findAll(spec).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 }

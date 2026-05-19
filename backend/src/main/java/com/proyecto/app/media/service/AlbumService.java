@@ -11,7 +11,6 @@ import com.proyecto.app.media.exception.MediaNotFoundException;
 import com.proyecto.app.media.repository.AlbumRepository;
 import com.proyecto.app.touristPlaceManagment.domain.TouristPlace;
 import com.proyecto.app.touristPlaceManagment.repository.TouristPlaceRepository;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,32 +28,31 @@ public class AlbumService {
         this.albumRepository = albumRepository;
     }
 
+    // ── Métodos por placeId (mantiene compatibilidad con MediaController) ──
+
     public AlbumResponse getAlbum(Long placeId) {
-        Album album = resolveAlbum(placeId);
-        return toAlbumResponse(album);
+        return toAlbumResponse(resolveAlbumByPlace(placeId));
     }
 
     public List<PhotoResponse> getPhotos(Long placeId) {
-        return resolveAlbum(placeId).getPhotos()
-                .stream()
-                .map(this::toPhotoResponse)
-                .collect(Collectors.toList());
+        return resolveAlbumByPlace(placeId).getPhotos().stream()
+                .map(this::toPhotoResponse).collect(Collectors.toList());
     }
 
     public PhotoResponse getCurrentPhoto(Long placeId) {
-        Album album = resolveAlbum(placeId);
+        Album album = resolveAlbumByPlace(placeId);
         requireNonEmpty(album);
         return toPhotoResponse(album.getCurrent());
     }
 
     public PhotoResponse nextPhoto(Long placeId) {
-        Album album = resolveAlbum(placeId);
+        Album album = resolveAlbumByPlace(placeId);
         requireNonEmpty(album);
         return toPhotoResponse(album.nextPhoto());
     }
 
     public PhotoResponse previousPhoto(Long placeId) {
-        Album album = resolveAlbum(placeId);
+        Album album = resolveAlbumByPlace(placeId);
         requireNonEmpty(album);
         return toPhotoResponse(album.previousPhoto());
     }
@@ -72,18 +70,67 @@ public class AlbumService {
     public AlbumResponse removePhotoByIndex(Long placeId, int index) {
         TouristPlace place = resolvePlaceOrThrow(placeId);
         Album album = place.getAlbum();
-        List<Photo> photos = album.getPhotos();
-
-        if (index < 0 || index >= photos.size()) {
-            throw new MediaNotFoundException("Índice de foto fuera de rango: " + index);
-        }
-
-        album.removePhoto(photos.get(index));
+        validateIndex(album, index);
+        album.removePhoto(album.getPhotos().get(index));
         placeRepository.save(place);
         return toAlbumResponse(album);
     }
 
-    private Album resolveAlbum(Long placeId) {
+    // ── Métodos genéricos por Album (reutilizables para Tour u otros) ──
+
+    public AlbumResponse getAlbumById(Long albumId) {
+        return toAlbumResponse(resolveAlbumOrThrow(albumId));
+    }
+
+    public List<PhotoResponse> getPhotosByAlbum(Long albumId) {
+        return resolveAlbumOrThrow(albumId).getPhotos().stream()
+                .map(this::toPhotoResponse).collect(Collectors.toList());
+    }
+
+    public PhotoResponse getCurrentPhotoByAlbum(Long albumId) {
+        Album album = resolveAlbumOrThrow(albumId);
+        requireNonEmpty(album);
+        return toPhotoResponse(album.getCurrent());
+    }
+
+    public PhotoResponse nextPhotoByAlbum(Long albumId) {
+        Album album = resolveAlbumOrThrow(albumId);
+        requireNonEmpty(album);
+        return toPhotoResponse(album.nextPhoto());
+    }
+
+    public PhotoResponse previousPhotoByAlbum(Long albumId) {
+        Album album = resolveAlbumOrThrow(albumId);
+        requireNonEmpty(album);
+        return toPhotoResponse(album.previousPhoto());
+    }
+
+    @Transactional
+    public AlbumResponse addPhotoToAlbum(Long albumId, PhotoRequest request) {
+        validatePhotoRequest(request);
+        Album album = resolveAlbumOrThrow(albumId);
+        album.insertPhoto(toPhoto(request));
+        albumRepository.save(album);
+        return toAlbumResponse(album);
+    }
+
+    @Transactional
+    public AlbumResponse removePhotoByIndexFromAlbum(Long albumId, int index) {
+        Album album = resolveAlbumOrThrow(albumId);
+        validateIndex(album, index);
+        album.removePhoto(album.getPhotos().get(index));
+        albumRepository.save(album);
+        return toAlbumResponse(album);
+    }
+
+    // ── Helpers ──
+
+    public Album findOrCreate(String albumName) {
+        return albumRepository.findByName(albumName)
+                .orElseGet(() -> albumRepository.save(new Album(albumName)));
+    }
+
+    private Album resolveAlbumByPlace(Long placeId) {
         return resolvePlaceOrThrow(placeId).getAlbum();
     }
 
@@ -92,15 +139,24 @@ public class AlbumService {
                 .orElseThrow(() -> new MediaNotFoundException("Lugar no encontrado: " + placeId));
     }
 
+    private Album resolveAlbumOrThrow(Long albumId) {
+        return albumRepository.findById(albumId)
+                .orElseThrow(() -> new MediaNotFoundException("Album no encontrado: " + albumId));
+    }
+
     private void requireNonEmpty(Album album) {
-        if (album.isEmpty()) {
-            throw new InvalidAlbumOperationException("El álbum no contiene fotos");
-        }
+        if (album.isEmpty()) throw new InvalidAlbumOperationException("El álbum no contiene fotos");
     }
 
     private void validatePhotoRequest(PhotoRequest request) {
         if (request == null || request.getFilePath() == null || request.getFilePath().isBlank()) {
             throw new InvalidPhotoException("filePath es obligatorio para una Photo");
+        }
+    }
+
+    private void validateIndex(Album album, int index) {
+        if (index < 0 || index >= album.getPhotos().size()) {
+            throw new MediaNotFoundException("Índice de foto fuera de rango: " + index);
         }
     }
 
@@ -126,10 +182,5 @@ public class AlbumService {
                 .currentPhoto(album.isEmpty() ? null : toPhotoResponse(album.getCurrent()))
                 .photos(album.getPhotos().stream().map(this::toPhotoResponse).collect(Collectors.toList()))
                 .build();
-    }
-
-    public Album findOrCreate(String albumName) {
-        return albumRepository.findByName(albumName)
-                .orElseGet(() -> albumRepository.save(new Album(albumName)));
     }
 }

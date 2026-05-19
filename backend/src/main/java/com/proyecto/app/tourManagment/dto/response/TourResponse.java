@@ -2,6 +2,8 @@ package com.proyecto.app.tourManagment.dto.response;
 
 import java.util.List;
 
+import com.proyecto.app.media.dto.response.AlbumResponse;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,4 +24,5 @@ public class TourResponse {
     private String meetingPoint;   // getFullLocation()
     private List<ItineraryItemResponse> itinerary;
     private TourOfferResponse tourOffer;
+    private AlbumResponse album;
 }
