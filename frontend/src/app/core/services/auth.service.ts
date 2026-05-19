@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface LoginResponse {
-  //userId: number;
+  userId: number;
   token: string;
   type: string;
   email: string;
