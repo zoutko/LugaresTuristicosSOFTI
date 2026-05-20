@@ -70,7 +70,7 @@ public class TouristPlaceController {
         return ResponseEntity.ok(touristPlaceService.create(request));
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TouristPlaceResponse> update(
             @PathVariable Long id,

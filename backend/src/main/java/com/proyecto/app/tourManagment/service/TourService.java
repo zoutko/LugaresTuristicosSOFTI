@@ -94,13 +94,13 @@ public class TourService {
             tour.setCategories(categories);
         }
 
-        // Álbum — se crea automáticamente al crear el tour
+
         Album album = albumService.findOrCreate("tour-" + request.getName());
         tour.setAlbum(album);
 
         Tour saved = tourRepository.save(tour);
 
-        // Itinerario
+
         if (request.getItineraryPlaceIds() != null && !request.getItineraryPlaceIds().isEmpty()) {
             List<Itinerary> items = new ArrayList<>();
             for (int i = 0; i < request.getItineraryPlaceIds().size(); i++) {
