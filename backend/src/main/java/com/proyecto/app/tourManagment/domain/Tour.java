@@ -57,8 +57,7 @@ public class Tour {
         @AttributeOverride(name = "city",       column = @Column(name = "location_city")),
         @AttributeOverride(name = "department", column = @Column(name = "location_department")),
         @AttributeOverride(name = "country",    column = @Column(name = "location_country")),
-        @AttributeOverride(name = "latitude",   column = @Column(name = "location_latitude")),
-        @AttributeOverride(name = "longitude",  column = @Column(name = "location_longitude"))  // ← faltaba
+        @AttributeOverride(name = "latitude",   column = @Column(name = "location_latitude"))
     })
     private Location location;
 
@@ -67,8 +66,7 @@ public class Tour {
         @AttributeOverride(name = "city",       column = @Column(name = "meeting_point_city")),
         @AttributeOverride(name = "department", column = @Column(name = "meeting_point_department")),
         @AttributeOverride(name = "country",    column = @Column(name = "meeting_point_country")),
-        @AttributeOverride(name = "latitude",   column = @Column(name = "meeting_point_latitude")),
-        @AttributeOverride(name = "longitude",  column = @Column(name = "meeting_point_longitude"))  // ← faltaba
+        @AttributeOverride(name = "latitude",   column = @Column(name = "meeting_point_latitude"))
     })
     private Location meetingPoint;
 

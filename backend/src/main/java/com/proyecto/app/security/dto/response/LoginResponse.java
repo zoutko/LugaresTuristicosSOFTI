@@ -1,6 +1,5 @@
 package com.proyecto.app.security.dto.response;
 
-
 public class LoginResponse {
 
     private String token;
