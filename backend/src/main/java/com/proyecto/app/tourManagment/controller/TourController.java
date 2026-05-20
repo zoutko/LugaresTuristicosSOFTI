@@ -1,6 +1,4 @@
 package com.proyecto.app.tourManagment.controller;
-
-import com.proyecto.app.tourManagment.dto.*;
 import com.proyecto.app.tourManagment.dto.request.CreateTourRequest;
 import com.proyecto.app.tourManagment.dto.request.DiscountRequest;
 import com.proyecto.app.tourManagment.dto.request.TourFilterRequest;

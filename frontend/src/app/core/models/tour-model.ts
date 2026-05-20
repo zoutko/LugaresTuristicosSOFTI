@@ -1,43 +1,24 @@
-export interface TourResponse {
-  id: number;
-  name: string;                    // Nombre del tour
-  categories: string[];            // Categorías/etiquetas
-  environment: string;             // Tipo de ambiente
-  description: string;             // Descripción
-  recommendations: string;         // Recomendaciones
-  price: number;                   // Precio
-  location: string;                // Ubicación completa
-  meetingPoint: string;            // Punto de encuentro
-  itinerary: ItineraryItemResponse[];  // Itinerario
-  tourOffer: TourOfferResponse;    // Oferta del tour
-  album: AlbumResponse;            // Álbum de imágenes
-}
+// src/app/core/models/tour-model.ts
 
-export interface ItineraryItemResponse {
+export interface TourTag {
   id?: number;
-  title?: string;
-  description?: string;
-  duration?: string;
-}
-
-export interface TourOfferResponse {
-  id?: number;
-  discount?: number;
-  validUntil?: string;
-}
-
-export interface AlbumResponse {
-  id?: number;
-  title?: string;
-  images?: string[];
-}
-
-// Para la tarjeta, usamos una versión simplificada
-export interface SavedTourCard {
-  id: number;
   name: string;
-  location: string;
-  categories: string[];
-  price: number;
-  imageUrl?: string;  // Primera imagen del album si existe
+  color?: string;
+}
+
+export interface SavedTour {
+  id: number;
+  name?: string;
+  ciudad?: string;
+  titulo?: string;
+  etiquetas: (string | TourTag)[];
+  categories?: string[];
+  precio: number;
+  price?: number;
+  imagen?: string;
+  imageUrl?: string;
+  duracion?: string;
+  calificacion?: number;
+  location?: string;
+  description?: string;
 }

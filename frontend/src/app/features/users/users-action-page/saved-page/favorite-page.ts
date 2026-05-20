@@ -5,6 +5,7 @@ import { SavedToursService } from '../../../../core/services/saved-tours-service
 import { TourCardComponent } from '../../../../shared/tour-card/tour-card';
 import { SavedTour } from '../../../../core/models/tour-model';
 import { ToastComponent, ToastVariant } from '../../../../shared/toast/toast';
+
 @Component({
   selector: 'app-saved-tours-list',
   standalone: true,
@@ -23,7 +24,7 @@ export class SavedToursListComponent implements OnInit {
 
   constructor(
     private savedToursService: SavedToursService,
-    private router: Router  // ← Sigue siendo private
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -31,7 +32,7 @@ export class SavedToursListComponent implements OnInit {
   }
 
   private loadSavedTours(): void {
-    //const userIdStr = localStorage.getItem('auth.userId');
+    // Temporal: userId fijo para pruebas
     const userIdStr = "1";
     const userId = userIdStr ? parseInt(userIdStr, 10) : null;
 
@@ -42,12 +43,12 @@ export class SavedToursListComponent implements OnInit {
     }
 
     this.savedToursService.getSavedTours(userId).subscribe({
-      next: (response) => {
-        this.tours = response.tours;
+      next: (tours) => {
+        this.tours = tours;
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading saved tours:', err);
+        console.error('Error:', err);
         this.error = 'Error al cargar los recorridos guardados';
         this.loading = false;
         this.showToast(this.error, 'error');
@@ -94,4 +95,3 @@ export class SavedToursListComponent implements OnInit {
     this.toastOpen = false;
   }
 }
-
