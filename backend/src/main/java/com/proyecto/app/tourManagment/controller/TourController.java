@@ -24,8 +24,6 @@ public class TourController {
         this.tourService = tourService;
     }
 
-    // ── TOUR CRUD ──────────────────────────────────
-
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TourResponse> createTour(@RequestBody CreateTourRequest request) {
@@ -59,7 +57,6 @@ public class TourController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── ITINERARY ──────────────────────────────────
 
     @PostMapping("/{tourId}/itinerary/{placeId}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
@@ -77,7 +74,6 @@ public class TourController {
         return ResponseEntity.ok(tourService.removePlaceFromItinerary(tourId, placeId));
     }
 
-    // ── DISCOUNTS ──────────────────────────────────
 
     @PostMapping("/{tourId}/discounts")
     @PreAuthorize("hasRole('ADMINISTRATOR')")

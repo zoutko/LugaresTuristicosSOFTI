@@ -29,10 +29,6 @@ public class TouristPlaceController {
         this.activityService = activityService;
     }
 
-    // ----------------------------------------------------------------
-    // READ — cualquier usuario autenticado o público
-    // ----------------------------------------------------------------
-
     @GetMapping
     public ResponseEntity<List<TouristPlaceResponse>> getAll() {
         return ResponseEntity.ok(touristPlaceService.getAll());

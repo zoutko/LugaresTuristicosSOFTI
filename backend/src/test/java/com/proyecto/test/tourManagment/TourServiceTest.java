@@ -44,9 +44,9 @@ class TourServiceTest {
     @Mock private ItineraryRepository itineraryRepository;
     @Mock private UserTypeRepository userTypeRepository;
     @Mock private CategoryRepository categoryRepository;
-    @Mock private AlbumService albumService;                      // ← agregado
-    @Mock private PlaceQueryService placeQueryService;            // ← reemplaza TouristPlaceRepository
-    @Mock private TourEnvironmentValidator environmentValidator;  // ← agregado
+    @Mock private AlbumService albumService; 
+    @Mock private PlaceQueryService placeQueryService; 
+    @Mock private TourEnvironmentValidator environmentValidator;  
 
     @InjectMocks
     private TourService tourService;
@@ -94,8 +94,6 @@ class TourServiceTest {
         tourOffer.setDiscounts(new ArrayList<>());
         tour.setTourOffer(tourOffer);
     }
-
-    // ── createTour ─────────────────────────────────
 
     @Test
     void createTour_exitoso() {
@@ -164,8 +162,6 @@ class TourServiceTest {
         assertThrows(InvalidTourDataException.class, () -> tourService.createTour(request));
     }
 
-    // ── getTourById ────────────────────────────────
-
     @Test
     void getTourById_exitoso() {
         when(tourRepository.findById(1L)).thenReturn(Optional.of(tour));
@@ -184,8 +180,6 @@ class TourServiceTest {
 
         assertThrows(TourNotFoundException.class, () -> tourService.getTourById(99L));
     }
-
-    // ── getAllTours ────────────────────────────────
 
     @Test
     void getAllTours_retornaLista() {
@@ -207,8 +201,6 @@ class TourServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
-
-    // ── updateTour ─────────────────────────────────
 
     @Test
     void updateTour_exitoso() {
@@ -264,8 +256,6 @@ class TourServiceTest {
         assertThrows(InvalidTourDataException.class, () -> tourService.updateTour(1L, request));
     }
 
-    // ── deleteTour ─────────────────────────────────
-
     @Test
     void deleteTour_exitoso() {
         when(tourRepository.existsById(1L)).thenReturn(true);
@@ -282,8 +272,6 @@ class TourServiceTest {
         assertThrows(TourNotFoundException.class, () -> tourService.deleteTour(99L));
         verify(tourRepository, never()).deleteById(any());
     }
-
-    // ── addPlaceToItinerary ────────────────────────
 
     @Test
     void addPlaceToItinerary_exitoso() {
@@ -327,8 +315,6 @@ class TourServiceTest {
                 () -> tourService.addPlaceToItinerary(1L, 1L));
     }
 
-    // ── removePlaceFromItinerary ───────────────────
-
     @Test
     void removePlaceFromItinerary_exitoso() {
         when(tourRepository.existsById(1L)).thenReturn(true);
@@ -349,8 +335,6 @@ class TourServiceTest {
         assertThrows(TourNotFoundException.class,
                 () -> tourService.removePlaceFromItinerary(99L, 1L));
     }
-
-    // ── addDiscount ────────────────────────────────
 
     @Test
     void addDiscount_exitoso() {
@@ -426,8 +410,6 @@ class TourServiceTest {
         assertThrows(InvalidTourDataException.class, () -> tourService.addDiscount(1L, request));
     }
 
-    // ── removeDiscount ─────────────────────────────
-
     @Test
     void removeDiscount_exitoso() {
         Discount discount = new Discount();
@@ -460,8 +442,6 @@ class TourServiceTest {
         assertThrows(InvalidTourDataException.class,
                 () -> tourService.removeDiscount(1L, 999L));
     }
-
-    // ── filterTours ────────────────────────────────
 
     @Test
     void filterTours_sinFiltros_retornaTodos() {
@@ -561,8 +541,6 @@ class TourServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
-
-    // ── Helper ─────────────────────────────────────
 
     private CreateTourRequest buildCreateRequest() {
         CreateTourRequest request = new CreateTourRequest();

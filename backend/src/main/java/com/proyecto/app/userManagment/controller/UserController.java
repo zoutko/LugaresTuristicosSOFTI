@@ -24,9 +24,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // ----------------------------------------------------------------
-    // CREATE — cualquiera puede crear cuenta (VISITOR)
-    // ----------------------------------------------------------------
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
@@ -34,9 +31,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // ----------------------------------------------------------------
-    // READ — el propio usuario o un administrador pueden ver el perfil
-    // ----------------------------------------------------------------
 
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMINISTRATOR') or #userId == authentication.principal.userId")
@@ -45,9 +39,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // ----------------------------------------------------------------
-    // UPDATE perfil — el propio usuario o administrador
-    // ----------------------------------------------------------------
 
     @PatchMapping("/{userId}")
     @PreAuthorize("hasRole('ADMINISTRATOR') or #userId == authentication.principal.userId")
@@ -58,9 +49,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // ----------------------------------------------------------------
-    // DELETE cuenta — solo el propio usuario (USER)
-    // ----------------------------------------------------------------
 
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
@@ -69,9 +57,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // ----------------------------------------------------------------
-    // CONTACTS
-    // ----------------------------------------------------------------
 
     @PostMapping("/{userId}/contacts")
     @PreAuthorize("hasRole('ADMINISTRATOR') or #userId == authentication.principal.userId")
@@ -105,9 +90,6 @@ public class UserController {
         return ResponseEntity.ok(auth.getAuthorities());
     }
 
-    // ----------------------------------------------------------------
-    // SAVED TOURS — solo el propio usuario (USER)
-    // ----------------------------------------------------------------
 
     @PostMapping("/{userId}/saved-tours/{tourId}")
     @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")

@@ -1,46 +1,45 @@
 package com.proyecto.app.reviewManagment.domain;
 
-import java.util.Date;
-
 import com.proyecto.app.common.User;
-import com.proyecto.app.tourManagment.domain.Tour;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "reviews")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Review {
-    
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "author_id")
     private User author;
-    private Tour associatedTour;
+
+    @Column(name = "tour_id", nullable = false)
+    private Long tourId;
+
+    @Column(nullable = false)
     private int rating;
-    private Date publicationDtae;
+
+    @Column(nullable = false)
+    private LocalDate publicationDate;
+
+    @Column(nullable = false, length = 1000)
     private String comment;
-    public User getAuthor() {
-        return author;
-    }
-    public void setAuthor(User author) {
+
+    public Review(User author, Long tourId, int rating, String comment) {
         this.author = author;
-    }
-    public Tour getAssociatedTour() {
-        return associatedTour;
-    }
-    public void setAssociatedTour(Tour associatedTour) {
-        this.associatedTour = associatedTour;
-    }
-    public int getRating() {
-        return rating;
-    }
-    public void setRating(int rating) {
+        this.tourId = tourId;
         this.rating = rating;
-    }
-    public Date getPublicationDtae() {
-        return publicationDtae;
-    }
-    public void setPublicationDtae(Date publicationDtae) {
-        this.publicationDtae = publicationDtae;
-    }
-    public String getComment() {
-        return comment;
-    }
-    public void setComment(String comment) {
         this.comment = comment;
-    }  
-    
+        this.publicationDate = LocalDate.now();
+    }
 }

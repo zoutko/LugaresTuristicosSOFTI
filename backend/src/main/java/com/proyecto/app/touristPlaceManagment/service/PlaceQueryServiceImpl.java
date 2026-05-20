@@ -1,4 +1,3 @@
-// touristPlaceManagment/service/PlaceQueryServiceImpl.java
 package com.proyecto.app.touristPlaceManagment.service;
 
 import com.proyecto.app.common.Environment;

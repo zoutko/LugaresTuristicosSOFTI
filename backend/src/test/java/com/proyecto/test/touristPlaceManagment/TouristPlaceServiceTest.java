@@ -349,10 +349,6 @@ class TouristPlaceServiceTest {
                 .isInstanceOf(TouristPlaceNotFoundException.class);
     }
 
-    // ----------------------------------------------------------------
-    // resolveOrThrow
-    // ----------------------------------------------------------------
-
     @Test
     @DisplayName("resolveOrThrow: retorna el lugar si existe")
     void resolveOrThrow_returnsPlace() {

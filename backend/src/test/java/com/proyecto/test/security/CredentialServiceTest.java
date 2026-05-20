@@ -58,9 +58,6 @@ class CredentialServiceTest {
         credential = mock(Credential.class);
         token = mock(Token.class);
     }
-    // ----------------------------------------------------------------
-    // login
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("login: autentica y retorna token exitosamente")
@@ -105,9 +102,6 @@ class CredentialServiceTest {
                 .hasMessageContaining("User not found");
     }
 
-    // ----------------------------------------------------------------
-    // logout
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("logout: revoca el token correctamente")
@@ -117,9 +111,6 @@ class CredentialServiceTest {
         verify(tokenService).revokeToken("jwt-token-123");
     }
 
-    // ----------------------------------------------------------------
-    // createCredential
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("createCredential: lanza excepción si el email ya existe")
@@ -176,10 +167,6 @@ class CredentialServiceTest {
         verify(credentialRepository).save(any(Credential.class));
     }
 
-    // ----------------------------------------------------------------
-    // changePassword
-    // ----------------------------------------------------------------
-
     @Test
     @DisplayName("changePassword: lanza excepción si el email no existe")
     void changePassword_throwsIfEmailNotFound() {
@@ -231,9 +218,6 @@ class CredentialServiceTest {
         verify(credentialRepository).save(credential);
     }
 
-    // ----------------------------------------------------------------
-    // recoverPassword
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("recoverPassword: lanza excepción si el email no está registrado")
@@ -259,9 +243,6 @@ class CredentialServiceTest {
         verify(credentialRepository).save(credential);
     }
 
-    // ----------------------------------------------------------------
-    // getCredentialByUserId
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("getCredentialByUserId: lanza excepción si no existe la credencial")

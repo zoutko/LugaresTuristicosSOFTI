@@ -15,7 +15,7 @@ public class CreateTourRequest {
 
     private String name;
     private List<Long> categoryIds;
-    private String environment;        // "INTERIOR", "MIXED", "EXTERIOR"
+    private String environment;
     private String description;
     private String recommendations;
     private double price;

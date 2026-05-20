@@ -58,8 +58,6 @@ public class TourService {
         this.environmentValidator = environmentValidator;
     }
 
-    // ── TOUR CRUD ──────────────────────────────────
-
     @Transactional
     public TourResponse createTour(CreateTourRequest request) {
         if (request.getName() == null || request.getName().isBlank()) {
@@ -114,7 +112,6 @@ public class TourService {
             saved.setItinerary(items);
         }
 
-        // TourOffer
         TourOffer offer = new TourOffer(saved, request.getBasePrice());
         tourOfferRepository.save(offer);
         saved.setTourOffer(offer);
@@ -204,7 +201,6 @@ public class TourService {
         tourRepository.deleteById(id);
     }
 
-    // ── ITINERARY ──────────────────────────────────
 
     @Transactional
     public TourResponse addPlaceToItinerary(Long tourId, Long placeId) {
@@ -243,7 +239,6 @@ public class TourService {
         .orElseThrow(() -> new TourNotFoundException(tourId)));
     }
 
-    // ── DISCOUNTS ──────────────────────────────────
 
     @Transactional
     public TourOfferResponse addDiscount(Long tourId, DiscountRequest request) {
@@ -288,7 +283,6 @@ public class TourService {
         return toOfferResponse(offer);
     }
 
-    // ── MAPPERS ────────────────────────────────────
 
     public TourResponse toResponse(Tour tour) {
         TourResponse response = new TourResponse();
@@ -323,7 +317,6 @@ public class TourService {
         if (tour.getTourOffer() != null)
             response.setTourOffer(toOfferResponse(tour.getTourOffer()));
 
-        // Álbum
         if (tour.getAlbum() != null) {
             List<PhotoResponse> photos = tour.getAlbum().getPhotos().stream()
                     .map(p -> new PhotoResponse(p.getFilePath(), p.getFileName(), p.getDescription()))

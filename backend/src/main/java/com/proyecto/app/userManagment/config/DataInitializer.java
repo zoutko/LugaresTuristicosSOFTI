@@ -35,10 +35,10 @@ public class DataInitializer implements ApplicationRunner {
         
         UserProfile adminProfile = new UserProfile(
                 "Administrador",
-                "000000000",
+                "1053489671",
                 "ADMINISTRATOR"
         );
-        Contact contact = new Contact("3000000000", adminProfile);
+        Contact contact = new Contact("3123805426", adminProfile);
         adminProfile.addContact(contact);
 
         

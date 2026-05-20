@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.proyecto.app.reviewManagment.exception.InvalidReviewException;
+import com.proyecto.app.reviewManagment.exception.ReviewNotFoundException;
+import com.proyecto.app.reviewManagment.exception.UnauthorizedReviewActionException;
 import com.proyecto.app.tourManagment.exception.InvalidTourDataException;
 import com.proyecto.app.tourManagment.exception.TourNotFoundException;
 import com.proyecto.app.tourManagment.exception.TourOfferNotFoundException;
@@ -48,6 +51,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<String> handleReviewNotFound(ReviewNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedReviewActionException.class)
+    public ResponseEntity<String> handleUnauthorized(UnauthorizedReviewActionException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidReviewException.class)
+    public ResponseEntity<String> handleInvalidReview(InvalidReviewException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
