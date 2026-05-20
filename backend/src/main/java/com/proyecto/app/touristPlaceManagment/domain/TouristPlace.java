@@ -28,9 +28,6 @@ public class TouristPlace {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "cancelation_policy")
-    private String cancelationPolicy;
-
     @Column(name = "duration")
     private String duration;
 
