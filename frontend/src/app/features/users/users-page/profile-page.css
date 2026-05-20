@@ -1,0 +1,439 @@
+.profile-header-bg {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    height:100px;
+    background: linear-gradient(135deg, #e6851e 0%, #f0a34b 100%);
+    z-index: 0;
+}
+
+/* ===== SECCIÓN 1: HERO CENTRADA ===== */
+.hero-section {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+/* Avatar */
+.avatar-container {
+    margin-top: 100px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid #2f7c2f;
+    margin-top: -100px;
+}
+
+.avatar-icon {
+    font-size: 60px;
+    color: #2f7c2f;
+}
+
+/* Nombre y correo */
+.user-info {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.user-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+}
+
+.user-email {
+    font-size: 16px;
+    color: #666666;
+    margin: 0;
+}
+
+/* ===== SECCIÓN 2: DOS COLUMNAS ===== */
+.two-columns-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px 45px;
+}
+
+.two-columns-grid {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Ambas cards con el mismo ancho fijo */
+.info-card,
+.actions-card {
+    flex: 1;
+    min-width: 0;
+    background-color: #ffffff;
+    border-radius: 4px;
+    padding: 24px 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+
+.card {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 4px;  /* ← Cambiado de 8px a 4px (más rectangular) */
+    padding: 24px 28px;   /* ← Padding más compacto */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.card-title {
+    margin: 0 0 24px 0;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #2f7c2f;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #efe9cf;
+}
+
+.card-title--actions {
+    color: #e6851e;
+    font-size: 18px;
+}
+
+/* Campos de información */
+.info-field {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e8e4c9;
+}
+
+.info-field:last-child {
+    border-bottom: none;
+}
+
+.field-label {
+    font-weight: 600;
+    width: 90px;
+    color: #555;
+}
+
+.field-value {
+    flex: 1;
+    color: #333;
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: hsl(120, 45%, 34%);
+}
+
+.edit-btn:hover {
+    background-color: rgba(47, 124, 47, 0.1);
+}
+
+/* Acciones */
+.action-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    color: #333;
+}
+
+.action-item:hover {
+    background-color: #f5f5f5;
+    transform: translateX(4px);
+}
+
+.action-icon {
+    font-size: 22px;
+    width: 24px;
+    height: 24px;
+}
+
+.action-text {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+
+/* ===== ACCIONES - BOTONES ===== */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.action-btn:hover {
+    transform: translateX(6px);
+}
+
+/* Botones verdes (como el footer) */
+.action-btn--green {
+    background-color: #2f7c2f;
+    color: white;
+}
+
+.action-btn--green .action-icon img {
+    filter: brightness(0) invert(1);
+}
+
+.action-btn--green:hover {
+    background-color: #236b23;
+    box-shadow: 0 4px 12px rgba(47, 124, 47, 0.3);
+}
+
+/* Botones naranjas */
+.action-btn--orange {
+    background-color: #e6851e;
+    color: white;
+}
+
+.action-btn--orange .action-icon img {
+    filter: brightness(0) invert(1);
+}
+
+.action-btn--orange:hover {
+    background-color: #d47719;
+    box-shadow: 0 4px 12px rgba(230, 133, 30, 0.3);
+}
+
+.action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+}
+
+.action-text {
+    flex: 1;
+    position: center;
+}
+
+/* Eliminar el título si no lo quieres */
+.actions-card .card-title {
+    display: none;
+}
+
+.actions-card {
+    background-color: transparent;
+    box-shadow: none ;
+    padding: 0;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    padding: 28px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.modal-content h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #2f7c2f;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    color: #555;
+}
+
+.btn-save {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #2f7c2f;
+    color: white;
+}
+
+.btn-save:disabled {
+    background-color: #ccc;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 100px auto;
+    position: relative;
+    z-index: 1;
+}
+
+.error {
+    color: #b42318;
+}
+
+/* Animación */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.avatar, .user-info, .card {
+    animation: slideIn 0.5s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+    .two-columns-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+    
+    .profile-header-bg {
+        height: 180px;
+    }
+    
+    .avatar {
+        width: 100px;
+        height: 100px;
+        margin-top: -50px;
+    }
+    
+    .avatar-icon {
+        font-size: 50px;
+    }
+}
+
+@media (max-width: 520px) {
+    .profile-header-bg {
+        height: 160px;
+        top: 64px;
+    }
+    
+    .avatar-container {
+        margin-top: 60px;
+    }
+    
+    .avatar {
+        width: 80px;
+        height: 80px;
+        margin-top: -40px;
+    }
+    
+    .avatar-icon {
+        font-size: 40px;
+    }
+    
+    .user-name {
+        font-size: 22px;
+    }
+    
+    .card {
+        padding: 20px 16px;
+    }
+    
+    .info-field {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .field-label {
+        width: 100%;
+    }
+    
+    .two-columns-container {
+        padding: 0 16px 32px;
+    }
+}

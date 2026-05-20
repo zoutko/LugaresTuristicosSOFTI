@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: gestor-recorridos-turisticos
+
+  # ── Base de datos H2 ────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # ── Gmail SMTP ──────────────────────────────────────────────────────────
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: recorridosturisticos8@gmail.com
+    password: uggl ryug xbii tebx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# ── Seguridad ────────────────────────────────────────────────────────────
+security:
+  recovery:
+    expiration-ms: 900000
+  jwt:
+    secret-key: recorridosturisticossecretkey12345678902026software
+    expiration-ms: 3600000
+
+# ── CORS ─────────────────────────────────────────────────────────────────
+app:
+  cors:
+    allowed-origins: http://localhost:4200
+
+# ── SonarQube ────────────────────────────────────────────────────────────
+sonar:
+  projectKey: gestor-recorridos
+  projectName: Gestor de Recorridos Turísticos
+  host:
+    url: http://localhost:9000

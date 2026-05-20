@@ -35,6 +35,7 @@ public class TokenService {
 
         String jwt = Jwts.builder()
                 .subject(credential.getUsername())
+                .claim("userId", credential.getUserId())  
                 .issuedAt(new Date())
                 .expiration(expiration)
                 .signWith(getSigningKey())

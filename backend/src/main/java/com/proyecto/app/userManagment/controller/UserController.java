@@ -63,7 +63,7 @@ public class UserController {
     // ----------------------------------------------------------------
 
     @DeleteMapping("/{userId}")
-    @PreAuthorize("hasRole('USER') and #userId.equals(authentication.principal.userId)")
+    @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long userId) {
         userService.deleteAccount(userId);
         return ResponseEntity.noContent().build();

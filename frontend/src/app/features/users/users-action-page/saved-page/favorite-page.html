@@ -1,0 +1,36 @@
+<div class="profile-header-bg">
+    <h1>Recorridos Guardados</h1>
+</div>
+<div class="saved-tours-container">
+  <div *ngIf="loading" class="loading">
+    Cargando recorridos guardados...
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && tours.length === 0" class="empty-state">
+    <p>No tienes recorridos guardados aún.</p>
+    <button class="btn-explore" (click)="goToExplorar()">
+      Explorar Recorridos
+    </button>
+  </div>
+
+<div class="tours-horizontal" *ngIf="!loading && !error && tours.length > 0">
+  @for (tour of tours; track tour.id) {
+    <app-tour-card 
+      [tour]="tour" 
+      [showRemoveButton]="true"
+      (view)="viewTour($event)"
+      (remove)="removeTour($event)">
+    </app-tour-card>
+  }
+</div>
+
+<app-toast
+  [open]="toastOpen"
+  [message]="toastMessage"
+  [variant]="toastVariant"
+  (closed)="closeToast()"
+></app-toast>

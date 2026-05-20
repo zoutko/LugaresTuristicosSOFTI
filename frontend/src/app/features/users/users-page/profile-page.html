@@ -1,0 +1,104 @@
+<!-- Banner naranja de ancho completo -->
+<div class="profile-header-bg"></div>
+
+<!-- SECCIÓN 1: Centrada globalmente (bolita + nombre + correo) -->
+<div class="hero-section">
+    <div class="hero-content">
+        <!-- Avatar -->
+        <div class="avatar-container">
+            <div class="avatar">
+                <img src="usuario.svg" alt="Foto Perfil" width="40" height="40">
+            </div>
+        </div>
+        
+        <!-- Nombre y correo -->
+        <div class="user-info" *ngIf="!loading && !error && user">
+            <h2 class="user-name">{{ user.profile.name }}</h2>
+            <p class="user-email">{{ user.email }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- SECCIÓN 2: Layout de dos columnas (información personal + acciones) -->
+<div class="two-columns-container">
+    <div class="two-columns-grid">
+        <!-- Columna izquierda - Información Personal -->
+        <div class="info-card card" *ngIf="!loading && !error && user">
+            <h3 class="card-title">Información Personal</h3>
+            
+            <div class="info-field">
+                <div class="field-label">Nombre:</div>
+                <div class="field-value">{{ user.profile.name }}</div>
+                <button class="edit-btn edit-btn-green" (click)="openEditField('nombre', user.profile.name)">✎</button>
+            </div>
+            
+            <div class="info-field">
+                <div class="field-label">Correo:</div>
+                <div class="field-value">{{ user.email }}</div>
+                <button class="edit-btn edit-btn-green" (click)="openEditField('correo', user.email)">✎</button>
+            </div>
+            
+            <div class="info-field">
+                <div class="field-label">Documento:</div>
+                <div class="field-value">{{ user.profile.document }}</div>
+                <button class="edit-btn edit-btn-green" (click)="openEditField('documento', user.profile.document)">✎</button>
+            </div>
+        </div>
+        
+       <!-- Columna derecha - Acciones -->
+<div class="actions-card card" *ngIf="!loading && !error && user">
+    <div class="action-buttons">
+        <button class="action-btn action-btn--green" (click)="goToMisReservas()">
+            <span class="action-icon">
+                <img src="reservas.svg" alt="Reservas" width="22" height="22">
+            </span>
+            <span class="action-text">Mis Reservas</span>
+        </button>
+        
+        <button class="action-btn action-btn--green" (click)="goToRecorridosGuardados()">
+            <span class="action-icon">
+                <img src="guardados.svg" alt="Recorridos Guardados" width="22" height="22">
+            </span>
+            <span class="action-text">Recorridos Guardados</span>
+        </button>
+        
+        <button class="action-btn action-btn--orange" (click)="goToFavoritos()">
+            <span class="action-text">Cambiar contraseña</span>
+        </button>
+        
+        <button class="action-btn action-btn--orange" (click)="goToConfiguracion()">
+            <span class="action-text">Eliminar Cuenta</span>
+        </button>
+      </div>
+    </div>
+</div>
+
+<!-- Estados de carga y error -->
+<div *ngIf="loading" class="loading">Cargando perfil...</div>
+<div *ngIf="error" class="error">{{ error }}</div>
+
+<!-- Modal de edición -->
+<div class="modal-overlay" *ngIf="editModalOpen" (click)="closeEditModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>Editar {{ editFieldName }}</h3>
+        <input 
+            type="text" 
+            class="edit-input"
+            [(ngModel)]="editFieldValue"
+            placeholder="Ingrese nuevo valor"
+        />
+        <div class="modal-buttons">
+            <button class="btn-cancel" (click)="closeEditModal()">Cancelar</button>
+            <button class="btn-save" (click)="saveEditField()" [disabled]="isSaving">
+                {{ isSaving ? 'Guardando...' : 'Guardar' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<app-toast
+    [open]="toastOpen"
+    [message]="toastMessage"
+    [variant]="toastVariant"
+    (closed)="closeToast()"
+></app-toast>

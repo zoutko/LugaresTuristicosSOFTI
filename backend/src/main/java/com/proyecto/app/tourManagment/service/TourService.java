@@ -222,7 +222,8 @@ public class TourService {
         }
         int nextPosition = itineraryRepository.findByTourIdOrderByPositionAsc(tourId).size() + 1;
         itineraryRepository.save(new Itinerary(tour, placeId, nextPosition));
-        return toResponse(tourRepository.findById(tourId).get());
+        return toResponse(tourRepository.findById(tourId)
+        .orElseThrow(() -> new TourNotFoundException(tourId)));
     }
 
     @Transactional
@@ -238,7 +239,8 @@ public class TourService {
         }
         itineraryRepository.saveAll(remaining);
 
-        return toResponse(tourRepository.findById(tourId).get());
+        return toResponse(tourRepository.findById(tourId)
+        .orElseThrow(() -> new TourNotFoundException(tourId)));
     }
 
     // ── DISCOUNTS ──────────────────────────────────
