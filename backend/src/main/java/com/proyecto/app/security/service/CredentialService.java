@@ -2,6 +2,7 @@ package com.proyecto.app.security.service;
 
 import com.proyecto.app.security.domain.Credential;
 import com.proyecto.app.security.domain.Token;
+import com.proyecto.app.security.dto.request.ChangeEmailRequest;
 import com.proyecto.app.security.dto.request.ChangePasswordRequest;
 import com.proyecto.app.security.dto.request.LoginRequest;
 import com.proyecto.app.security.dto.request.RegisterRequest;
@@ -46,9 +47,10 @@ public class CredentialService {
         Token token = tokenService.generateToken(credential);
 
         return new LoginResponse(
-                token.getToken(),
-                credential.getEmail(),
-                credential.getRole()
+            token.getToken(),
+            credential.getEmail(),
+            credential.getRole(),
+            credential.getUserId()
         );
     }
 
@@ -96,6 +98,22 @@ public class CredentialService {
         credential.setPassword(passwordEncoder.encode(temporaryPassword));
         credentialRepository.save(credential);
         return temporaryPassword;
+    }
+
+    public void changeEmail(ChangeEmailRequest request) {
+        Credential credential = credentialRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new UsernameNotFoundException("Credencial no encontrada"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), credential.getPassword())) {
+            throw new BadCredentialsException("Contraseña incorrecta");
+        }
+
+        if (credentialRepository.existsByEmail(request.getNewEmail())) {
+            throw new IllegalArgumentException("Email ya registrado");
+        }
+
+        credential.setEmail(request.getNewEmail());
+        credentialRepository.save(credential);
     }
 
     private String generateTemporaryPassword() {
