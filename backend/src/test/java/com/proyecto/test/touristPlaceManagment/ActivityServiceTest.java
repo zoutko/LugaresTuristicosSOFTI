@@ -55,10 +55,6 @@ class ActivityServiceTest {
         place = mock(TouristPlace.class);
     }
 
-    // ----------------------------------------------------------------
-    // getActivitiesByPlace
-    // ----------------------------------------------------------------
-
     @Test
     @DisplayName("getActivitiesByPlace: retorna lista de actividades del lugar")
     void getActivitiesByPlace_returnsMappedActivities() {
@@ -90,10 +86,6 @@ class ActivityServiceTest {
 
         assertThat(result).isEmpty();
     }
-
-    // ----------------------------------------------------------------
-    // addActivity
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("addActivity: agrega actividad y guarda el lugar")
@@ -140,9 +132,6 @@ class ActivityServiceTest {
                 .hasMessageContaining("Lugar no encontrado");
     }
 
-    // ----------------------------------------------------------------
-    // removeActivity
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("removeActivity: elimina actividad existente")
@@ -189,9 +178,6 @@ class ActivityServiceTest {
                 .isInstanceOf(ActivityNotFoundException.class);
     }
 
-    // ----------------------------------------------------------------
-    // getActivityById
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("getActivityById: retorna la actividad correcta")

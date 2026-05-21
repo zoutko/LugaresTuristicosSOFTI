@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class TourFilterRequest {
     private String name;
-    private List<String> environments;   // ["INTERIOR", "EXTERIOR", "MIXED"]
+    private List<String> environments;
     private List<Long> categoryIds;
     private Double maxPrice;
 }

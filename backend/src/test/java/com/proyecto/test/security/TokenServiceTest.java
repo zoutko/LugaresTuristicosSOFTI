@@ -45,10 +45,6 @@ class TokenServiceTest {
         credential = mock(Credential.class);
     }
 
-    // ----------------------------------------------------------------
-    // generateToken
-    // ----------------------------------------------------------------
-
     @Test
     @DisplayName("generateToken: genera y guarda el token")
     void generateToken_generatesAndPersistsToken() {
@@ -95,9 +91,6 @@ class TokenServiceTest {
         verify(tokenRepository).saveAll(List.of(previousToken));
     }
 
-    // ----------------------------------------------------------------
-    // validateToken
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("validateToken: retorna false si el token no existe en el repositorio")
@@ -205,9 +198,6 @@ class TokenServiceTest {
         assertThat(valid).isFalse();
     }
 
-    // ----------------------------------------------------------------
-    // extractUsername
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("extractUsername: extrae el usuario del JWT")
@@ -235,9 +225,6 @@ class TokenServiceTest {
         assertThat(username).isEqualTo("user@example.com");
     }
 
-    // ----------------------------------------------------------------
-    // revokeToken
-    // ----------------------------------------------------------------
 
     @Test
     @DisplayName("revokeToken: revoca el token si existe")

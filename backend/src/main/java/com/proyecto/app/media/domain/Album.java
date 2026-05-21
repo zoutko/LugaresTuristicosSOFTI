@@ -14,7 +14,7 @@ import java.util.List;
 public class Album {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY )
     private Long id;
 
     @Column(unique = true, nullable = false)

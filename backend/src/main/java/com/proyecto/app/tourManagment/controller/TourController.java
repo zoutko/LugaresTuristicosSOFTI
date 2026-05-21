@@ -1,4 +1,5 @@
 package com.proyecto.app.tourManagment.controller;
+
 import com.proyecto.app.tourManagment.dto.request.CreateTourRequest;
 import com.proyecto.app.tourManagment.dto.request.DiscountRequest;
 import com.proyecto.app.tourManagment.dto.request.TourFilterRequest;
@@ -22,8 +23,6 @@ public class TourController {
     public TourController(TourService tourService) {
         this.tourService = tourService;
     }
-
-    // ── TOUR CRUD ──────────────────────────────────
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRATOR')")
@@ -58,7 +57,6 @@ public class TourController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── ITINERARY ──────────────────────────────────
 
     @PostMapping("/{tourId}/itinerary/{placeId}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
@@ -76,7 +74,6 @@ public class TourController {
         return ResponseEntity.ok(tourService.removePlaceFromItinerary(tourId, placeId));
     }
 
-    // ── DISCOUNTS ──────────────────────────────────
 
     @PostMapping("/{tourId}/discounts")
     @PreAuthorize("hasRole('ADMINISTRATOR')")

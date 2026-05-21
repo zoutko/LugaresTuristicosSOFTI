@@ -9,6 +9,7 @@ import com.proyecto.app.touristPlaceManagment.service.ActivityService;
 import com.proyecto.app.touristPlaceManagment.service.TouristPlaceService;
 
 import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/places")
+@RequestMapping("/api/places")
 public class TouristPlaceController {
 
     private final TouristPlaceService touristPlaceService;
@@ -27,10 +28,6 @@ public class TouristPlaceController {
         this.touristPlaceService = touristPlaceService;
         this.activityService = activityService;
     }
-
-    // ----------------------------------------------------------------
-    // READ — cualquier usuario autenticado o público
-    // ----------------------------------------------------------------
 
     @GetMapping
     public ResponseEntity<List<TouristPlaceResponse>> getAll() {
@@ -69,7 +66,7 @@ public class TouristPlaceController {
         return ResponseEntity.ok(touristPlaceService.create(request));
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TouristPlaceResponse> update(
             @PathVariable Long id,

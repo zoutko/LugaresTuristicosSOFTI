@@ -16,7 +16,6 @@ public class TourSpecification {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Filtro por nombre (contains, case-insensitive)
             if (filters.getName() != null && !filters.getName().isBlank()) {
                 predicates.add(cb.like(
                     cb.lower(root.get("name")),
@@ -24,7 +23,6 @@ public class TourSpecification {
                 ));
             }
 
-            // Filtro por entorno (OR entre los seleccionados)
             if (filters.getEnvironments() != null && !filters.getEnvironments().isEmpty()) {
                 List<Environment> envs = filters.getEnvironments().stream()
                     .map(Environment::valueOf)
@@ -32,16 +30,14 @@ public class TourSpecification {
                 predicates.add(root.get("environment").in(envs));
             }
 
-            // Filtro por precio máximo
             if (filters.getMaxPrice() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), filters.getMaxPrice()));
             }
 
-            // Filtro por categorías (el tour debe tener AL MENOS una de las categorías)
             if (filters.getCategoryIds() != null && !filters.getCategoryIds().isEmpty()) {
                 Join<Tour, Category> categoryJoin = root.join("categories", JoinType.INNER);
                 predicates.add(categoryJoin.get("id").in(filters.getCategoryIds()));
-                query.distinct(true); // evitar duplicados por el join
+                query.distinct(true);
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
