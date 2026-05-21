@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SavedTour, TourTag } from '../../core/models/tour-model';
+import { TourCard } from '../../core/models/tour-model';
 
 @Component({
   selector: 'app-tour-card',
@@ -10,7 +10,7 @@ import { SavedTour, TourTag } from '../../core/models/tour-model';
   styleUrls: ['./tour-card.css']
 })
 export class TourCardComponent {
-  @Input() tour!: SavedTour;
+  @Input() tour!: TourCard;
   @Input() showRemoveButton = false;
   @Output() view = new EventEmitter<number>();
   @Output() remove = new EventEmitter<number>();
@@ -27,14 +27,7 @@ export class TourCardComponent {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
       currency: 'COP',
-      minimumFractionDigits: 0  
+      minimumFractionDigits: 0
     }).format(price);
-  }
-
-  getTagName(tag: string | TourTag): string {
-    if (typeof tag === 'string') {
-      return tag;
-    }
-    return tag.name;
   }
 }

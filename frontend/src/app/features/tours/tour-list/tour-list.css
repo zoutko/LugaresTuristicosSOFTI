@@ -1,0 +1,186 @@
+.tours-page {
+  position: relative;
+  min-height: calc(100vh - 144px);
+}
+
+.page-header-bg {
+  position: fixed;
+  top: 72px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(135deg, #e6851e 0%, #f0a34b 100%);
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-header-bg h1 {
+  color: white;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.tours-layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 140px 40px 40px;
+}
+
+/* Sidebar */
+.filters-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  position: sticky;
+  top: 180px;
+}
+
+.filters-sidebar h2 {
+  font-size: 20px;
+  color: #2f7c2f;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #efe9cf;
+}
+
+.filter-section {
+  margin-bottom: 24px;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #2f7c2f;
+}
+
+.price-input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.price-input input[type="range"] {
+  width: 100%;
+  accent-color: #2f7c2f;
+}
+
+.price-value {
+  font-size: 14px;
+  color: #2f7c2f;
+  font-weight: 600;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.checkbox-item input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2f7c2f;
+}
+
+.btn-clear {
+  width: 100%;
+  padding: 10px;
+  background-color: #efe9cf;
+  color: #2f7c2f;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-top: 16px;
+}
+
+.btn-clear:hover {
+  background-color: #e8e1b8;
+  transform: translateY(-2px);
+}
+
+/* Grid de tours */
+.tours-content {
+  flex: 1;
+}
+
+.tours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px;
+}
+
+.loading, .error, .empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.error {
+  color: #b42318;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .tours-layout {
+    flex-direction: column;
+    padding: 140px 20px 40px;
+  }
+  
+  .filters-sidebar {
+    width: 100%;
+    position: static;
+  }
+  
+  .tours-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+}
