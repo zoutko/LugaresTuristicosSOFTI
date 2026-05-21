@@ -1,5 +1,6 @@
 package com.proyecto.app.touristPlaceManagment.controller;
 
+import com.proyecto.app.media.domain.Album;
 import com.proyecto.app.media.dto.request.PhotoRequest;
 import com.proyecto.app.media.dto.response.AlbumResponse;
 import com.proyecto.app.media.dto.response.PhotoResponse;
@@ -72,7 +73,9 @@ public class PlaceMediaController {
         TouristPlace place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new TouristPlaceNotFoundException(placeId.toString()));
         if (place.getAlbum() == null) {
-            throw new TouristPlaceNotFoundException("Álbum no encontrado para el lugar: " + placeId);
+            Album album = new Album(place.getName());
+            place.setAlbum(album);
+            placeRepository.save(place);
         }
         return place.getAlbum().getId();
     }
