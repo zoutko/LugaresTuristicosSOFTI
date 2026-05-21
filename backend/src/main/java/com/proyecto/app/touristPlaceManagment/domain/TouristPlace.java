@@ -19,7 +19,7 @@ import java.util.List;
 public class TouristPlace {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY )
     private Long id;
 
     @Column(name = "name", nullable = false)
@@ -27,9 +27,6 @@ public class TouristPlace {
 
     @Column(name = "description")
     private String description;
-
-    @Column(name = "cancelation_policy")
-    private String cancelationPolicy;
 
     @Column(name = "duration")
     private String duration;
