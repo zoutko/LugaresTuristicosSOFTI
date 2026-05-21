@@ -13,6 +13,19 @@ export interface TouristPlaceActivity {
   description: string;
 }
 
+export interface TouristPlacePhoto {
+  filePath: string;
+  fileName?: string | null;
+  description?: string | null;
+}
+
+export interface TouristPlaceAlbum {
+  currentIndex: number;
+  totalPhotos: number;
+  currentPhoto: TouristPlacePhoto | null;
+  photos: TouristPlacePhoto[];
+}
+
 export interface TouristPlace {
   id: number;
   name: string;

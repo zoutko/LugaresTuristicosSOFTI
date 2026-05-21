@@ -59,7 +59,7 @@
           <div class="tags">
             <span *ngFor="let category of getCategories(place)">{{ category }}</span>
           </div>
-          <button type="button">Ver</button>
+          <button type="button" [routerLink]="['/lugares', place.id]">Ver</button>
         </div>
       </div>
     </article>

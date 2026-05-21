@@ -3,26 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { from, of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { TouristPlace } from './tourist-places.types';
-
-interface PhotoResponse {
-  filePath: string;
-  fileName?: string;
-  description?: string;
-}
-
-interface AlbumResponse {
-  currentIndex: number;
-  totalPhotos: number;
-  currentPhoto: PhotoResponse | null;
-  photos: PhotoResponse[];
-}
+import { TouristPlace, TouristPlaceAlbum } from './tourist-places.types';
 
 @Component({
   selector: 'app-tourist-places',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './tourist-places.html',
   styleUrl: './tourist-places.css',
 })
@@ -96,7 +84,7 @@ export class TouristPlaces {
       .pipe(
         mergeMap(
           (place) =>
-            this.http.get<AlbumResponse>(`/api/places/${place.id}/media/album`).pipe(
+            this.http.get<TouristPlaceAlbum>(`/api/places/${place.id}/media/album`).pipe(
               map((album) => ({ placeId: place.id, coverUrl: album.currentPhoto?.filePath ?? '' })),
               catchError(() => of({ placeId: place.id, coverUrl: '' }))
             ),

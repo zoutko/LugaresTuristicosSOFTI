@@ -3,9 +3,11 @@ import { AuthPage } from './features/auth/auth-page/auth-page';
 import { ChangePasswordPage } from './features/auth/change-password-page/change-password-page';
 import { ProfilePage } from './features/users/users-page/profile-page';
 import { TouristPlaces } from './features/tourist-places/tourist-places';
+import { TouristPlace } from './features/tourist-place/tourist-place';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'lugares', pathMatch: 'full' },
+    { path: 'lugares/:id', component: TouristPlace },
     { path: 'lugares', component: TouristPlaces },
     { path: 'profile', component: ProfilePage },
     { path: 'auth/change-password', component: ChangePasswordPage },

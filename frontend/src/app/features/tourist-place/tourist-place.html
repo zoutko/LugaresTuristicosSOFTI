@@ -1,1 +1,73 @@
-<p>tourist-place works!</p>
+<section class="detail-shell" aria-label="Detalle de lugar turistico">
+  <a class="back-link" routerLink="/lugares">Volver a lugares</a>
+
+  <div *ngIf="loading()" class="status-panel">Cargando detalle del lugar...</div>
+
+  <div *ngIf="!loading() && error()" class="status-panel status-panel--error">
+    <span>{{ error() }}</span>
+    <a routerLink="/lugares">Ir a lugares</a>
+  </div>
+
+  <ng-container *ngIf="!loading() && !error() && place() as selectedPlace">
+    <div class="hero">
+      <img [src]="getHeroImage()" [alt]="selectedPhoto()?.description || selectedPlace.name" />
+      <div class="hero-summary">
+        <div class="eyebrow">{{ getLocation() }}</div>
+        <h1>{{ selectedPlace.name }}</h1>
+        <p *ngIf="selectedPlace.description">{{ selectedPlace.description }}</p>
+      </div>
+    </div>
+
+    <div class="info-strip" aria-label="Informacion principal">
+      <div>
+        <span>Duracion</span>
+        <strong>{{ selectedPlace.duration || 'Consultar' }}</strong>
+      </div>
+      <div>
+        <span>Ambiente</span>
+        <strong>{{ getEnvironmentLabel() }}</strong>
+      </div>
+      <div>
+        <span>Fotos</span>
+        <strong>{{ album()?.totalPhotos || selectedPlace.totalPhotos || 0 }}</strong>
+      </div>
+      <div>
+        <span>Coordenadas</span>
+        <strong>{{ getCoordinates() }}</strong>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <section class="detail-section">
+        <h2>Actividades</h2>
+        <ul *ngIf="activities().length > 0; else noActivities" class="activity-list">
+          <li *ngFor="let activity of activities()">{{ activity.description }}</li>
+        </ul>
+        <ng-template #noActivities>
+          <p class="muted">Aun no hay actividades registradas para este lugar.</p>
+        </ng-template>
+      </section>
+
+      <section class="detail-section">
+        <h2>Categorias</h2>
+        <div class="tags">
+          <span *ngFor="let category of categories()">{{ category }}</span>
+        </div>
+      </section>
+    </div>
+
+    <section class="gallery" *ngIf="photos().length > 0">
+      <h2>Galeria</h2>
+      <div class="thumbs">
+        <button
+          *ngFor="let photo of photos()"
+          type="button"
+          [class.is-active]="selectedPhoto()?.filePath === photo.filePath"
+          (click)="selectPhoto(photo)"
+        >
+          <img [src]="photo.filePath" [alt]="photo.description || photo.fileName || selectedPlace.name" />
+        </button>
+      </div>
+    </section>
+  </ng-container>
+</section>
