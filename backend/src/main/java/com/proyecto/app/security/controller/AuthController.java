@@ -1,6 +1,7 @@
 package com.proyecto.app.security.controller;
 
 import com.proyecto.app.security.domain.Credential;
+import com.proyecto.app.security.dto.request.ChangeEmailRequest;
 import com.proyecto.app.security.dto.request.ChangePasswordRequest;
 import com.proyecto.app.security.dto.request.LoginRequest;
 import com.proyecto.app.security.dto.request.RecoverPasswordRequest;
@@ -63,5 +64,13 @@ public class AuthController {
             @RequestBody ChangePasswordRequest request) {
         credentialService.changePassword(request);
         return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+    }
+
+    @PatchMapping("/change-email")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, String>> changeEmail(
+            @RequestBody ChangeEmailRequest request) {
+        credentialService.changeEmail(request);
+        return ResponseEntity.ok(Map.of("message", "Email actualizado correctamente"));
     }
 }
