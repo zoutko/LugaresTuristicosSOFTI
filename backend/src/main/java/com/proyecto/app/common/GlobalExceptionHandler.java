@@ -1,0 +1,79 @@
+package com.proyecto.app.common;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.proyecto.app.reviewManagment.exception.InvalidReviewException;
+import com.proyecto.app.reviewManagment.exception.ReviewNotFoundException;
+import com.proyecto.app.reviewManagment.exception.UnauthorizedReviewActionException;
+import com.proyecto.app.tourManagment.exception.InvalidTourDataException;
+import com.proyecto.app.tourManagment.exception.TourNotFoundException;
+import com.proyecto.app.tourManagment.exception.TourOfferNotFoundException;
+import com.proyecto.app.tourManagment.exception.UserTypeNotFoundException;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(TourNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleTourNotFound(TourNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(TourOfferNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleTourOfferNotFound(TourOfferNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(UserTypeNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserTypeNotFound(UserTypeNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidTourDataException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidTourData(InvalidTourDataException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Valor inválido: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<String> handleReviewNotFound(ReviewNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedReviewActionException.class)
+    public ResponseEntity<String> handleUnauthorized(UnauthorizedReviewActionException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidReviewException.class)
+    public ResponseEntity<String> handleInvalidReview(InvalidReviewException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now().toString());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
+        body.put("message", message);
+        return ResponseEntity.status(status).body(body);
+    }
+}

@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface LoginResponse {
+  userId: number;
   token: string;
   type: string;
   email: string;
@@ -14,7 +15,8 @@ export interface RegisterRequest {
   document?: string;
   phoneNumber?: string;
   email: string;
-  password: string;
+  password: string;    // ← Agregar
+  role: { name: string };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,8 +32,8 @@ export class AuthService {
   }
 
   register(request: RegisterRequest): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`/api/auth/register`, request);
-  }
+  return this.http.post<{ message: string }>(`/api/auth/register`, request);
+}
 
   changePassword(params: {
     token: string;
