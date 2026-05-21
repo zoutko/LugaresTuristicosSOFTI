@@ -28,8 +28,6 @@ public class AlbumService {
         this.albumRepository = albumRepository;
     }
 
-    // ── Métodos por placeId (mantiene compatibilidad con MediaController) ──
-
     public AlbumResponse getAlbum(Long placeId) {
         return toAlbumResponse(resolveAlbumByPlace(placeId));
     }
@@ -76,8 +74,6 @@ public class AlbumService {
         return toAlbumResponse(album);
     }
 
-    // ── Métodos genéricos por Album (reutilizables para Tour u otros) ──
-
     public AlbumResponse getAlbumById(Long albumId) {
         return toAlbumResponse(resolveAlbumOrThrow(albumId));
     }
@@ -123,7 +119,6 @@ public class AlbumService {
         return toAlbumResponse(album);
     }
 
-    // ── Helpers ──
 
     public Album findOrCreate(String albumName) {
         return albumRepository.findByName(albumName)
