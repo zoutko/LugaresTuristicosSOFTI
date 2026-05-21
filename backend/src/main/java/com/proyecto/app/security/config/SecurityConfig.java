@@ -47,9 +47,12 @@ public class SecurityConfig {
                                 "/api/auth/change-password",
                                 "/api/users/register",
                                 "/api/users/{userId}",
-                                "/places/**",
                                 "/h2-console/**")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/places/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/places/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/places/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/places/**").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.GET, "/api/tours/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/tours/**").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/tours/**").hasRole("ADMINISTRATOR")

@@ -13,7 +13,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/places/{placeId}/media")
+@RequestMapping("/api/places/{placeId}/media")
 public class MediaController {
 
     private final AlbumService albumService;

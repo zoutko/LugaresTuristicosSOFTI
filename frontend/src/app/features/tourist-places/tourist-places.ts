@@ -1,10 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-
-import { TOURIST_PLACES_MOCK } from './tourist-places.mock';
+import { from, of } from 'rxjs';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { TouristPlace } from './tourist-places.types';
+
+interface PhotoResponse {
+  filePath: string;
+  fileName?: string;
+  description?: string;
+}
+
+interface AlbumResponse {
+  currentIndex: number;
+  totalPhotos: number;
+  currentPhoto: PhotoResponse | null;
+  photos: PhotoResponse[];
+}
 
 @Component({
   selector: 'app-tourist-places',
@@ -14,8 +28,10 @@ import { TouristPlace } from './tourist-places.types';
 })
 export class TouristPlaces {
   private readonly http = inject(HttpClient);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly places = signal<TouristPlace[]>([]);
+  readonly coverPhotoByPlaceId = signal<Record<number, string>>({});
   readonly loading = signal(true);
   readonly error = signal('');
   readonly search = signal('');
@@ -27,7 +43,7 @@ export class TouristPlaces {
 
     return this.places().filter((place) => {
       const city = place.location?.city ?? '';
-      const categoryNames = place.categories?.map((category) => category.name).join(' ') ?? '';
+      const categoryNames = place.categories?.join(' ') ?? '';
       const matchesTerm = `${place.name} ${city} ${categoryNames}`.toLowerCase().includes(term);
       const matchesEnvironment = environment === 'ALL' || place.environment === environment;
 
@@ -59,15 +75,39 @@ export class TouristPlaces {
 
     this.http.get<TouristPlace[]>('/api/places').subscribe({
       next: (places) => {
-        this.places.set(places ?? []);
+        const resolvedPlaces = places ?? [];
+        this.places.set(resolvedPlaces);
+        this.loadCoverPhotos(resolvedPlaces);
         this.loading.set(false);
       },
       error: () => {
-        // Fallback to mocks so the UI can be tested without backend connectivity.
-        this.places.set(TOURIST_PLACES_MOCK);
+        this.error.set('No fue posible cargar los lugares turisticos desde el servidor.');
+        this.places.set([]);
+        this.coverPhotoByPlaceId.set({});
         this.loading.set(false);
       },
     });
+  }
+
+  private loadCoverPhotos(places: TouristPlace[]): void {
+    this.coverPhotoByPlaceId.set({});
+
+    from(places)
+      .pipe(
+        mergeMap(
+          (place) =>
+            this.http.get<AlbumResponse>(`/api/places/${place.id}/media/album`).pipe(
+              map((album) => ({ placeId: place.id, coverUrl: album.currentPhoto?.filePath ?? '' })),
+              catchError(() => of({ placeId: place.id, coverUrl: '' }))
+            ),
+          6
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(({ placeId, coverUrl }) => {
+        if (!coverUrl) return;
+        this.coverPhotoByPlaceId.update((current) => ({ ...current, [placeId]: coverUrl }));
+      });
   }
 
   setEnvironment(value: 'ALL' | 'INTERIOR' | 'MIXED' | 'EXTERIOR'): void {
@@ -96,21 +136,13 @@ export class TouristPlaces {
   }
 
   getImage(place: TouristPlace, index: number): string {
-    const path = place.album?.photos?.find((photo) => photo.filePath)?.filePath;
-
-    if (!path) {
-      return this.fallbackImages[index % this.fallbackImages.length];
-    }
-
-    if (path.startsWith('http') || path.startsWith('/')) {
-      return path;
-    }
-
-    return `/${path}`;
+    const cover = this.coverPhotoByPlaceId()[place.id];
+    if (cover) return cover;
+    return this.fallbackImages[index % this.fallbackImages.length];
   }
 
   getCategories(place: TouristPlace): string[] {
-    const categories = place.categories?.map((category) => category.name).filter(Boolean) ?? [];
+    const categories = place.categories?.filter(Boolean) ?? [];
     return categories.length > 0 ? categories.slice(0, 2) : ['Cultural'];
   }
 }
