@@ -85,7 +85,10 @@ export class TouristPlaces {
         mergeMap(
           (place) =>
             this.http.get<TouristPlaceAlbum>(`/api/places/${place.id}/media/album`).pipe(
-              map((album) => ({ placeId: place.id, coverUrl: album.currentPhoto?.filePath ?? '' })),
+              map((album) => ({
+                placeId: place.id,
+                coverUrl: album.photos?.[0]?.filePath ?? album.currentPhoto?.filePath ?? '',
+              })),
               catchError(() => of({ placeId: place.id, coverUrl: '' }))
             ),
           6
