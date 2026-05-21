@@ -2,13 +2,9 @@ package com.proyecto.app.common;
 
 import com.proyecto.app.userManagment.domain.UserProfile;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
 public class User {
 
     @Id

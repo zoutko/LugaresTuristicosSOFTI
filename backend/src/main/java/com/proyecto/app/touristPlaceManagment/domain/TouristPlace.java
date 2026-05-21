@@ -10,6 +10,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,14 +20,17 @@ import java.util.List;
 public class TouristPlace {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY )
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "cancelation_policy")
+    private String cancelationPolicy;
 
     @Column(name = "duration")
     private String duration;
@@ -39,7 +43,7 @@ public class TouristPlace {
     private Location location;
 
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST) //Implementar en tour
     @JoinColumn(name = "album_id")
     private Album album;
 

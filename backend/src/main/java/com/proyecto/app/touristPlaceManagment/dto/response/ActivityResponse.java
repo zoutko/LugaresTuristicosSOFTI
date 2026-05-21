@@ -9,6 +9,6 @@ import lombok.*;
 @Builder
 public class ActivityResponse {
 
-    private Long id;
+    private int id;
     private String description;
 }

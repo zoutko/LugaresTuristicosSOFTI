@@ -1,17 +1,10 @@
 package com.proyecto.app.security.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.util.Date;
 
 @Entity
 @Table(name = "tokens")
-@Getter
-@Setter
-@NoArgsConstructor
 public class Token {
 
     @Id
@@ -30,6 +23,8 @@ public class Token {
 
     private boolean revoked;
 
+    public Token() {}
+
     public Token(String token, Date expirationDate, Credential credential) {
         this.token = token;
         this.expirationDate = expirationDate;
@@ -44,4 +39,18 @@ public class Token {
     public boolean isValid() {
         return !revoked && !isExpired();
     }
+
+    public Long getId() { return id; }
+
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
+
+    public Date getExpirationDate() { return expirationDate; }
+    public void setExpirationDate(Date expirationDate) { this.expirationDate = expirationDate; }
+
+    public Credential getCredential() { return credential; }
+    public void setCredential(Credential credential) { this.credential = credential; }
+
+    public boolean isRevoked() { return revoked; }
+    public void setRevoked(boolean revoked) { this.revoked = revoked; }
 }

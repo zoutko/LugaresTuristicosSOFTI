@@ -9,15 +9,15 @@ import com.proyecto.app.touristPlaceManagment.service.ActivityService;
 import com.proyecto.app.touristPlaceManagment.service.TouristPlaceService;
 
 import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/places")
+@RequestMapping("/places")
 public class TouristPlaceController {
 
     private final TouristPlaceService touristPlaceService;
@@ -29,13 +29,17 @@ public class TouristPlaceController {
         this.activityService = activityService;
     }
 
+    // ----------------------------------------------------------------
+    // READ — cualquier usuario autenticado o público
+    // ----------------------------------------------------------------
+
     @GetMapping
     public ResponseEntity<List<TouristPlaceResponse>> getAll() {
         return ResponseEntity.ok(touristPlaceService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TouristPlaceResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<TouristPlaceResponse> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(touristPlaceService.getById(id));
     }
 
@@ -56,9 +60,13 @@ public class TouristPlaceController {
     }
 
     @GetMapping("/{id}/activities")
-    public ResponseEntity<List<ActivityResponse>> getActivities(@PathVariable Long id) {
+    public ResponseEntity<List<ActivityResponse>> getActivities(@PathVariable UUID id) {
         return ResponseEntity.ok(activityService.getActivitiesByPlace(id));
     }
+
+    // ----------------------------------------------------------------
+    // WRITE — solo ADMINISTRATOR
+    // ----------------------------------------------------------------
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRATOR')")
@@ -66,17 +74,17 @@ public class TouristPlaceController {
         return ResponseEntity.ok(touristPlaceService.create(request));
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TouristPlaceResponse> update(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody TouristPlaceRequest request) {
         return ResponseEntity.ok(touristPlaceService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         touristPlaceService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -84,7 +92,7 @@ public class TouristPlaceController {
     @PostMapping("/{id}/activities")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TouristPlaceResponse> addActivity(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody ActivityRequest request) {
         return ResponseEntity.ok(activityService.addActivity(id, request));
     }
@@ -92,7 +100,7 @@ public class TouristPlaceController {
     @DeleteMapping("/{id}/activities/{activityId}")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<TouristPlaceResponse> removeActivity(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @PathVariable int activityId) {
         return ResponseEntity.ok(activityService.removeActivity(id, activityId));
     }

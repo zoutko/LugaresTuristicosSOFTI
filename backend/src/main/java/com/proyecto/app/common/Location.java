@@ -21,9 +21,6 @@ public class Location {
     @Column(name = "latitude")
     private Double latitude;
 
-    @Column(name = "longitude")
-    private Double longitude;
-
     public Location() {}
 
     public String getFullLocation() {

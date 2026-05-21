@@ -1,5 +1,6 @@
 package com.proyecto.app.userManagment.domain;
 
+
 import java.util.Set;
 
 public class Visitor implements Role {

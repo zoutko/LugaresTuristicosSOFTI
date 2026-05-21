@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +38,7 @@ public class TouristPlaceService {
                 .collect(Collectors.toList());
     }
 
-    public TouristPlaceResponse getById(Long id) {
+    public TouristPlaceResponse getById(UUID id) {
         return toResponse(resolveOrThrow(id));
     }
 
@@ -68,7 +69,7 @@ public class TouristPlaceService {
     }
 
     @Transactional
-    public TouristPlaceResponse update(Long id, TouristPlaceRequest request) {
+    public TouristPlaceResponse update(UUID id, TouristPlaceRequest request) {
         validateRequest(request);
         TouristPlace existing = resolveOrThrow(id);
         applyUpdate(existing, request);
@@ -76,12 +77,12 @@ public class TouristPlaceService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         TouristPlace place = resolveOrThrow(id);
         placeRepository.delete(place);
     }
 
-    public TouristPlace resolveOrThrow(Long id) {
+    TouristPlace resolveOrThrow(UUID id) {
         return placeRepository.findById(id)
                 .orElseThrow(() -> new TouristPlaceNotFoundException(id.toString()));
     }
@@ -101,6 +102,7 @@ public class TouristPlaceService {
     private void applyUpdate(TouristPlace p, TouristPlaceRequest req) {
         p.setName(req.getName());
         p.setDescription(req.getDescription());
+        p.setCancelationPolicy(req.getCancelationPolicy());
         p.setDuration(req.getDuration());
         p.setEnvironment(req.getEnvironment());
         p.setLocation(req.getLocation());
@@ -132,6 +134,7 @@ return TouristPlaceResponse.builder()
         .id(p.getId())
         .name(p.getName())
         .description(p.getDescription())
+        .cancelationPolicy(p.getCancelationPolicy())
         .duration(p.getDuration())
         .environment(p.getEnvironment())
         .location(p.getLocation())
