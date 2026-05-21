@@ -20,8 +20,8 @@ public class TourResponse {
     private String description;
     private String recommendations;
     private double price;
-    private String location;       // getFullLocation()
-    private String meetingPoint;   // getFullLocation()
+    private String location;      
+    private String meetingPoint;
     private List<ItineraryItemResponse> itinerary;
     private TourOfferResponse tourOffer;
     private AlbumResponse album;

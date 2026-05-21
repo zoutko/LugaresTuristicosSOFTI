@@ -71,7 +71,7 @@ public class TourMediaController {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new TourNotFoundException(tourId));
         if (tour.getAlbum() == null) {
-            throw new TourNotFoundException(tourId); // o puedes crear una excepción específica
+            throw new TourNotFoundException(tourId);
         }
         return tour.getAlbum().getId();
     }

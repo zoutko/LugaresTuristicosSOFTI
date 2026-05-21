@@ -1,9 +1,15 @@
 package com.proyecto.app.userManagment.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "contacts")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Contact {
 
     @Id
@@ -17,18 +23,8 @@ public class Contact {
     @JoinColumn(name = "user_profile_id", nullable = false)
     private UserProfile userProfile;
 
-    public Contact() {}
-
     public Contact(String phoneNumber, UserProfile userProfile) {
         this.phoneNumber = phoneNumber;
         this.userProfile = userProfile;
     }
-
-    public Long getId() { return id; }
-
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
-    public UserProfile getUserProfile() { return userProfile; }
-    public void setUserProfile(UserProfile userProfile) { this.userProfile = userProfile; }
 }

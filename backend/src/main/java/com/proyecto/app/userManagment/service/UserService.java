@@ -47,10 +47,6 @@ public class UserService {
         this.tourQueryService = tourQueryService;
     }
 
-    // ----------------------------------------------------------------
-    // CREATE
-    // ----------------------------------------------------------------
-
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
 
@@ -96,9 +92,6 @@ public class UserService {
         return buildUserResponse(user, credential.getEmail());
     }
 
-    // ----------------------------------------------------------------
-    // READ
-    // ----------------------------------------------------------------
 
     public UserResponse getProfile(Long userId) {
         User user = findUserById(userId);
@@ -106,9 +99,6 @@ public class UserService {
         return buildUserResponse(user, credential.getEmail());
     }
 
-    // ----------------------------------------------------------------
-    // UPDATE
-    // ----------------------------------------------------------------
 
     @Transactional
     public UserResponse updateInformation(Long userId, UpdateUserRequest request) {
@@ -120,19 +110,12 @@ public class UserService {
         return buildUserResponse(user, credential.getEmail());
     }
 
-    // ----------------------------------------------------------------
-    // DELETE
-    // ----------------------------------------------------------------
 
     @Transactional
     public void deleteAccount(Long userId) {
         User user = findUserById(userId);
         userRepository.delete(user);
     }
-
-    // ----------------------------------------------------------------
-    // CONTACTS
-    // ----------------------------------------------------------------
 
     @Transactional
     public UserResponse addContact(Long userId, UpdateContactRequest request) {
@@ -183,9 +166,6 @@ public class UserService {
         contactRepository.delete(contact);
     }
 
-    // ----------------------------------------------------------------
-    // SAVED TOURS
-    // ----------------------------------------------------------------
 
     @Transactional
     public void saveTour(Long userId, Long tourId) {
@@ -222,9 +202,6 @@ public class UserService {
         return tourQueryService.findAllByIds(tourIds);
     }
 
-    // ----------------------------------------------------------------
-    // HELPERS
-    // ----------------------------------------------------------------
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)

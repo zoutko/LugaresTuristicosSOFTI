@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
-// import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,7 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-// @EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -47,13 +45,13 @@ public class SecurityConfig {
                                 "/api/auth/change-password",
                                 "/api/users/register",
                                 "/api/users/{userId}",
+                                "/api/places/**",
                                 "/h2-console/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/places/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/places/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/places/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/places/**").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.GET, "/api/tours/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/tours/*/reviews").hasRole("USER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/tours/*/reviews/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/tours/*/reviews/**").hasAnyRole("USER", "ADMINISTRATOR")
                         .requestMatchers(HttpMethod.POST, "/api/tours/**").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/tours/**").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/tours/**").hasRole("ADMINISTRATOR")
@@ -68,25 +66,25 @@ public class SecurityConfig {
         return http.build();
     }
 
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource(
-                        @Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOriginsCsv) {
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(
+                    @Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOriginsCsv) {
 
-                List<String> allowedOrigins = Arrays.stream(allowedOriginsCsv.split(","))
-                                .map(String::trim)
-                                .filter(s -> !s.isBlank())
-                                .toList();
+            List<String> allowedOrigins = Arrays.stream(allowedOriginsCsv.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isBlank())
+                            .toList();
 
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(allowedOrigins);
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
-                config.setExposedHeaders(List.of("Authorization"));
-                config.setAllowCredentials(false);
-                config.setMaxAge(3600L);
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOrigins(allowedOrigins);
+            config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+            config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+            config.setExposedHeaders(List.of("Authorization"));
+            config.setAllowCredentials(false);
+            config.setMaxAge(3600L);
 
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", config);
-                return source;
-        }
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", config);
+            return source;
+    }
 }

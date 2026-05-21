@@ -25,10 +25,6 @@ class EmailServiceTest {
     @InjectMocks
     private EmailService emailService;
 
-    // ----------------------------------------------------------------
-    // sendRecoveryToken
-    // ----------------------------------------------------------------
-
     @Test
     @DisplayName("sendRecoveryToken: envía el correo al destinatario correcto")
     void sendRecoveryToken_sendsEmailToCorrectRecipient() {
