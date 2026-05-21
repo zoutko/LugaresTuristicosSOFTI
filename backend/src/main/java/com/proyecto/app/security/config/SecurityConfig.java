@@ -45,7 +45,7 @@ public class SecurityConfig {
                                 "/api/auth/change-password",
                                 "/api/users/register",
                                 "/api/users/{userId}",
-                                "/places/**",
+                                "/api/places/**",
                                 "/h2-console/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/tours/**").authenticated()
