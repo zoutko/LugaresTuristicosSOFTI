@@ -67,7 +67,6 @@
 }
 
 .filters button,
-.card-footer button,
 .status-panel button {
     border: 0;
     cursor: pointer;
@@ -98,6 +97,8 @@
 .place-card {
     background: #ffffff;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 10px 22px rgba(22, 59, 23, 0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -122,6 +123,9 @@
 
 .place-body {
     padding: 10px 13px 13px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .place-meta {
@@ -153,19 +157,26 @@
     background: #ffffff;
 }
 
-.place-row {
+.place-content {
     display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: start;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) 108px;
+    gap: 14px;
     margin-top: 3px;
+    flex: 1;
 }
 
-.place-row h2 {
+.place-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.place-info h2 {
     color: #080808;
     font-size: 20px;
     line-height: 1.08;
     font-weight: 900;
+    margin: 0;
 }
 
 .place-detail {
@@ -190,24 +201,33 @@
     color: #666666;
     font-size: 12px;
     line-height: 1.35;
-    margin-top: 8px;
+    margin: 22px 0 0;
+    min-height: 32px;
+    max-width: 100%;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     overflow: hidden;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
-.card-footer {
+.place-actions {
     display: flex;
-    align-items: end;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: space-between;
-    gap: 12px;
-    margin-top: 10px;
+    gap: 18px;
+    min-height: 118px;
 }
 
 .tags {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
+    margin-top: auto;
+    padding-top: 14px;
 }
 
 .tags span {
@@ -221,15 +241,20 @@
     font-weight: 800;
 }
 
-.card-footer button {
-    width: 86px;
+.place-actions button {
+    flex: 0 0 auto;
+    width: 100%;
     height: 32px;
+    border: 0;
     background: #2f7c2f;
     color: #ffffff;
+    cursor: pointer;
     font-size: 13px;
+    font-weight: 800;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.card-footer button:hover,
+.place-actions button:hover,
 .status-panel button:hover {
     background: #256625;
     transform: translateY(-1px);
@@ -284,5 +309,18 @@
 
     .places-grid {
         grid-template-columns: 1fr;
+    }
+
+    .place-content {
+        grid-template-columns: 1fr;
+    }
+
+    .place-actions {
+        min-height: 0;
+        align-items: start;
+    }
+
+    .place-actions button {
+        width: 108px;
     }
 }

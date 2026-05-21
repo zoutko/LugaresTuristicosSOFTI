@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import {
@@ -18,6 +19,7 @@ import {
 export class TouristPlace {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly place = signal<TouristPlaceResponse | null>(null);
   readonly album = signal<TouristPlaceAlbum | null>(null);
@@ -31,6 +33,24 @@ export class TouristPlace {
     return categories.length > 0 ? categories : ['Cultural'];
   });
   readonly activities = computed(() => this.place()?.activities?.filter((activity) => activity.description) ?? []);
+  readonly hasCoordinates = computed(() => {
+    const location = this.place()?.location;
+    return typeof location?.latitude === 'number' && typeof location?.longitude === 'number';
+  });
+  readonly mapUrl = computed<SafeResourceUrl | null>(() => {
+    const location = this.place()?.location;
+    if (location?.latitude == null || location?.longitude == null) {
+      return null;
+    }
+
+    const lat = location.latitude;
+    const lng = location.longitude;
+    const offset = 0.01;
+    const bbox = [lng - offset, lat - offset, lng + offset, lat + offset].join(',');
+    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  });
 
   private readonly fallbackImage =
     'https://images.unsplash.com/photo-1512813195386-6cf811ad3542?auto=format&fit=crop&w=1400&q=80';
@@ -113,5 +133,14 @@ export class TouristPlace {
     }
 
     return `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`;
+  }
+
+  getOpenStreetMapLink(): string {
+    const location = this.place()?.location;
+    if (location?.latitude == null || location?.longitude == null) {
+      return 'https://www.openstreetmap.org';
+    }
+
+    return `https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}#map=15/${location.latitude}/${location.longitude}`;
   }
 }

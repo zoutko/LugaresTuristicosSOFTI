@@ -45,6 +45,7 @@ public class SecurityConfig {
                                 "/api/auth/change-password",
                                 "/api/users/register",
                                 "/api/users/{userId}",
+                                "/api/tours/**",
                                 "/api/places/**",
                                 "/h2-console/**")
                         .permitAll()

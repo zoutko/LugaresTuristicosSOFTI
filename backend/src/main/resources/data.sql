@@ -9,6 +9,8 @@ INSERT INTO categories (name) VALUES
 ('Naturaleza'),
 ('Aventura'),
 ('Gastronomía'),
+('Cultura'),
+('Religión'),
 ('Arte');
 
 -- ── USER TYPES ───────────────────────────────────────────────
@@ -48,10 +50,10 @@ INSERT INTO credentials (email, password, state, role, user_id) VALUES
 
 -- ── LUGARES TURÍSTICOS ───────────────────────────────────────
 INSERT INTO places (name, description, duration, environment, city, department, country, latitude, longitude) VALUES
-('Monserrate',             'Cerro emblematico de Bogota con vista panoramica',             '3 horas', 'EXTERIOR', 'Bogota',    'Cundinamarca', 'Colombia',  4.7110, -74.0560),
-('Plaza de Bolivar',       'Plaza principal de Bogota, corazon historico del pais',        '1 hora',  'EXTERIOR', 'Bogota',    'Cundinamarca', 'Colombia',  4.5981, -74.0759),
+('Monserrate',             'Monserrate es uno de los sitios turisticos y religiosos mas representativos de Bogota. Ubicado a mas de 3.100 metros sobre el nivel del mar',             '3 horas', 'EXTERIOR', 'Bogota',    'Cundinamarca', 'Colombia',   4.6072539, -74.0543090),
+('Plaza de Bolivar',       'La Plaza de Bolivar es el corazon historico y politico de Colombia. Rodeada por edificios emblematicos como el Capitolio Nacional',        '1 hora',  'EXTERIOR', 'Bogota',    'Cundinamarca', 'Colombia',  4.5981, -74.0759),
 ('Museo del Oro',          'Museo con la mayor coleccion de piezas precolombinas en oro',  '2 horas', 'INTERIOR', 'Bogota',    'Cundinamarca', 'Colombia',  4.6017, -74.0721),
-('Castillo de San Felipe', 'Fortaleza colonial del siglo XVII, Patrimonio de la Humanidad','2 horas', 'EXTERIOR', 'Cartagena', 'Bolivar',      'Colombia', 10.4236, -75.5380),
+('Castillo de San Felipe', 'Fortaleza colonial del siglo XVII, Patrimonio de la Humanidad','2 horas', 'MIXED', 'Cartagena', 'Bolivar',      'Colombia', 10.4236, -75.5380),
 ('Ciudad Amurallada',      'Centro historico de Cartagena rodeado de murallas coloniales', '3 horas', 'EXTERIOR', 'Cartagena', 'Bolivar',      'Colombia', 10.4227, -75.5497);
 
 -- ── MEDIA (ALBUM + FOTOS) PARA LUGARES ───────────────────────
@@ -72,16 +74,16 @@ INSERT INTO photos (file_path, photo_description, album_id) VALUES
 ('https://radionacional-v3.s3.amazonaws.com/s3fs-public/node/article/field_image/MONSERRATE.jpg',
  'Vista panoramica desde Monserrate',
  (SELECT id FROM albums WHERE name = 'Monserrate')),
-('https://upload.wikimedia.org/wikipedia/commons/6/6c/Plaza_de_Bol%C3%ADvar_Bogot%C3%A1_2022.jpg',
+('https://c2.staticflickr.com/8/7063/6864755356_ebeb16f9c7_b.jpg',
  'Vista general de la Plaza de Bolivar',
  (SELECT id FROM albums WHERE name = 'Plaza de Bolivar')),
-('https://upload.wikimedia.org/wikipedia/commons/4/44/Museo_del_Oro_Bogot%C3%A1.jpg',
+('https://img.travesiasdigital.com/2019/03/pieza-museo-del-oro.jpg',
  'Fachada del Museo del Oro',
  (SELECT id FROM albums WHERE name = 'Museo del Oro')),
-('https://cartagenaplay.com/wp-content/uploads/9008013895_5a53127df8_o-scaled.jpg',
+('https://tse1.mm.bing.net/th/id/OIP.BLuU4uHGGn9T1lKbh_eCpgHaE8?rs=1&pid=ImgDetMain&o=7&rm=3',
  'Murallas y calles coloniales',
  (SELECT id FROM albums WHERE name = 'Ciudad Amurallada')),
-('https://upload.wikimedia.org/wikipedia/commons/8/8d/Castillo_San_Felipe_de_Barajas%2C_Cartagena.jpg',
+('https://i.ytimg.com/vi/sGVLNgJNs78/maxresdefault.jpg',
  'Fortaleza de San Felipe de Barajas',
  (SELECT id FROM albums WHERE name = 'Castillo de San Felipe'));
 
@@ -142,6 +144,7 @@ INSERT INTO photos (file_path, photo_description, album_id) VALUES
  'Ciudad amurallada de Cartagena',
  (SELECT id FROM albums WHERE name = 'Tour Cartagena Colonial'));
 
+
 -- ── TOUR OFFERS ──────────────────────────────────────────────
 INSERT INTO tour_offers (tour_id, base_price) VALUES
 ((SELECT id FROM tours WHERE name = 'Tour Bogota Historica'), 120000),
@@ -177,3 +180,49 @@ INSERT INTO reviews (author_id, tour_id, rating, comment, publication_date) VALU
  (SELECT id FROM tours WHERE name = 'Cartagena Colonial'), 5,
  'Cartagena es magica. El guia fue excelente y la organizacion perfecta.', '2026-05-01');
 
+-- ── PLACE ↔ CATEGORY ───────────────────────────────
+INSERT INTO places_categories (place_id, category_id) VALUES
+
+-- Monserrate
+((SELECT id FROM places WHERE name = 'Monserrate'),
+ (SELECT id FROM categories WHERE name = 'Naturaleza')),
+
+((SELECT id FROM places WHERE name = 'Monserrate'),
+ (SELECT id FROM categories WHERE name = 'Religión')),
+
+((SELECT id FROM places WHERE name = 'Monserrate'),
+ (SELECT id FROM categories WHERE name = 'Aventura')),
+
+-- Plaza de Bolívar
+((SELECT id FROM places WHERE name = 'Plaza de Bolivar'),
+ (SELECT id FROM categories WHERE name = 'Historia')),
+
+((SELECT id FROM places WHERE name = 'Plaza de Bolivar'),
+ (SELECT id FROM categories WHERE name = 'Cultura')),
+
+-- Museo del Oro
+((SELECT id FROM places WHERE name = 'Museo del Oro'),
+ (SELECT id FROM categories WHERE name = 'Historia')),
+
+((SELECT id FROM places WHERE name = 'Museo del Oro'),
+ (SELECT id FROM categories WHERE name = 'Arte')),
+
+((SELECT id FROM places WHERE name = 'Museo del Oro'),
+ (SELECT id FROM categories WHERE name = 'Cultura')),
+
+-- Castillo de San Felipe
+((SELECT id FROM places WHERE name = 'Castillo de San Felipe'),
+ (SELECT id FROM categories WHERE name = 'Historia')),
+
+((SELECT id FROM places WHERE name = 'Castillo de San Felipe'),
+ (SELECT id FROM categories WHERE name = 'Aventura')),
+
+-- Ciudad Amurallada
+((SELECT id FROM places WHERE name = 'Ciudad Amurallada'),
+ (SELECT id FROM categories WHERE name = 'Historia')),
+
+((SELECT id FROM places WHERE name = 'Ciudad Amurallada'),
+ (SELECT id FROM categories WHERE name = 'Cultura')),
+
+((SELECT id FROM places WHERE name = 'Ciudad Amurallada'),
+ (SELECT id FROM categories WHERE name = 'Gastronomía'));

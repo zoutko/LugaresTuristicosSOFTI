@@ -134,6 +134,6 @@ export class TouristPlaces {
 
   getCategories(place: TouristPlace): string[] {
     const categories = place.categories?.filter(Boolean) ?? [];
-    return categories.length > 0 ? categories.slice(0, 2) : ['Cultural'];
+    return categories.length > 0 ? categories.slice(0, 3) : ['Cultural'];
   }
 }

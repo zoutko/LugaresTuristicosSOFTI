@@ -45,21 +45,22 @@
           <span>{{ getLocation(place) }}</span>
         </div>
 
-        <div class="place-row">
-          <h2>{{ place.name }}</h2>
-          <div class="place-detail">
-            <strong>{{ place.duration || 'Consultar' }}</strong>
-            <span>{{ getEnvironmentLabel(place.environment) }}</span>
+        <div class="place-content">
+          <div class="place-info">
+            <h2>{{ place.name }}</h2>
+            <p *ngIf="place.description" class="description">{{ place.description }}</p>
+            <div class="tags">
+              <span *ngFor="let category of getCategories(place)">{{ category }}</span>
+            </div>
           </div>
-        </div>
 
-        <p *ngIf="place.description" class="description">{{ place.description }}</p>
-
-        <div class="card-footer">
-          <div class="tags">
-            <span *ngFor="let category of getCategories(place)">{{ category }}</span>
+          <div class="place-actions">
+            <div class="place-detail">
+              <strong>{{ place.duration || 'Consultar' }}</strong>
+              <span>{{ getEnvironmentLabel(place.environment) }}</span>
+            </div>
+            <button type="button" [routerLink]="['/lugares', place.id]">Ver</button>
           </div>
-          <button type="button" [routerLink]="['/lugares', place.id]">Ver</button>
         </div>
       </div>
     </article>
