@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet, RouterLinkWithHref } from '@angular/router';
 
 @Component({
@@ -8,5 +8,7 @@ import { RouterOutlet, RouterLinkWithHref } from '@angular/router';
   styleUrl: './app.css'
 })
 export class App {
-  
+  isAdministrator(): boolean {
+    return localStorage.getItem('auth.role') === 'ADMINISTRATOR';
+  }
 }

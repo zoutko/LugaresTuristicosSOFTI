@@ -175,12 +175,16 @@
     color: #080808;
     font-size: 20px;
     line-height: 1.08;
-    font-weight: 900;
+    font-weight: 750;
     margin: 0;
 }
 
 .place-detail {
-    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     line-height: 1.1;
     white-space: nowrap;
 }
@@ -201,7 +205,7 @@
     color: #666666;
     font-size: 12px;
     line-height: 1.35;
-    margin: 22px 0 0;
+    margin: 10px 0 0;
     min-height: 32px;
     max-width: 100%;
     display: -webkit-box;
@@ -216,18 +220,18 @@
 .place-actions {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    justify-content: space-between;
-    gap: 18px;
-    min-height: 118px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    min-height: 0;
 }
 
 .tags {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
-    margin-top: auto;
-    padding-top: 14px;
+    margin-top: 10px;
+    padding-top: 0;
 }
 
 .tags span {
@@ -273,7 +277,7 @@
 
 .status-panel--error {
     gap: 12px;
-    color: #7a2323;
+    color: #cd6a00;
 }
 
 .status-panel button {
