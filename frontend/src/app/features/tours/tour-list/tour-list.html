@@ -1,15 +1,8 @@
 <div class="tours-page">
-  <!-- Banner naranja -->
-  <div class="page-header-bg">
-    <h1>Recorridos Turísticos</h1>
-  </div>
-
   <div class="tours-layout">
-    <!-- Sidebar de filtros -->
     <aside class="filters-sidebar">
       <h2>Filtros</h2>
       
-      <!-- Búsqueda -->
       <div class="filter-section">
         <label class="filter-label">Buscar</label>
         <input 
@@ -21,7 +14,6 @@
         />
       </div>
       
-      <!-- Precio máximo -->
       <div class="filter-section">
         <label class="filter-label">Precio máximo</label>
         <div class="price-input">
@@ -37,7 +29,6 @@
         </div>
       </div>
       
-      <!-- Categorías -->
       <div class="filter-section">
         <label class="filter-label">Categoría</label>
         <div class="checkbox-group">
@@ -54,7 +45,6 @@
         </div>
       </div>
       
-      <!-- Entorno -->
       <div class="filter-section">
         <label class="filter-label">Entorno</label>
         <div class="checkbox-group">
@@ -71,13 +61,11 @@
         </div>
       </div>
       
-      <!-- Botón limpiar -->
       <button class="btn-clear" (click)="clearFilters()">
         Limpiar Filtros
       </button>
     </aside>
 
-    <!-- Grid de tarjetas -->
     <main class="tours-content">
       <div *ngIf="loading" class="loading">
         Cargando recorridos...
@@ -104,10 +92,3 @@
     </main>
   </div>
 </div>
-
-<app-toast
-  [open]="toastOpen"
-  [message]="toastMessage"
-  [variant]="toastVariant"
-  (closed)="closeToast()"
-></app-toast>
