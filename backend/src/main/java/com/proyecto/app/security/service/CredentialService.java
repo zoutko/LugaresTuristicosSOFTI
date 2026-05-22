@@ -46,9 +46,10 @@ public class CredentialService {
         Token token = tokenService.generateToken(credential);
 
         return new LoginResponse(
-                token.getToken(),
-                credential.getEmail(),
-                credential.getRole()
+            token.getToken(),
+            credential.getEmail(),
+            credential.getRole(),
+            credential.getUserId()
         );
     }
 

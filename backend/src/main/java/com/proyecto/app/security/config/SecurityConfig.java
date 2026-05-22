@@ -41,13 +41,23 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/login",
-                                "/api/auth/register",
                                 "/api/auth/recover-password",
                                 "/api/auth/change-password",
                                 "/api/users/register",
                                 "/api/users/{userId}",
+                                "/api/tours/**",
+                                "/api/users/{userId}/saved-tours",  
+                                "/api/places/**",
+                                "/api/auth/change-email",
                                 "/h2-console/**")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tours/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/tours/*/reviews").hasRole("USER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/tours/*/reviews/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/tours/*/reviews/**").hasAnyRole("USER", "ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.POST, "/api/tours/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/tours/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/tours/**").hasRole("ADMINISTRATOR")
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -59,25 +69,25 @@ public class SecurityConfig {
         return http.build();
     }
 
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource(
-                        @Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOriginsCsv) {
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(
+                    @Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOriginsCsv) {
 
-                List<String> allowedOrigins = Arrays.stream(allowedOriginsCsv.split(","))
-                                .map(String::trim)
-                                .filter(s -> !s.isBlank())
-                                .toList();
+            List<String> allowedOrigins = Arrays.stream(allowedOriginsCsv.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isBlank())
+                            .toList();
 
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(allowedOrigins);
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
-                config.setExposedHeaders(List.of("Authorization"));
-                config.setAllowCredentials(false);
-                config.setMaxAge(3600L);
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOrigins(allowedOrigins);
+            config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+            config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+            config.setExposedHeaders(List.of("Authorization"));
+            config.setAllowCredentials(false);
+            config.setMaxAge(3600L);
 
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", config);
-                return source;
-        }
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", config);
+            return source;
+    }
 }

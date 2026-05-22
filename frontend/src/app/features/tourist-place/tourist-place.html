@@ -1,0 +1,130 @@
+<section class="detail-shell" aria-label="Detalle de lugar turistico">
+  <a class="back-link" routerLink="/lugares">
+    <i class="ti ti-arrow-left" aria-hidden="true"></i>
+    Volver a lugares
+  </a>
+
+  <div *ngIf="loading()" class="status-panel">Cargando detalle del lugar...</div>
+
+  <div *ngIf="!loading() && error()" class="status-panel status-panel--error">
+    <span>{{ error() }}</span>
+    <a routerLink="/lugares">Ir a lugares</a>
+  </div>
+
+  <ng-container *ngIf="!loading() && !error() && place() as selectedPlace">
+
+    <div class="place-card">
+
+      <!-- HERO CON GALERÍA -->
+      <div class="hero">
+        <img [src]="getHeroImage()" [alt]="selectedPhoto()?.description || selectedPlace.name" />
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <h1 class="hero-title">{{ selectedPlace.name }}</h1>
+          <div class="hero-location" *ngIf="getLocation()">
+            <span class="pin" aria-hidden="true"></span>
+            {{ getLocation() }}
+          </div>
+        </div>
+        <div class="hero-thumbs" *ngIf="photos().length > 1">
+          <button
+            class="thumb"
+            *ngFor="let photo of photos()"
+            [class.active]="selectedPhoto()?.filePath === photo.filePath"
+            type="button"
+            (click)="selectPhoto(photo)"
+          >
+            <img [src]="photo.filePath" [alt]="photo.description || photo.fileName || selectedPlace.name" />
+          </button>
+        </div>
+      </div>
+
+      <!-- CATEGORÍAS -->
+      <div class="tags-row" *ngIf="categories().length > 0">
+        <span class="tag" *ngFor="let category of categories()">{{ category }}</span>
+      </div>
+
+      <!-- CUERPO -->
+      <div class="body-grid">
+
+        <!-- IZQUIERDA -->
+        <div class="body-left">
+
+          <div class="section-block">
+            <h2 class="section-title">Descripción</h2>
+            <p class="description-text" *ngIf="selectedPlace.description; else noDesc">
+              {{ selectedPlace.description }}
+            </p>
+            <ng-template #noDesc>
+              <p class="muted">Sin descripción disponible.</p>
+            </ng-template>
+
+            <div class="meta-row" *ngIf="selectedPlace.duration || selectedPlace.environment">
+              <span class="meta-item" *ngIf="selectedPlace.duration">
+                <span class="meta-key">Duración</span> –
+                <span class="meta-val">{{ selectedPlace.duration }}</span>
+              </span>
+              <span class="meta-item" *ngIf="selectedPlace.environment">
+                <span class="meta-key">Entorno</span> –
+                <span class="meta-val">{{ getEnvironmentLabel() }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="section-block" *ngIf="activities().length > 0">
+            <h2 class="section-title">Actividades</h2>
+            <ul class="activity-list">
+              <li class="activity-item" *ngFor="let activity of activities(); let i = index">
+                <span class="activity-num">{{ i + 1 }}</span>
+                {{ activity.description }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="section-block" *ngIf="activities().length === 0">
+            <h2 class="section-title">Actividades</h2>
+            <p class="muted">Aún no hay actividades registradas para este lugar.</p>
+          </div>
+
+        </div>
+
+        <!-- DERECHA: MAPA -->
+        <div class="body-right">
+          <div class="map-placeholder">
+            <div class="map-inner" *ngIf="mapUrl() as safeMapUrl; else noMap">
+              <iframe
+                [src]="safeMapUrl"
+                [title]="'Mapa de ' + selectedPlace.name"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+            <ng-template #noMap>
+              <div class="map-inner">
+                <div class="map-mock">
+                  <i class="ti ti-map-2" aria-hidden="true"></i>
+                  <span>Mapa no disponible</span>
+                </div>
+              </div>
+            </ng-template>
+            <div class="coords-row">
+              <span>
+                <span class="coord-label">Latitud:</span>
+                <span class="coord-val">{{ selectedPlace.location?.latitude ?? '—' }}</span>
+              </span>
+              <span>
+                <span class="coord-label">Longitud:</span>
+                <span class="coord-val">{{ selectedPlace.location?.longitude ?? '—' }}</span>
+              </span>
+              <a *ngIf="hasCoordinates()" [href]="getOpenStreetMapLink()" target="_blank" rel="noopener">
+                Abrir mapa
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+</section>

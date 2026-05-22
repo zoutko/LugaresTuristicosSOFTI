@@ -1,13 +1,17 @@
 package com.proyecto.app.userManagment.domain;
-import com.proyecto.app.userManagment.domain.Contact;
-
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "user_profiles")
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserProfile {
 
     @Id
@@ -27,8 +31,6 @@ public class UserProfile {
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Contact> contacts = new ArrayList<>();
 
-    public UserProfile() {}
-
     public UserProfile(String name, String document, String roleName) {
         this.name = name;
         this.document = document;
@@ -47,20 +49,6 @@ public class UserProfile {
     public UserProfile getData() {
         return this;
     }
-
-    public Long getId() { return id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getDocument() { return document; }
-    public void setDocument(String document) { this.document = document; }
-
-    public String getRoleName() { return roleName; }
-    public void setRoleName(String roleName) { this.roleName = roleName; }
-
-    public List<Contact> getContacts() { return contacts; }
-    public void setContacts(List<Contact> contacts) { this.contacts = contacts; }
 
     public void addContact(Contact contact) {
         contacts.add(contact);
