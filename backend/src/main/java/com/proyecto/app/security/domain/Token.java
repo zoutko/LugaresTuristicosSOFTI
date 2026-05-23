@@ -18,7 +18,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 512)
+    @Column(unique = true, nullable = false, length = 512)
     private String token;
 
     @Column(nullable = false)

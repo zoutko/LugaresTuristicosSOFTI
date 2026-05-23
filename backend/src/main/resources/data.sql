@@ -124,3 +124,53 @@ INSERT INTO reviews (author_id, tour_id, rating, comment, publication_date) VALU
 ((SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '9876543210'),
  (SELECT id FROM tours WHERE name = 'Cartagena Colonial'), 5,
  'Cartagena es magica. El guia fue excelente y la organizacion perfecta.', '2026-05-01');
+
+ -- ── USUARIOS DE PRUEBA JMETER (contraseña: test1234) ─────────
+INSERT INTO user_profiles (name, document, role_name) VALUES
+('JMeter User 01', '2000000001', 'USER'),
+('JMeter User 02', '2000000002', 'USER'),
+('JMeter User 03', '2000000003', 'USER'),
+('JMeter User 04', '2000000004', 'USER'),
+('JMeter User 05', '2000000005', 'USER'),
+('JMeter User 06', '2000000006', 'USER'),
+('JMeter User 07', '2000000007', 'USER'),
+('JMeter User 08', '2000000008', 'USER'),
+('JMeter User 09', '2000000009', 'USER'),
+('JMeter User 10', '2000000010', 'USER');
+
+INSERT INTO contacts (phone_number, user_profile_id) VALUES
+('3100000001', (SELECT id FROM user_profiles WHERE document = '2000000001')),
+('3100000002', (SELECT id FROM user_profiles WHERE document = '2000000002')),
+('3100000003', (SELECT id FROM user_profiles WHERE document = '2000000003')),
+('3100000004', (SELECT id FROM user_profiles WHERE document = '2000000004')),
+('3100000005', (SELECT id FROM user_profiles WHERE document = '2000000005')),
+('3100000006', (SELECT id FROM user_profiles WHERE document = '2000000006')),
+('3100000007', (SELECT id FROM user_profiles WHERE document = '2000000007')),
+('3100000008', (SELECT id FROM user_profiles WHERE document = '2000000008')),
+('3100000009', (SELECT id FROM user_profiles WHERE document = '2000000009')),
+('3100000010', (SELECT id FROM user_profiles WHERE document = '2000000010'));
+
+INSERT INTO users (user_profile_id) VALUES
+((SELECT id FROM user_profiles WHERE document = '2000000001')),
+((SELECT id FROM user_profiles WHERE document = '2000000002')),
+((SELECT id FROM user_profiles WHERE document = '2000000003')),
+((SELECT id FROM user_profiles WHERE document = '2000000004')),
+((SELECT id FROM user_profiles WHERE document = '2000000005')),
+((SELECT id FROM user_profiles WHERE document = '2000000006')),
+((SELECT id FROM user_profiles WHERE document = '2000000007')),
+((SELECT id FROM user_profiles WHERE document = '2000000008')),
+((SELECT id FROM user_profiles WHERE document = '2000000009')),
+((SELECT id FROM user_profiles WHERE document = '2000000010'));
+
+INSERT INTO credentials (email, password, state, role, user_id) VALUES
+('jmeter01@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000001')),
+('jmeter02@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000002')),
+('jmeter03@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000003')),
+('jmeter04@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000004')),
+('jmeter05@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000005')),
+('jmeter06@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000006')),
+('jmeter07@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000007')),
+('jmeter08@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000008')),
+('jmeter09@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000009')),
+('jmeter10@test.com', '$2a$10$lTux.l0yHzDZSlGzwRiUJedWM9u.HP1IlbWC287yLzcINWjnFDb0i', 'ACTIVE', 'USER', (SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '2000000010'));
+SELECT email FROM credentials WHERE email LIKE 'jmeter%';
