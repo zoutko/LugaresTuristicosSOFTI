@@ -41,24 +41,23 @@ export class ProfilePage implements OnInit {
     this.loadProfile();
   }
 
-goToMisReservas(): void {
+/*goToMisReservas(): void {
     this.router.navigate(['/mis-reservas']);
-}
+}*/
 
 goToRecorridosGuardados(): void {
     this.router.navigate(['/recorridos-guardados']);
 }
 
-goToFavoritos(): void {
+/*goToFavoritos(): void {
     this.router.navigate(['/favoritos']);
-}
+}*/
 
 goToConfiguracion(): void {
     this.router.navigate(['/configuracion']);
 }
 
   private loadProfile(): void {
-    // Por ahora usamos ID 1 
     const userIdStr = localStorage.getItem('auth.userId');
     if (!userIdStr) {
     this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
@@ -115,9 +114,16 @@ goToConfiguracion(): void {
       this.showToast('El valor no puede estar vacío', 'error');
       return;
     }
-    
+    const userIdStr = localStorage.getItem('auth.userId');
+
     this.isSaving = true;
-    const userId = 1; 
+    if (!userIdStr) {
+        this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
+        this.loading = false;
+        return;
+    }
+    const userId = parseInt(userIdStr, 10);
+
     
     this.userService.updateProfileField(userId, this.editFieldKey, this.editFieldValue).subscribe({
       next: (updatedUser) => {

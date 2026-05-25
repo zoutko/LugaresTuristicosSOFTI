@@ -32,6 +32,8 @@ public class SecurityConfig {
         this.authenticationProvider = authenticationProvider;
     }
 
+    //aqui van los permisos 403 = faltan permisos
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
