@@ -1,8 +1,8 @@
 .tour-card {
-  background: white;
+  background: var(--color-surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-topbar);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
   display: flex;
@@ -11,7 +11,7 @@
 
 .tour-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px #2f7c2f;;
+  box-shadow: 0 8px 24px var(--color-primary);
 }
 
 /* Imagen arriba */
@@ -77,18 +77,18 @@
 }
 
 .tag {
-  background-color: #efe9cf;
+  background-color: var(--color-cream);
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 500;
-  color: #2f7c2f;
+  color: var(--color-primary);
 }
 
 .tour-price {
   font-size: 20px;
   font-weight: 700;
-  color: #2f7c2f;
+  color: var(--color-primary);
   margin: 4px 0;
 }
 
@@ -106,7 +106,7 @@
 }
 
 .btn-view {
-  background-color: #2f7c2f;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   padding: 8px 16px;

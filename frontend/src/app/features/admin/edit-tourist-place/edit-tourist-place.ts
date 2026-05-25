@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { TouristPlace, TouristPlaceEnvironment } from '../../tourist-places/tourist-places.types';
+import { AuthTokenService } from '../../../core/services/auth-token.service';
 
 type Environment = TouristPlaceEnvironment;
 
@@ -24,6 +26,8 @@ export class EditTouristPlace {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly authToken = inject(AuthTokenService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly categories = signal<Category[]>([]);
   readonly selectedCategoryIds = signal<number[]>([]);
@@ -56,7 +60,7 @@ export class EditTouristPlace {
 
   newCategoryName = '';
 
-  readonly hasToken = computed(() => Boolean(localStorage.getItem('auth.token')));
+  readonly hasToken = computed(() => this.authToken.hasToken());
 
   constructor() {
     this.route.paramMap
@@ -77,10 +81,11 @@ export class EditTouristPlace {
           return forkJoin({
             place: this.http.get<TouristPlace>(`/api/places/${id}`).pipe(catchError(() => of(null))),
             categories: this.http
-              .get<Category[]>('/api/categories', { headers: this.authHeaders() })
+              .get<Category[]>('/api/categories', { headers: this.authToken.getAuthHeaders() })
               .pipe(catchError(() => of([]))),
           });
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((result) => {
         if (!result) return;
@@ -143,8 +148,7 @@ export class EditTouristPlace {
     this.error.set('');
     this.message.set('');
 
-    const token = localStorage.getItem('auth.token');
-    if (!token) {
+    if (!this.authToken.hasToken()) {
       this.error.set('Debes iniciar sesion como administrador para editar lugares.');
       return;
     }
@@ -162,7 +166,7 @@ export class EditTouristPlace {
 
     this.saving.set(true);
 
-    const headers = this.authHeaders();
+    const headers = this.authToken.getAuthHeaders();
     const newCategoryRequests = this.newCategories().map((name) =>
       this.http.post<Category>('/api/categories', { name }, { headers })
     );
@@ -215,10 +219,5 @@ export class EditTouristPlace {
     return categories
       .filter((category) => normalizedNames.has(category.name.trim().toLowerCase()))
       .map((category) => category.id);
-  }
-
-  private authHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth.token');
-    return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
   }
 }

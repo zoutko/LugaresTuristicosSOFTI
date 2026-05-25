@@ -14,7 +14,7 @@
 }
 
 .admin-heading span {
-  color: #e88728;
+  color: var(--color-accent);
   font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
@@ -46,14 +46,14 @@
   justify-content: center;
   height: 40px;
   padding: 0 16px;
-  background: #2f7c2f;
-  color: #ffffff;
+  background: var(--color-primary);
+  color: var(--color-surface);
   text-decoration: none;
   font-weight: 900;
 }
 
 .create-button:hover {
-  background: #256625;
+  background: var(--color-primary-hover);
 }
 
 .places-tools {
@@ -70,16 +70,16 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #ffffff;
+  background: var(--color-surface);
   border: 1px solid rgba(47, 124, 47, 0.18);
   padding: 0 13px;
-  box-shadow: 0 8px 20px rgba(37, 81, 39, 0.08);
+  box-shadow: var(--shadow-input);
 }
 
 .search-box span {
   width: 15px;
   height: 15px;
-  border: 3px solid #2f7c2f;
+  border: 3px solid var(--color-primary);
   border-radius: 999px;
   position: relative;
   flex: 0 0 auto;
@@ -90,7 +90,7 @@
   position: absolute;
   width: 8px;
   height: 3px;
-  background: #2f7c2f;
+  background: var(--color-primary);
   right: -7px;
   bottom: -4px;
   transform: rotate(45deg);
@@ -101,7 +101,7 @@
   min-width: 0;
   border: 0;
   outline: 0;
-  color: #111111;
+  color: var(--color-text);
   font: inherit;
   font-size: 14px;
 }
@@ -110,7 +110,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #efe9cf;
+  background: var(--color-cream);
   padding: 4px;
 }
 
@@ -132,8 +132,8 @@
 
 .filters button.is-active,
 .filters button:hover {
-  background: #ffffff;
-  color: #2f7c2f;
+  background: var(--color-surface);
+  color: var(--color-primary);
 }
 
 .places-grid {
@@ -143,14 +143,14 @@
 }
 
 .place-card {
-  background: #ffffff;
+  background: var(--color-surface);
   overflow: hidden;
-  box-shadow: 0 10px 22px rgba(22, 59, 23, 0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .image-frame {
   aspect-ratio: 16 / 8.8;
-  background: #efe9cf;
+  background: var(--color-cream);
   overflow: hidden;
 }
 
@@ -169,7 +169,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #8a8a8a;
+  color: var(--color-text-subtle);
   font-size: 12px;
   font-weight: 500;
   min-height: 19px;
@@ -178,7 +178,7 @@
 .pin {
   width: 14px;
   height: 14px;
-  background: #e88728;
+  background: var(--color-accent);
   border-radius: 50% 50% 50% 0;
   margin: 0 3px 0 0;
   transform: rotate(-45deg);
@@ -191,7 +191,7 @@
   position: absolute;
   inset: 4px;
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .place-row {
@@ -218,18 +218,18 @@
 
 .place-detail strong {
   display: block;
-  color: #2f7c2f;
+  color: var(--color-primary);
   font-size: 17px;
   font-weight: 900;
 }
 
 .place-detail span {
-  color: #111111;
+  color: var(--color-text);
   font-size: 12px;
 }
 
 .description {
-  color: #666666;
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.35;
   margin: 8px 0 0;
@@ -258,7 +258,7 @@
 
 .tags span {
   min-width: 72px;
-  background: #f2f0db;
+  background: var(--color-cream-2);
   color: #86805e;
   border-radius: 999px;
   padding: 4px 11px;
@@ -281,7 +281,7 @@
   justify-content: center;
   background: transparent;
   border: 1px solid rgba(47, 124, 47, 0.25);
-  color: #2f7c2f;
+  color: var(--color-primary);
   text-decoration: none;
   cursor: pointer;
 }
@@ -292,18 +292,18 @@
 }
 
 .icon-button:hover {
-  background: rgba(47, 124, 47, 0.08);
+  background: var(--color-primary-soft);
 }
 
 .status-panel {
-  background: #ffffff;
+  background: var(--color-surface);
   color: #2f2f2f;
   min-height: 180px;
   display: grid;
   place-items: center;
   text-align: center;
   font-weight: 800;
-  box-shadow: 0 10px 22px rgba(22, 59, 23, 0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .status-panel--error {
@@ -314,12 +314,12 @@
 .status-panel button {
   height: 34px;
   padding: 0 18px;
-  background: #2f7c2f;
-  color: #ffffff;
+  background: var(--color-primary);
+  color: var(--color-surface);
 }
 
 .status-panel button:hover {
-  background: #256625;
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
 }
 

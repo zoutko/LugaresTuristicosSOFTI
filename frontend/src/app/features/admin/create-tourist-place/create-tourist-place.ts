@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, map, of, switchMap } from 'rxjs';
+import { AuthTokenService } from '../../../core/services/auth-token.service';
 
 type Environment = 'INTERIOR' | 'MIXED' | 'EXTERIOR';
 
@@ -31,6 +32,7 @@ interface PhotoInput {
 export class CreateTouristPlace {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly authToken = inject(AuthTokenService);
 
   readonly categories = signal<Category[]>([]);
   readonly selectedCategoryIds = signal<number[]>([]);
@@ -66,7 +68,7 @@ export class CreateTouristPlace {
   loadCategories(): void {
     this.loadingCategories.set(true);
 
-    this.http.get<Category[]>('/api/categories', { headers: this.authHeaders() }).subscribe({
+    this.http.get<Category[]>('/api/categories', { headers: this.authToken.getAuthHeaders() }).subscribe({
       next: (categories) => {
         this.categories.set(categories ?? []);
         this.loadingCategories.set(false);
@@ -134,8 +136,7 @@ export class CreateTouristPlace {
     this.error.set('');
     this.message.set('');
 
-    const token = localStorage.getItem('auth.token');
-    if (!token) {
+    if (!this.authToken.hasToken()) {
       this.error.set('Debes iniciar sesion como administrador para crear lugares.');
       return;
     }
@@ -146,7 +147,7 @@ export class CreateTouristPlace {
     }
 
     this.saving.set(true);
-    const headers = this.authHeaders();
+    const headers = this.authToken.getAuthHeaders();
     const newCategoryRequests = this.newCategories().map((name) =>
       this.http.post<Category>('/api/categories', { name }, { headers })
     );
@@ -211,10 +212,5 @@ export class CreateTouristPlace {
           this.error.set('No fue posible crear el lugar. Verifica los datos y permisos de administrador.');
         },
       });
-  }
-
-  private authHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth.token');
-    return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
   }
 }

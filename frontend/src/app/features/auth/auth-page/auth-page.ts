@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { RecoverPasswordModalComponent } from '../recover-password-modal/recover-password-modal';
@@ -41,10 +41,31 @@ export class AuthPage {
   recoverErrorMessage = '';
 
   constructor(
+    private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly authApi: AuthService,
     private readonly userApi: UserService,
   ) {}
+
+  private getPostLoginUrl(): string {
+    const rawReturnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const returnUrl = this.sanitizeReturnUrl(rawReturnUrl);
+    return returnUrl ?? '/';
+  }
+
+  private sanitizeReturnUrl(returnUrl: string | null): string | null {
+    if (!returnUrl) return null;
+
+    // Only allow internal routes.
+    if (!returnUrl.startsWith('/')) return null;
+    if (returnUrl.startsWith('//')) return null;
+    if (returnUrl.includes('://')) return null;
+
+    // Avoid redirecting back to auth screens.
+    if (returnUrl.startsWith('/auth')) return null;
+
+    return returnUrl;
+  }
 
   openRecoverModal(): void {
     this.recoverErrorMessage = '';
@@ -64,7 +85,10 @@ export class AuthPage {
       next: async () => {
         this.isRecovering = false;
         this.recoverModalOpen = false;
-        await this.router.navigate(['/auth/change-password'], { queryParams: { email } });
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        await this.router.navigate(['/auth/change-password'], {
+          queryParams: returnUrl ? { email, returnUrl } : { email },
+        });
       },
       error: () => {
         this.isRecovering = false;
@@ -98,10 +122,10 @@ export class AuthPage {
           localStorage.setItem('auth.email', res.email);
           localStorage.setItem('auth.role', res.role);
           localStorage.setItem('auth.userId', res.userId.toString());
-          this.loginSuccessMessage = 'Inicio de sesión exitoso.';
-
           this.loginEmail = '';
           this.loginPassword = '';
+
+          await this.router.navigateByUrl(this.getPostLoginUrl());
 
         } else {
           this.loginErrorMessage = 'Respuesta inválida del servidor.';

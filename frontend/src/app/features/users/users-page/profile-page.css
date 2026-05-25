@@ -36,19 +36,19 @@
 .avatar {
     width: 120px;
     height: 120px;
-    background-color: #ffffff;
+    background-color: var(--color-surface);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    border: 1px solid #2f7c2f;
+    border: 1px solid var(--color-primary);
     margin-top: -100px;
 }
 
 .avatar-icon {
     font-size: 60px;
-    color: #2f7c2f;
+    color: var(--color-primary);
 }
 
 /* Nombre y correo */
@@ -91,20 +91,20 @@
 .actions-card {
     flex: 1;
     min-width: 0;
-    background-color: #ffffff;
+    background-color: var(--color-surface);
     border-radius: 4px;
     padding: 24px 28px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-popover);
     transition: all 0.3s ease;
 }
 
 
 .card {
     position: relative;
-    background-color: #ffffff;
+    background-color: var(--color-surface);
     border-radius: 4px;  /* ← Cambiado de 8px a 4px (más rectangular) */
     padding: 24px 28px;   /* ← Padding más compacto */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-popover);
     transition: all 0.3s ease;
     width: 100%;
 }
@@ -118,9 +118,9 @@
     text-align: center;
     font-size: 22px;
     font-weight: 700;
-    color: #2f7c2f;
+    color: var(--color-primary);
     padding-bottom: 12px;
-    border-bottom: 2px solid #efe9cf;
+    border-bottom: 2px solid var(--color-cream);
 }
 
 .card-title--actions {
@@ -222,7 +222,7 @@
 
 /* Botones verdes (como el footer) */
 .action-btn--green {
-    background-color: #2f7c2f;
+    background-color: var(--color-primary);
     color: white;
 }
 
@@ -288,7 +288,7 @@
 }
 
 .modal-content {
-    background: white;
+    background: var(--color-surface);
     border-radius: 8px;
     padding: 28px;
     width: 90%;
@@ -312,7 +312,7 @@
 
 .edit-input:focus {
     outline: none;
-    border-color: #2f7c2f;
+    border-color: var(--color-primary);
 }
 
 .modal-buttons {
@@ -335,7 +335,7 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: #2f7c2f;
+    background-color: var(--color-primary);
     color: white;
 }
 
@@ -346,7 +346,7 @@
 .loading, .error {
     text-align: center;
     padding: 40px;
-    background: white;
+    background: var(--color-surface);
     border-radius: 8px;
     max-width: 400px;
     margin: 100px auto;
