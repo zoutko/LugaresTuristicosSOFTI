@@ -115,6 +115,12 @@ select:focus {
   gap: 14px;
 }
 
+.triple-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .category-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -230,6 +236,10 @@ button:disabled {
 
 @media (max-width: 840px) {
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .triple-fields {
     grid-template-columns: 1fr;
   }
 }

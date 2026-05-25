@@ -159,6 +159,33 @@ INSERT INTO itinerary (tour_id, tourist_place_id, position) VALUES
 ((SELECT id FROM tours WHERE name = 'Cartagena Colonial'),    (SELECT id FROM places WHERE name = 'Ciudad Amurallada'),1),
 ((SELECT id FROM tours WHERE name = 'Cartagena Colonial'),    (SELECT id FROM places WHERE name = 'Castillo de San Felipe'), 2);
 
+-- ── TOUR ↔ CATEGORY ───────────────────────────────────────────
+INSERT INTO tour_categories (tour_id, category_id) VALUES
+
+-- Tour Bogota Historica
+((SELECT id FROM tours WHERE name = 'Tour Bogota Historica'),
+ (SELECT id FROM categories WHERE name = 'Historia')),
+((SELECT id FROM tours WHERE name = 'Tour Bogota Historica'),
+ (SELECT id FROM categories WHERE name = 'Cultura')),
+((SELECT id FROM tours WHERE name = 'Tour Bogota Historica'),
+ (SELECT id FROM categories WHERE name = 'Religión')),
+
+-- Bogota Cultural
+((SELECT id FROM tours WHERE name = 'Bogota Cultural'),
+ (SELECT id FROM categories WHERE name = 'Cultura')),
+((SELECT id FROM tours WHERE name = 'Bogota Cultural'),
+ (SELECT id FROM categories WHERE name = 'Arte')),
+((SELECT id FROM tours WHERE name = 'Bogota Cultural'),
+ (SELECT id FROM categories WHERE name = 'Historia')),
+
+-- Cartagena Colonial
+((SELECT id FROM tours WHERE name = 'Cartagena Colonial'),
+ (SELECT id FROM categories WHERE name = 'Historia')),
+((SELECT id FROM tours WHERE name = 'Cartagena Colonial'),
+ (SELECT id FROM categories WHERE name = 'Cultura')),
+((SELECT id FROM tours WHERE name = 'Cartagena Colonial'),
+ (SELECT id FROM categories WHERE name = 'Aventura'));
+
 -- ── TOURS GUARDADOS ──────────────────────────────────────────
 INSERT INTO saved_tours (user_id, tour_id) VALUES
 ((SELECT u.id FROM users u JOIN user_profiles p ON u.user_profile_id = p.id WHERE p.document = '1234567890'),

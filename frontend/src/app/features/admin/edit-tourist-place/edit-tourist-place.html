@@ -47,22 +47,43 @@
       <section class="form-panel">
         <h2>Ubicacion</h2>
 
-        <div class="inline-fields">
+        <div class="triple-fields">
           <label class="field">
-            <span>Ciudad</span>
-            <input type="text" name="city" [(ngModel)]="city" required />
+            <span>Pais</span>
+            <select
+              name="country"
+              [(ngModel)]="country"
+              (ngModelChange)="onCountryChange($event)"
+              [disabled]="loadingCountries()"
+              required
+            >
+              <option value="" disabled>Selecciona un pais</option>
+              <option *ngFor="let option of countries()" [value]="option">{{ option }}</option>
+            </select>
           </label>
 
           <label class="field">
             <span>Departamento</span>
-            <input type="text" name="department" [(ngModel)]="department" required />
+            <select
+              name="department"
+              [(ngModel)]="department"
+              (ngModelChange)="onDepartmentChange($event)"
+              [disabled]="!country || loadingDepartments()"
+              required
+            >
+              <option value="" disabled>Selecciona un departamento</option>
+              <option *ngFor="let option of departmentOptions()" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Ciudad</span>
+            <select name="city" [(ngModel)]="city" [disabled]="!department || loadingCities()" required>
+              <option value="" disabled>Selecciona una ciudad</option>
+              <option *ngFor="let option of cityOptions()" [value]="option">{{ option }}</option>
+            </select>
           </label>
         </div>
-
-        <label class="field">
-          <span>Pais</span>
-          <input type="text" name="country" [(ngModel)]="country" required />
-        </label>
 
         <div class="inline-fields">
           <label class="field">

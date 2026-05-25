@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 import { AuthTokenService } from '../../../core/services/auth-token.service';
+import { LocationCatalogService } from '../../../core/services/location-catalog.service';
 
 type Environment = 'INTERIOR' | 'MIXED' | 'EXTERIOR';
 
@@ -33,6 +35,17 @@ export class CreateTouristPlace {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly authToken = inject(AuthTokenService);
+  private readonly locationCatalog = inject(LocationCatalogService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly trackByIndex = (index: number): number => index;
+
+  readonly countries = signal<string[]>([]);
+  readonly departments = signal<string[]>([]);
+  readonly cities = signal<string[]>([]);
+  readonly loadingCountries = signal(false);
+  readonly loadingDepartments = signal(false);
+  readonly loadingCities = signal(false);
 
   readonly categories = signal<Category[]>([]);
   readonly selectedCategoryIds = signal<number[]>([]);
@@ -56,13 +69,98 @@ export class CreateTouristPlace {
   environment: Environment = 'EXTERIOR';
   city = '';
   department = '';
-  country = 'Colombia';
+  country = '';
   latitude: number | null = null;
   longitude: number | null = null;
   newCategoryName = '';
 
   constructor() {
+    this.loadCountries();
     this.loadCategories();
+  }
+
+  departmentOptions(): string[] {
+    return this.departments();
+  }
+
+  cityOptions(): string[] {
+    return this.cities();
+  }
+
+  onCountryChange(value: string): void {
+    this.country = value;
+    this.department = '';
+    this.city = '';
+    this.departments.set([]);
+    this.cities.set([]);
+
+    const country = value?.trim();
+    if (!country) return;
+
+    this.loadingDepartments.set(true);
+    this.locationCatalog
+      .getDepartments(country)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (departments) => {
+          this.departments.set(departments ?? []);
+          this.loadingDepartments.set(false);
+        },
+        error: () => {
+          this.departments.set([]);
+          this.loadingDepartments.set(false);
+        },
+      });
+  }
+
+  onDepartmentChange(value: string): void {
+    this.department = value;
+    this.city = '';
+    this.cities.set([]);
+
+    const country = this.country?.trim();
+    const department = value?.trim();
+    if (!country || !department) return;
+
+    this.loadingCities.set(true);
+    this.locationCatalog
+      .getCities(country, department)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (cities) => {
+          const list = (cities ?? []).filter(Boolean);
+          if (list.length === 0) {
+            this.cities.set([department]);
+            this.city = department;
+          } else {
+            this.cities.set(list);
+          }
+          this.loadingCities.set(false);
+        },
+        error: () => {
+          this.cities.set([department]);
+          this.city = department;
+          this.loadingCities.set(false);
+        },
+      });
+  }
+
+  private loadCountries(): void {
+    this.loadingCountries.set(true);
+
+    this.locationCatalog
+      .getCountries()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (countries) => {
+          this.countries.set(countries ?? []);
+          this.loadingCountries.set(false);
+        },
+        error: () => {
+          this.countries.set([]);
+          this.loadingCountries.set(false);
+        },
+      });
   }
 
   loadCategories(): void {

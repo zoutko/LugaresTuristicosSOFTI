@@ -1,5 +1,3 @@
-// src/app/core/models/tour-model.ts
-
 export interface TourTag {
   id?: number;
   name: string;

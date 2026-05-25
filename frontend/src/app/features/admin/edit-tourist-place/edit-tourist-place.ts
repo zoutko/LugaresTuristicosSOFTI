@@ -8,6 +8,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { TouristPlace, TouristPlaceEnvironment } from '../../tourist-places/tourist-places.types';
 import { AuthTokenService } from '../../../core/services/auth-token.service';
+import { LocationCatalogService } from '../../../core/services/location-catalog.service';
 
 type Environment = TouristPlaceEnvironment;
 
@@ -27,6 +28,7 @@ export class EditTouristPlace {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authToken = inject(AuthTokenService);
+  private readonly locationCatalog = inject(LocationCatalogService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly categories = signal<Category[]>([]);
@@ -38,6 +40,13 @@ export class EditTouristPlace {
   readonly saving = signal(false);
   readonly message = signal('');
   readonly error = signal('');
+
+  readonly countries = signal<string[]>([]);
+  readonly departments = signal<string[]>([]);
+  readonly cities = signal<string[]>([]);
+  readonly loadingCountries = signal(false);
+  readonly loadingDepartments = signal(false);
+  readonly loadingCities = signal(false);
 
   readonly placeId = signal<number | null>(null);
 
@@ -54,7 +63,7 @@ export class EditTouristPlace {
 
   city = '';
   department = '';
-  country = 'Colombia';
+  country = '';
   latitude: number | null = null;
   longitude: number | null = null;
 
@@ -63,6 +72,8 @@ export class EditTouristPlace {
   readonly hasToken = computed(() => this.authToken.hasToken());
 
   constructor() {
+    this.loadCountries();
+
     this.route.paramMap
       .pipe(
         map((params) => Number(params.get('id'))),
@@ -107,14 +118,152 @@ export class EditTouristPlace {
 
         this.city = place.location?.city ?? '';
         this.department = place.location?.department ?? '';
-        this.country = place.location?.country ?? 'Colombia';
+        this.country = place.location?.country ?? '';
         this.latitude = place.location?.latitude ?? null;
         this.longitude = place.location?.longitude ?? null;
+
+        this.syncDepartmentsAndCitiesFromCurrentSelection();
 
         const categoryIds = this.resolveCategoryIds(place.categories ?? [], categories ?? []);
         this.selectedCategoryIds.set(categoryIds);
 
         this.loading.set(false);
+      });
+  }
+
+  departmentOptions(): string[] {
+    return this.departments();
+  }
+
+  cityOptions(): string[] {
+    return this.cities();
+  }
+
+  onCountryChange(value: string): void {
+    this.country = value;
+    this.department = '';
+    this.city = '';
+    this.departments.set([]);
+    this.cities.set([]);
+
+    const country = value?.trim();
+    if (!country) return;
+
+    this.loadingDepartments.set(true);
+    this.locationCatalog
+      .getDepartments(country)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (departments) => {
+          this.departments.set(departments ?? []);
+          this.loadingDepartments.set(false);
+        },
+        error: () => {
+          this.departments.set([]);
+          this.loadingDepartments.set(false);
+        },
+      });
+  }
+
+  onDepartmentChange(value: string): void {
+    this.department = value;
+    this.city = '';
+    this.cities.set([]);
+
+    const country = this.country?.trim();
+    const department = value?.trim();
+    if (!country || !department) return;
+
+    this.loadingCities.set(true);
+    this.locationCatalog
+      .getCities(country, department)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (cities) => {
+          const list = (cities ?? []).filter(Boolean);
+          if (list.length === 0) {
+            this.cities.set([department]);
+            this.city = department;
+          } else {
+            this.cities.set(list);
+          }
+          this.loadingCities.set(false);
+        },
+        error: () => {
+          this.cities.set([department]);
+          this.city = department;
+          this.loadingCities.set(false);
+        },
+      });
+  }
+
+  private loadCountries(): void {
+    this.loadingCountries.set(true);
+
+    this.locationCatalog
+      .getCountries()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (countries) => {
+          const list = countries ?? [];
+          const current = this.country?.trim();
+          this.countries.set(current && !list.includes(current) ? [current, ...list] : list);
+          this.loadingCountries.set(false);
+        },
+        error: () => {
+          const current = this.country?.trim();
+          this.countries.set(current ? [current] : []);
+          this.loadingCountries.set(false);
+        },
+      });
+  }
+
+  private syncDepartmentsAndCitiesFromCurrentSelection(): void {
+    const country = this.country?.trim();
+    const department = this.department?.trim();
+    const city = this.city?.trim();
+    if (!country) return;
+
+    this.loadingDepartments.set(true);
+    this.locationCatalog
+      .getDepartments(country)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (departments) => {
+          const deptList = departments ?? [];
+          this.departments.set(deptList.includes(department) ? deptList : department ? [department, ...deptList] : deptList);
+          this.loadingDepartments.set(false);
+
+          if (!department) return;
+
+          this.loadingCities.set(true);
+          this.locationCatalog
+            .getCities(country, department)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (cities) => {
+                const cityList = (cities ?? []).filter(Boolean);
+                if (cityList.length === 0) {
+                  this.cities.set([department]);
+                  if (!this.city?.trim()) this.city = department;
+                } else {
+                  this.cities.set(
+                    cityList.includes(city) ? cityList : city ? [city, ...cityList] : cityList
+                  );
+                }
+                this.loadingCities.set(false);
+              },
+              error: () => {
+                this.cities.set(city ? [city] : [department]);
+                if (!this.city?.trim()) this.city = department;
+                this.loadingCities.set(false);
+              },
+            });
+        },
+        error: () => {
+          this.departments.set(department ? [department] : []);
+          this.loadingDepartments.set(false);
+        },
       });
   }
 
