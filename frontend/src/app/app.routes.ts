@@ -12,6 +12,7 @@ import { EditTouristPlace } from './features/admin/edit-tourist-place/edit-touri
 import { adminGuard } from './core/guards/admin.guard';
 import { adminPlacesRedirectGuard } from './core/guards/admin-places-redirect.guard';
 import { TourListComponent } from './features/tours/tour-list/tour-list';
+import { TourDetailComponent } from './features/tours/tour-detail/tour-detail';
 
 export const routes: Routes = [
     { path: '', component: Home, pathMatch: 'full' },
@@ -23,6 +24,8 @@ export const routes: Routes = [
     { path: 'profile', component: ProfilePage },
     { path: 'recorridos-guardados', component: SavedToursListComponent},
     { path: 'recorridos', component: TourListComponent },
+    { path: 'recorridos/:id', component: TourDetailComponent },
+    { path: 'tour/:id', component: TourDetailComponent },
     { path: 'auth/change-password', component: ChangePasswordPage },
     { path: 'auth', component: AuthPage, pathMatch: 'full' }
 ];

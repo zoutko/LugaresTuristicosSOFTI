@@ -1,30 +1,34 @@
-<div class="tour-card">
-  <div class="tour-image">
-    <img [src]="tour.imageUrl || 'assets/images/default-tour.jpg'" [alt]="tour.name">
+<article class="tour-card">
+  <div class="image-frame">
+    <img [src]="tour.imageUrl || fallbackImage" [alt]="tour.name" loading="lazy" (error)="useFallbackImage($event)">
   </div>
-  
-  <div class="tour-content">
-    <div class="tour-location">
-      <span class="location-icon">
-          <img src="location.svg" alt="icon" width="10" height="10">
-      </span>
-      <span class="tour-city">{{ tour.city }}</span>
-      <span class="tour-city">{{ tour.country }}</span>
-    </div>
-    
-    <h3 class="tour-title">{{ tour.name }}</h3>
-    
-    <div class="tour-tags">
-      @for (category of tour.categories; track $index) {
-        <span class="tag">{{ category }}</span>
-      }
-    </div>
-    
-    <div class="tour-price">{{ formatPrice(tour.price) }}</div>
-    
-    <div class="tour-actions">
-      <button class="btn-view" (click)="onView()">Ver</button>
-      <button class="btn-remove" *ngIf="showRemoveButton" (click)="onRemove()">Eliminar</button>
+
+  <div class="tour-body">
+    <div class="tour-content">
+      <div class="tour-info">
+        <div class="tour-location">
+          <span class="pin" aria-hidden="true"></span>
+          <span class="tour-location-text">{{ locationLabel || 'Ubicacion por confirmar' }}</span>
+        </div>
+
+        <h2 class="tour-title">{{ tour.name }}</h2>
+
+        <div class="tags">
+          @for (category of visibleCategories; track $index) {
+          <span>{{ category }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="tour-actions">
+        <div class="tour-detail">
+          <strong>{{ formatPrice(tour.price) }}</strong>
+          <span>Por persona</span>
+        </div>
+
+        <button type="button" class="btn-view" (click)="onView()">Ver</button>
+        <button type="button" class="btn-remove" *ngIf="showRemoveButton" (click)="onRemove()">Eliminar</button>
+      </div>
     </div>
   </div>
-</div>
+</article>

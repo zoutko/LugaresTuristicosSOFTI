@@ -59,7 +59,7 @@
 }
 
 .featured-area {
-  width: min(1120px, calc(100% - 32px));
+  width: min(1220px, calc(100% - 32px));
   margin: 0 auto;
   padding: 36px 0 46px;
 }
@@ -121,6 +121,12 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 26px;
+  align-items: stretch;
+}
+
+.featured-grid app-tour-card {
+  display: block;
+  height: 100%;
 }
 
 .tour-card {

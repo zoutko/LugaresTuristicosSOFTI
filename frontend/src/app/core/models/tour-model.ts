@@ -12,12 +12,24 @@ export interface Category {
 export interface AlbumImage {
   id?: number;
   url?: string;
+  filePath?: string;
+  fileName?: string;
+  description?: string;
 }
 
 export interface Album {
   id?: number;
   title?: string;
   images?: AlbumImage[];
+  photos?: AlbumImage[];
+  currentPhoto?: AlbumImage | null;
+}
+
+export interface ItineraryItem {
+  itineraryId: number;
+  position: number;
+  touristPlaceId: number;
+  touristPlaceName: string;
 }
 
 export interface Tour {
@@ -30,7 +42,7 @@ export interface Tour {
   price: number;
   location: string;
   meetingPoint: string;
-  itinerary: any[];
+  itinerary: ItineraryItem[];
   tourOffer: any;
   album: Album;
 }

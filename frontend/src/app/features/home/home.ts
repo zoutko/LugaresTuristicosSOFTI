@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { TourCardComponent } from '../../shared/tour-card/tour-card';
+import { TourCard } from '../../core/models/tour-model';
 
 interface TourPhoto {
   filePath: string;
@@ -25,15 +27,21 @@ interface Tour {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterLink],
+  standalone: true,
+  imports: [CommonModule, RouterLink, TourCardComponent],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class Home {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
 
   readonly featuredTours = signal<Tour[]>([]);
   readonly loading = signal(true);
+
+  readonly featuredTourCards = computed<TourCard[]>(() =>
+    this.featuredTours().map((tour, index) => this.mapToTourCard(tour, index))
+  );
 
   private readonly fallbackImages = [
     'https://cartagenaplay.com/wp-content/uploads/9008013895_5a53127df8_o-scaled.jpg',
@@ -77,5 +85,22 @@ export class Home {
       currency: 'COP',
       maximumFractionDigits: 0,
     }).format(price);
+  }
+
+  viewTour(tourId: number): void {
+    this.router.navigate(['/tour', tourId]);
+  }
+
+  private mapToTourCard(tour: Tour, index: number): TourCard {
+    return {
+      id: tour.id,
+      name: tour.name,
+      city: tour.location ?? '',
+      country: '',
+      categories: this.getCategories(tour),
+      environment: '',
+      price: tour.price,
+      imageUrl: this.getImage(tour, index),
+    };
   }
 }

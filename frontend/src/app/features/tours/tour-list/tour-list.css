@@ -1,166 +1,211 @@
 .tours-page {
   width: 100%;
   min-height: calc(100vh - 144px);
-  margin: 0;
-  padding: 0;
-  background-color: #f9f9ec;
-  overflow: hidden;
+  background: var(--color-app-bg);
 }
 
 .tours-layout {
-  position: relative;
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 315px minmax(0, 1fr);
+  gap: 22px;
   width: 100%;
-  flex: 1;
-  margin: 0;
-  padding: 10px 0 0 0;
-  background-color: #f9f9ec;
-  overflow: hidden;
-  
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 12px 18px 18px;
 }
 
 .filters-sidebar {
-  width: 380px;
-  height: 500px;
-  flex-shrink: 0;
-  background: white;
-  padding: 20px;
-  margin-left: 15px;
-  margin-top: 15px;
-  border-right: 1px solid #e0e0e0;
-  box-sizing: border-box;
-  overflow-y: auto; 
+  min-height: 680px;
+  align-self: start;
+  background: #ffffff;
+  padding: 20px 18px 22px;
 }
-
-/* Contenido */
-.tours-content {
-  flex: 1;
-  min-width: 0;
-  padding: 0 100px;
-  margin: 0;
-  box-sizing: border-box;
- /* overflow: hidden;*/
-}
-
-.tours-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(450px, 1fr));
-  row-gap: 18px;     /* Espacio entre filas (vertical) */
-  column-gap: 18px;
-  width: 100%;
-  padding: 20px 0;
-  overflow-y: auto;  /* ← Scroll solo en el grid */
-  overflow-x: hidden;
-  flex:1;
-}
-
-.tours-grid app-tour-card {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 
 .filters-sidebar h2 {
-  font-size: 18px;
-  color: #2f7c2f;
-  margin: 0 0 16px 0;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #efe9cf;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--color-primary);
+  margin: 0 0 16px;
+  font-weight: 900;
+}
+
+.filter-icon {
+  width: 30px;
+  height: 26px;
+  display: inline-block;
+  background: var(--color-primary);
+  -webkit-clip-path: polygon(0 0, 100% 0, 62% 43%, 62% 100%, 38% 100%, 38% 43%);
+  clip-path: polygon(0 0, 100% 0, 62% 43%, 62% 100%, 38% 100%, 38% 43%);
 }
 
 .filter-section {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+}
+
+.filter-section--divider {
+  padding-bottom: 22px;
+  border-bottom: 2px solid var(--color-cream);
+}
+
+.environment-section {
+  margin-top: 6px;
 }
 
 .filter-label {
   display: block;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 8px;
-  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  margin-bottom: 18px;
+  font-size: 20px;
+  line-height: 1.1;
 }
 
 .filter-input {
   width: 100%;
-  padding: 8px 12px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  height: 36px;
+  padding: 9px 12px;
+  border: 1px solid #c9c9c9;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
   box-sizing: border-box;
+}
+
+.filter-input::placeholder {
+  color: #c2c2c2;
 }
 
 .filter-input:focus {
   outline: none;
-  border-color: #2f7c2f;
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring-primary);
 }
 
 .price-input {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  position: relative;
 }
 
-.price-input input[type="range"] {
+.price-badge {
+  width: fit-content;
+  min-width: 31px;
+  min-height: 21px;
+  padding: 2px 2px;
+  border-radius: 4px;
+  background: #eef0d0;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.price-input input[type='range'] {
   width: 100%;
-  accent-color: #2f7c2f;
-}
-
-.price-value {
-  font-size: 13px;
-  color: #2f7c2f;
-  font-weight: 600;
+  height: 16px;
+  accent-color: var(--color-primary);
 }
 
 .checkbox-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 16px;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 32px;
+  row-gap: 16px;
 }
 
 .checkbox-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  min-width: 0;
   cursor: pointer;
   font-size: 13px;
-  color: #333;
+  color: #111111;
+  line-height: 1.1;
 }
 
 .checkbox-item input {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
   cursor: pointer;
-  accent-color: #2f7c2f;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 3px;
+  position: relative;
+}
+
+.checkbox-item input:checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.checkbox-item input:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #ffffff;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-item span {
+  overflow-wrap: anywhere;
 }
 
 .btn-clear {
+  display: block;
   width: 100%;
-  padding: 8px;
-  background-color: #efe9cf;
-  color: #2f7c2f;
-  border: none;
-  border-radius: 8px;
+  min-height: 38px;
+  margin: 34px 0 0;
+  background: #ffffff;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 0;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  margin-top: 16px;
-  font-size: 13px;
+  font-weight: 500;
+  font-size: 15px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-clear:hover {
-  background-color: #e8e1b8;
-  transform: translateY(-2px);
+  background: var(--color-primary);
+  color: #ffffff;
 }
 
-.loading, .error, .empty-state {
+.tours-content {
+  min-width: 0;
+}
+
+.tours-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(330px, 1fr));
+  gap: 44px 36px;
+}
+
+.tours-grid app-tour-card {
+  display: block;
+  min-width: 0;
+}
+
+.loading,
+.error,
+.empty-state {
   text-align: center;
-  padding: 60px 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 48px 20px;
+  background: var(--color-surface);
 }
 
 .error {
@@ -168,48 +213,35 @@
 }
 
 .empty-state p {
-  color: #666;
+  color: #666666;
   margin-bottom: 20px;
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
-  .tours-grid {
-    grid-template-columns: repeat(2, minmax(350px, 1fr));
+@media (max-width: 1100px) {
+  .tours-layout {
+    grid-template-columns: 280px minmax(0, 1fr);
   }
-}
 
-@media (max-width: 1024px) {
-  .filters-sidebar {
-    width: 260px;
-  }
-  
-  .tours-content {
-    padding: 0 20px;
-  }
-  
-  .tours-grid {
-    gap: 20px;
-    grid-template-columns: repeat(2, minmax(300px, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
   .tours-grid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 760px) {
   .tours-layout {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    padding: 12px;
   }
-  
+
   .filters-sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 100px solid #e0e0e0;
-    min-height: auto;
+    min-height: 0;
   }
-  
+
+  .btn-clear {
+    margin-top: 22px;
+  }
+
+  .tours-grid {
+    gap: 22px;
+  }
 }

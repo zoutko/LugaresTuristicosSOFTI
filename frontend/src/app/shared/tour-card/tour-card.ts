@@ -15,6 +15,17 @@ export class TourCardComponent {
   @Output() view = new EventEmitter<number>();
   @Output() remove = new EventEmitter<number>();
 
+  readonly fallbackImage =
+    'https://images.unsplash.com/photo-1583531352515-8884af319dc1?auto=format&fit=crop&w=900&q=80';
+
+  get locationLabel(): string {
+    return [this.tour.city, this.tour.country].filter(Boolean).join(', ');
+  }
+
+  get visibleCategories(): string[] {
+    return this.tour.categories?.filter(Boolean).slice(0, 2) ?? [];
+  }
+
   onView(): void {
     this.view.emit(this.tour.id);
   }
@@ -29,5 +40,12 @@ export class TourCardComponent {
       currency: 'COP',
       minimumFractionDigits: 0
     }).format(price);
+  }
+
+  useFallbackImage(event: Event): void {
+    const image = event.target as HTMLImageElement;
+    if (image.src !== this.fallbackImage) {
+      image.src = this.fallbackImage;
+    }
   }
 }

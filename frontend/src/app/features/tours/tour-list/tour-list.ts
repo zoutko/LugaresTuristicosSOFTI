@@ -12,7 +12,7 @@ import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
   standalone: true,
   imports: [CommonModule, FormsModule, TourCardComponent, ToastComponent],
   templateUrl: './tour-list.html',
-  styleUrls: ['./tour-list.css']
+  styleUrls: ['./tour-list.css'],
 })
 export class TourListComponent implements OnInit {
   allTours: TourCard[] = [];
@@ -20,15 +20,16 @@ export class TourListComponent implements OnInit {
   loading = true;
   error = '';
 
-  // Filtros
   searchTerm = '';
-  maxPrice = 500000;
-  
-  // Filtros de categorías
+  maxPrice = 0;
+
+  priceMin = 0;
+  priceMax = 0;
+  priceStep = 10000;
+
   availableCategories: string[] = [];
   selectedCategories: string[] = [];
-  
-  // Filtros de entorno
+
   environments = ['INTERIOR', 'EXTERIOR', 'MIXTO'];
   selectedEnvironments: string[] = [];
 
@@ -46,10 +47,14 @@ export class TourListComponent implements OnInit {
   }
 
   private loadTours(): void {
+    this.loading = true;
+    this.error = '';
+
     this.tourService.getToursAsCards().subscribe({
       next: (tours) => {
         this.allTours = tours;
         this.filteredTours = tours;
+        this.syncPriceRange();
         this.extractAvailableCategories();
         this.loading = false;
       },
@@ -58,45 +63,65 @@ export class TourListComponent implements OnInit {
         this.error = 'Error al cargar los recorridos';
         this.loading = false;
         this.showToast(this.error, 'error');
-      }
+      },
     });
   }
 
   private extractAvailableCategories(): void {
     const categoriesSet = new Set<string>();
-    this.allTours.forEach(tour => {
-      tour.categories.forEach(cat => categoriesSet.add(cat));
+    this.allTours.forEach((tour) => {
+      tour.categories.forEach((cat) => categoriesSet.add(cat));
     });
     this.availableCategories = Array.from(categoriesSet).sort();
   }
 
+  private syncPriceRange(): void {
+    const prices = this.allTours.map((tour) => tour.price).filter((price) => Number.isFinite(price));
+    const min = prices.length > 0 ? Math.min(...prices) : 0;
+    const max = prices.length > 0 ? Math.max(...prices) : 0;
+
+    this.priceMin = min;
+    this.priceMax = max;
+    this.priceStep = this.computePriceStep(max);
+
+    if (this.maxPrice === 0 || this.maxPrice > this.priceMax) {
+      this.maxPrice = this.priceMax;
+    }
+
+    if (this.maxPrice < this.priceMin) {
+      this.maxPrice = this.priceMin;
+    }
+  }
+
+  private computePriceStep(max: number): number {
+    if (max <= 50000) return 1000;
+    if (max <= 200000) return 5000;
+    return 10000;
+  }
+
   applyFilters(): void {
-    this.filteredTours = this.allTours.filter(tour => {
-      // Filtro por nombre
-      if (this.searchTerm && !tour.name.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+    const normalizedSearch = this.searchTerm.trim().toLowerCase();
+
+    this.filteredTours = this.allTours.filter((tour) => {
+      if (normalizedSearch && !tour.name.toLowerCase().includes(normalizedSearch)) {
         return false;
       }
-      
-      // Filtro por precio
+
       if (tour.price > this.maxPrice) {
         return false;
       }
-      
-      // Filtro por categorías
+
       if (this.selectedCategories.length > 0) {
-        const hasCategory = this.selectedCategories.some(cat => 
-          tour.categories.includes(cat)
-        );
+        const hasCategory = this.selectedCategories.some((cat) => tour.categories.includes(cat));
         if (!hasCategory) return false;
       }
-      
-      // Filtro por entorno
+
       if (this.selectedEnvironments.length > 0) {
         if (!this.selectedEnvironments.includes(tour.environment)) {
           return false;
         }
       }
-      
+
       return true;
     });
   }
@@ -129,9 +154,18 @@ export class TourListComponent implements OnInit {
     this.applyFilters();
   }
 
+  environmentLabel(environment: string): string {
+    const labels: Record<string, string> = {
+      INTERIOR: 'Interior',
+      EXTERIOR: 'Exterior',
+      MIXTO: 'Mixto',
+    };
+    return labels[environment] ?? environment;
+  }
+
   clearFilters(): void {
     this.searchTerm = '';
-    this.maxPrice = 500000;
+    this.maxPrice = this.priceMax;
     this.selectedCategories = [];
     this.selectedEnvironments = [];
     this.applyFilters();
@@ -150,4 +184,4 @@ export class TourListComponent implements OnInit {
   closeToast(): void {
     this.toastOpen = false;
   }
-}   
+}
