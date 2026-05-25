@@ -41,24 +41,19 @@ export class ProfilePage implements OnInit {
     this.loadProfile();
   }
 
-goToMisReservas(): void {
-    this.router.navigate(['/mis-reservas']);
-}
-
 goToRecorridosGuardados(): void {
     this.router.navigate(['/recorridos-guardados']);
 }
 
-goToFavoritos(): void {
-    this.router.navigate(['/favoritos']);
+goToChangePassword(): void {
+    this.router.navigate(['/auth/change-password']);
 }
 
 goToConfiguracion(): void {
-    this.router.navigate(['/configuracion']);
+    this.router.navigate(['/']);
 }
 
   private loadProfile(): void {
-    // Por ahora usamos ID 1 
     const userIdStr = localStorage.getItem('auth.userId');
     if (!userIdStr) {
     this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
@@ -86,13 +81,9 @@ goToConfiguracion(): void {
     this.editFieldName = fieldName;
     this.editFieldValue = currentValue;
     
-    // Mapear nombre amigable a la clave del backend
     switch(fieldName) {
       case 'nombre':
         this.editFieldKey = 'name';
-        break;
-      case 'correo':
-        this.editFieldKey = 'email';
         break;
       case 'documento':
         this.editFieldKey = 'document';
@@ -117,7 +108,14 @@ goToConfiguracion(): void {
     }
     
     this.isSaving = true;
-    const userId = 1; 
+
+    const userIdStr = localStorage.getItem('auth.userId'); 
+      if (!userIdStr) {
+        this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
+        this.loading = false;
+        return;
+      }
+    const userId = parseInt(userIdStr, 10);
     
     this.userService.updateProfileField(userId, this.editFieldKey, this.editFieldValue).subscribe({
       next: (updatedUser) => {

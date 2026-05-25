@@ -33,12 +33,6 @@
             </div>
             
             <div class="info-field">
-                <div class="field-label">Correo:</div>
-                <div class="field-value">{{ user.email }}</div>
-                <button class="edit-btn edit-btn-green" (click)="openEditField('correo', user.email)">✎</button>
-            </div>
-            
-            <div class="info-field">
                 <div class="field-label">Documento:</div>
                 <div class="field-value">{{ user.profile.document }}</div>
                 <button class="edit-btn edit-btn-green" (click)="openEditField('documento', user.profile.document)">✎</button>
@@ -48,13 +42,6 @@
        <!-- Columna derecha - Acciones -->
 <div class="actions-card card" *ngIf="!loading && !error && user">
     <div class="action-buttons">
-        <button class="action-btn action-btn--green" (click)="goToMisReservas()">
-            <span class="action-icon">
-                <img src="reservas.svg" alt="Reservas" width="22" height="22">
-            </span>
-            <span class="action-text">Mis Reservas</span>
-        </button>
-        
         <button class="action-btn action-btn--green" (click)="goToRecorridosGuardados()">
             <span class="action-icon">
                 <img src="guardados.svg" alt="Recorridos Guardados" width="22" height="22">
@@ -62,7 +49,7 @@
             <span class="action-text">Recorridos Guardados</span>
         </button>
         
-        <button class="action-btn action-btn--orange" (click)="goToFavoritos()">
+        <button class="action-btn action-btn--orange" (click)="goToChangePassword()">
             <span class="action-text">Cambiar contraseña</span>
         </button>
         

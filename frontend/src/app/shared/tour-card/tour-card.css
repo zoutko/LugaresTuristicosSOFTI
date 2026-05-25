@@ -1,23 +1,36 @@
 .tour-card {
+<<<<<<< HEAD
   background: var(--color-surface);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow-topbar);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
+=======
+>>>>>>> origin/feat/users-front-end
   display: flex;
   flex-direction: column;
+  background: white;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  width: 100%;
 }
 
 .tour-card:hover {
+<<<<<<< HEAD
   transform: translateY(-4px);
   box-shadow: 0 8px 24px var(--color-primary);
+=======
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+>>>>>>> origin/feat/users-front-end
 }
 
-/* Imagen arriba */
 .tour-image {
   width: 100%;
-  height: 180px;
+  height: 200px;
   background-color: #e8e4c9;
   overflow: hidden;
 }
@@ -33,15 +46,13 @@
   transform: scale(1.05);
 }
 
-/* Contenido debajo */
 .tour-content {
-  padding: 16px;
+  padding: 5px;
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 
 .tour-location {
   display: flex;
@@ -59,7 +70,6 @@
   font-weight: 600;
 }
 
-/* Título */
 .tour-title {
   font-size: 18px;
   font-weight: 700;
@@ -68,7 +78,6 @@
   line-height: 1.3;
 }
 
-/* Etiquetas */
 .tour-tags {
   display: flex;
   flex-wrap: wrap;
@@ -79,7 +88,6 @@
 .tag {
   background-color: var(--color-cream);
   padding: 4px 10px;
-  border-radius: 20px;
   font-size: 11px;
   font-weight: 500;
   color: var(--color-primary);
@@ -110,12 +118,12 @@
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
   transition: all 0.2s ease;
   flex: 1;
+  margin-left: 250px;
 }
 
 .btn-view:hover {
@@ -127,7 +135,6 @@
   color: #b42318;
   border: 1px solid #b42318;
   padding: 8px 12px;
-  border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
   font-size: 14px;
@@ -137,4 +144,18 @@
 .btn-remove:hover {
   background-color: #b42318;
   color: white;
+}
+
+@media (max-width: 640px) {
+  .tour-image {
+    height: 160px;
+  }
+  
+  .tour-title {
+    font-size: 16px;
+  }
+  
+  .tour-price {
+    font-size: 18px;
+  }
 }

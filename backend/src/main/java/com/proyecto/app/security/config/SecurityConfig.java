@@ -45,10 +45,11 @@ public class SecurityConfig {
                                 "/api/auth/change-password",
                                 "/api/users/register",
                                 "/api/users/{userId}",
-                                "/api/tours/**",
-                                "/api/users/{userId}/saved-tours",  
-                                "/api/places/**",
+                                "/api/tours",
+                                "/api/users/{userId}/saved-tours",
+                                "/api/places",
                                 "/api/auth/change-email",
+                                "/api/places/**",
                                 "/h2-console/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/tours/**").authenticated()
