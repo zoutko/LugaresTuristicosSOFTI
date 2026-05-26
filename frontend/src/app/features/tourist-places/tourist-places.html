@@ -1,4 +1,4 @@
-<section class="places-shell" aria-label="Lugares turisticos">
+<section class="places-shell" aria-label="Lugares turísticos">
   <div class="places-tools">
     <label class="search-box">
       <span aria-hidden="true"></span>
@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <div *ngIf="loading()" class="status-panel">Cargando lugares turisticos...</div>
+  <div *ngIf="loading()" class="status-panel">Cargando lugares turísticos...</div>
 
   <div *ngIf="!loading() && error()" class="status-panel status-panel--error">
     <span>{{ error() }}</span>
@@ -30,7 +30,7 @@
   </div>
 
   <div *ngIf="!loading() && !error() && filteredPlaces().length === 0" class="status-panel">
-    No hay lugares turisticos para mostrar.
+    No hay lugares turísticos para mostrar.
   </div>
 
   <div *ngIf="!loading() && !error() && filteredPlaces().length > 0" class="places-grid">
