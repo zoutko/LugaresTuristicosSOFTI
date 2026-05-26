@@ -28,7 +28,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: recorridosturisticos8@gmail.com
-    password: ${MAIL_PASSWORD}
+    password: ${MAIL_PASSWORD:uggl ryug xbii tebx}
     properties:
       mail:
         smtp:
@@ -40,7 +40,7 @@ security:
   recovery:
     expiration-ms: 900000
   jwt:
-    secret-key: ${JWT_SECRET}
+    secret-key: ${JWT_SECRET:recorridosturisticossecretkey12345678902026software}
     expiration-ms: 3600000
 
 app:
