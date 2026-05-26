@@ -1,0 +1,10 @@
+[build]
+  base = "frontend"
+  command = "npm install && ng build"
+  publish = "dist/frontend/browser"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://gestor-recorridos-backend.onrender.com/api/:splat"
+  status = 200
+  force = true
