@@ -135,7 +135,6 @@ export class AuthPage {
 
   this.isRegistering = true;
 
-  // Una sola llamada a /api/users/register
   this.userApi.createUser({
     name,
     email,
