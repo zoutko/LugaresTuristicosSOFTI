@@ -2,11 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { TourService } from '../../../core/services/tour.service';
 import { SavedToursService } from '../../../core/services/saved-tours-service';
+import { TouristPlaceApiService } from '../../../core/services/tourist-place-api.service';
+import { TourReviewService } from '../../../core/services/tour-review.service';
 import { ItineraryItem, Tour } from '../../../core/models/tour-model';
+import { TourReview } from '../../../core/models/review-model';
 import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
 
 @Component({
@@ -19,6 +22,8 @@ import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
 export class TourDetailComponent {
   private readonly tourApi = inject(TourService);
   private readonly savedToursApi = inject(SavedToursService);
+  private readonly placeApi = inject(TouristPlaceApiService);
+  private readonly reviewApi = inject(TourReviewService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -31,9 +36,18 @@ export class TourDetailComponent {
   readonly saving = signal(false);
 
   readonly bookingDate = signal<string>('');
-  readonly qtyAdults = signal<number>(2);
-  readonly qtyChildren = signal<number>(1);
+  readonly qtyAdults = signal<number>(0);
+  readonly qtyChildren = signal<number>(0);
   readonly qtyStudents = signal<number>(0);
+
+  readonly itineraryPlaceNames = signal<Record<number, string>>({});
+
+  readonly reviews = signal<TourReview[]>([]);
+  readonly reviewsLoading = signal(false);
+  readonly reviewsError = signal('');
+  readonly reviewComment = signal('');
+  readonly reviewRating = signal<number>(0);
+  readonly reviewSubmitting = signal(false);
 
   toastOpen = false;
   toastMessage = '';
@@ -102,6 +116,50 @@ export class TourDetailComponent {
         this.tour.set(tour);
         this.loading.set(false);
         this.refreshSavedState();
+        this.loadItineraryPlaceNames();
+        this.loadReviews();
+      });
+  }
+
+  itineraryPlaceName(item: ItineraryItem): string {
+    const fromMap = this.itineraryPlaceNames()[item.touristPlaceId];
+    const fromDto = item.touristPlaceName ?? '';
+    return (fromDto || fromMap || `Lugar ${item.touristPlaceId}`).trim();
+  }
+
+  private loadItineraryPlaceNames(): void {
+    const items = this.tour()?.itinerary ?? [];
+    if (!items || items.length === 0) return;
+
+    const existing = this.itineraryPlaceNames();
+    const missingIds = Array.from(
+      new Set(
+        items
+          .filter((item) => !item.touristPlaceName)
+          .map((item) => item.touristPlaceId)
+          .filter((id) => Number.isFinite(id) && id > 0 && !existing[id])
+      )
+    );
+
+    if (missingIds.length === 0) return;
+
+    forkJoin(
+      missingIds.map((id) =>
+        this.placeApi.getPlace(id).pipe(
+          map((place) => ({ id, name: place?.name ?? '' })),
+          catchError(() => of({ id, name: '' }))
+        )
+      )
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((results) => {
+        const next: Record<number, string> = { ...this.itineraryPlaceNames() };
+        results.forEach((r) => {
+          if (r?.id && r.name) {
+            next[r.id] = r.name;
+          }
+        });
+        this.itineraryPlaceNames.set(next);
       });
   }
 
@@ -136,6 +194,14 @@ export class TourDetailComponent {
     const raw = localStorage.getItem('auth.userId');
     const parsed = raw ? Number(raw) : NaN;
     return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }
+
+  isLoggedIn(): boolean {
+    return Boolean(localStorage.getItem('auth.token'));
+  }
+
+  canPublishReview(): boolean {
+    return this.isLoggedIn() && Boolean(this.getUserId());
   }
 
   private refreshSavedState(): void {
@@ -185,6 +251,113 @@ export class TourDetailComponent {
         this.showToast('No fue posible actualizar tus guardados.', 'error');
       },
     });
+  }
+
+  setRating(rating: number): void {
+    if (!this.canPublishReview()) return;
+    const next = Math.max(1, Math.min(5, rating));
+    this.reviewRating.set(next);
+  }
+
+  loadReviews(): void {
+    const tourId = this.tour()?.id;
+    if (!tourId) return;
+
+    this.reviewsLoading.set(true);
+    this.reviewsError.set('');
+
+    this.reviewApi
+      .getReviews(tourId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (reviews) => {
+          const sorted = [...(reviews ?? [])].sort((a, b) => {
+            const da = a.publicationDate ?? '';
+            const db = b.publicationDate ?? '';
+            return db.localeCompare(da);
+          });
+          this.reviews.set(sorted);
+          this.reviewsLoading.set(false);
+        },
+        error: () => {
+          this.reviewsLoading.set(false);
+          this.reviewsError.set('No fue posible cargar las reseñas.');
+        },
+      });
+  }
+
+  submitReview(): void {
+    if (this.reviewSubmitting()) return;
+
+    const tourId = this.tour()?.id;
+    const userId = this.getUserId();
+
+    if (!tourId) return;
+    if (!userId || !this.isLoggedIn()) {
+      this.router.navigate(['/auth'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    const rating = this.reviewRating();
+    const comment = this.reviewComment().trim();
+
+    if (rating < 1 || rating > 5) {
+      this.showToast('Selecciona una calificación (1 a 5).', 'error');
+      return;
+    }
+
+    if (!comment) {
+      this.showToast('Escribe un comentario para tu reseña.', 'error');
+      return;
+    }
+
+    this.reviewSubmitting.set(true);
+
+    this.reviewApi
+      .createReview({ tourId, authorId: userId, rating, comment })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (review) => {
+          this.reviewSubmitting.set(false);
+          this.reviewComment.set('');
+          this.reviewRating.set(0);
+          this.reviews.set([review, ...this.reviews()]);
+          this.showToast('Reseña publicada.', 'success');
+        },
+        error: () => {
+          this.reviewSubmitting.set(false);
+          this.showToast('No fue posible publicar la reseña.', 'error');
+        },
+      });
+  }
+
+  canDeleteReview(review: TourReview): boolean {
+    const userId = this.getUserId();
+    return Boolean(userId && review?.authorId === userId);
+  }
+
+  deleteReview(reviewId: number): void {
+    const tourId = this.tour()?.id;
+    const userId = this.getUserId();
+
+    if (!tourId || !userId || !reviewId) return;
+
+    this.reviewApi
+      .deleteReview({ tourId, reviewId, requesterId: userId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.reviews.set(this.reviews().filter((r) => r.id !== reviewId));
+          this.showToast('Reseña eliminada.', 'success');
+        },
+        error: () => {
+          this.showToast('No fue posible eliminar la reseña.', 'error');
+        },
+      });
+  }
+
+  trackByReviewId(_index: number, review: TourReview): number {
+    return review.id;
   }
 
   changeQty(type: 'adults' | 'children' | 'students', delta: number): void {

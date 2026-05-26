@@ -29,7 +29,7 @@ export interface ItineraryItem {
   itineraryId: number;
   position: number;
   touristPlaceId: number;
-  touristPlaceName: string;
+  touristPlaceName?: string | null;
 }
 
 export interface Tour {
