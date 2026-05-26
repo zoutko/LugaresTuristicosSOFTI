@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, UserResponse } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ChangePasswordModalComponent } from '../users-action-page/change-password-modal/change-password-modal'
 import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
 import { Router } from '@angular/router';
 
@@ -10,7 +11,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ToastComponent],
+  imports: [CommonModule, FormsModule, ToastComponent, ChangePasswordModalComponent],
   templateUrl: './profile-page.html',
   styleUrls: ['./profile-page.css']
 })
@@ -19,12 +20,22 @@ export class ProfilePage implements OnInit {
   loading = true;
   error = '';
 
+  isAdmin = false;
+
   // Modal de edición
   editModalOpen = false;
   editFieldName = '';
   editFieldKey = '';
   editFieldValue = '';
   isSaving = false;
+
+  //Modal de confirmación al eliminar cuenta
+
+  showDeleteConfirmModal = false;
+
+  //Modal de cambio de contraseña
+  
+  changePasswordModalOpen = false;
 
   // Toast
   toastOpen = false;
@@ -38,20 +49,78 @@ export class ProfilePage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.checkUserRole();
     this.loadProfile();
   }
 
-goToRecorridosGuardados(): void {
-    this.router.navigate(['/recorridos-guardados']);
-}
+  checkUserRole(): void {
+    const role = localStorage.getItem('auth.role');
+    this.isAdmin = role === 'ADMINISTRATOR';
+  }
 
-goToChangePassword(): void {
-    this.router.navigate(['/auth/change-password']);
-}
+  goToRecorridosGuardados(): void {
+    this.router.navigate(['/recorridos-guardados']);
+  }
+  goToChangePassword(): void {
+    this.openChangePasswordModal();
+  }
+
+
+  handleChangePassword(data: { currentPassword: string; newPassword: string }): void {
+    const token = localStorage.getItem('auth.token');
+    const email = localStorage.getItem('auth.email');
+    
+    if (!token || !email) {
+      this.showToast('No se pudo identificar al usuario', 'error');
+      this.closeChangePasswordModal();
+      return;
+    }
+    this.closeChangePasswordModal();
+    this.authService.changePassword({
+      token,
+      email,
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword
+    }).subscribe({
+      next: () => {
+        this.showToast('Contraseña cambiada exitosamente', 'success');
+        this.closeChangePasswordModal();
+      },
+      error: () => {
+        this.showToast('Error al cambiar la contraseña. Verifique su contraseña actual.', 'error');
+      }
+    });
+  }
 
 goToConfiguracion(): void {
-    this.router.navigate(['/']);
+  this.openDeleteConfirmModal();
 }
+
+confirmDeleteAccount(): void {
+  this.closeDeleteConfirmModal();
+    
+  const userIdStr = localStorage.getItem('auth.userId');
+  if (!userIdStr) {
+    this.showToast('No se pudo identificar al usuario', 'error');
+    return;
+  }
+    
+  const userId = parseInt(userIdStr, 10);
+    
+  this.userService.deleteAccount(userId).subscribe({
+    next: () => {
+      localStorage.clear();
+      this.showToast('Cuenta eliminada exitosamente', 'success');
+      setTimeout(() => {
+        this.router.navigate(['/auth']);
+      }, 2000);
+    },
+      error: (err) => {
+        console.error('Error deleting account:', err);
+        this.showToast('Error al eliminar la cuenta', 'error');
+      }
+    });
+  }
 
   private loadProfile(): void {
     const userIdStr = localStorage.getItem('auth.userId');
@@ -95,6 +164,17 @@ goToConfiguracion(): void {
     this.editModalOpen = true;
   }
 
+
+  goToCreateTours(): void {
+    this.router.navigate(['/admin/tours']);
+  }
+
+  goToCreatePlaces(): void {
+    this.router.navigate(['/admin/lugares/crear']);
+  }
+
+
+
   closeEditModal(): void {
     if (this.isSaving) return;
     this.editModalOpen = false;
@@ -130,6 +210,22 @@ goToConfiguracion(): void {
         this.showToast(`Error al actualizar ${this.editFieldName}`, 'error');
       }
     });
+  }
+
+  openDeleteConfirmModal(): void {
+    this.showDeleteConfirmModal = true;
+  }
+
+  closeDeleteConfirmModal(): void {
+    this.showDeleteConfirmModal = false;
+  }
+
+  openChangePasswordModal(): void {
+    this.changePasswordModalOpen = true;
+  }
+
+  closeChangePasswordModal(): void {
+    this.changePasswordModalOpen = false;
   }
 
   private showToast(message: string, variant: ToastVariant = 'info'): void {

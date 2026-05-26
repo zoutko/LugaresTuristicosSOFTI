@@ -36,19 +36,19 @@
 .avatar {
     width: 120px;
     height: 120px;
-    background-color: var(--color-surface);
+    background-color: #ffffff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    border: 1px solid var(--color-primary);
+    border: 1px solid #2f7c2f;
     margin-top: -100px;
 }
 
 .avatar-icon {
     font-size: 60px;
-    color: var(--color-primary);
+    color: #2f7c2f;
 }
 
 /* Nombre y correo */
@@ -91,20 +91,20 @@
 .actions-card {
     flex: 1;
     min-width: 0;
-    background-color: var(--color-surface);
+    background-color: #ffffff;
     border-radius: 4px;
     padding: 24px 28px;
-    box-shadow: var(--shadow-popover);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 }
 
 
 .card {
     position: relative;
-    background-color: var(--color-surface);
+    background-color: #ffffff;
     border-radius: 4px;  /* ← Cambiado de 8px a 4px (más rectangular) */
     padding: 24px 28px;   /* ← Padding más compacto */
-    box-shadow: var(--shadow-popover);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     width: 100%;
 }
@@ -118,9 +118,9 @@
     text-align: center;
     font-size: 22px;
     font-weight: 700;
-    color: var(--color-primary);
+    color: #2f7c2f;
     padding-bottom: 12px;
-    border-bottom: 2px solid var(--color-cream);
+    border-bottom: 2px solid #efe9cf;
 }
 
 .card-title--actions {
@@ -149,6 +149,7 @@
 .field-value {
     flex: 1;
     color: #333;
+    padding: 3px;
 }
 
 .edit-btn {
@@ -199,6 +200,7 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    width: 350px;
 }
 
 .action-btn {
@@ -222,7 +224,7 @@
 
 /* Botones verdes (como el footer) */
 .action-btn--green {
-    background-color: var(--color-primary);
+    background-color: #2f7c2f;
     color: white;
 }
 
@@ -235,7 +237,6 @@
     box-shadow: 0 4px 12px rgba(47, 124, 47, 0.3);
 }
 
-/* Botones naranjas */
 .action-btn--orange {
     background-color: #e6851e;
     color: white;
@@ -288,7 +289,7 @@
 }
 
 .modal-content {
-    background: var(--color-surface);
+    background: white;
     border-radius: 8px;
     padding: 28px;
     width: 90%;
@@ -312,7 +313,7 @@
 
 .edit-input:focus {
     outline: none;
-    border-color: var(--color-primary);
+    border-color: #2f7c2f;
 }
 
 .modal-buttons {
@@ -335,7 +336,7 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: var(--color-primary);
+    background-color: #2f7c2f;
     color: white;
 }
 
@@ -346,7 +347,7 @@
 .loading, .error {
     text-align: center;
     padding: 40px;
-    background: var(--color-surface);
+    background: white;
     border-radius: 8px;
     max-width: 400px;
     margin: 100px auto;
@@ -356,6 +357,22 @@
 
 .error {
     color: #b42318;
+}
+
+.btn-confirm-delete {
+  background-color: #b42318;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-confirm-delete:hover {
+  background-color: #8b1a12;
+  transform: scale(1.02);
 }
 
 /* Animación */
