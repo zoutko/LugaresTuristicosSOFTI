@@ -13,12 +13,15 @@ import { adminGuard } from './core/guards/admin.guard';
 import { adminPlacesRedirectGuard } from './core/guards/admin-places-redirect.guard';
 import { TourListComponent } from './features/tours/tour-list/tour-list';
 import { TourDetailComponent } from './features/tours/tour-detail/tour-detail';
+import {CreateTour} from './features/admin/create-tours/create-tour';
 
 export const routes: Routes = [
     { path: '', component: Home, pathMatch: 'full' },
     { path: 'admin/lugares', component: AdminTouristPlaces, canActivate: [adminGuard] },
     { path: 'admin/lugares/crear', component: CreateTouristPlace, canActivate: [adminGuard] },
     { path: 'admin/lugares/:id/editar', component: EditTouristPlace, canActivate: [adminGuard] },
+    { path: 'admin/recorridos/crear', component: CreateTour, canActivate: [adminGuard] },
+    { path: 'admin/recorridos/:id/editar', component: EditTouristPlace, canActivate: [adminGuard] },
     { path: 'lugares/:id', component: TouristPlace },
     { path: 'lugares', component: TouristPlaces, canActivate: [adminPlacesRedirectGuard] },
     { path: 'profile', component: ProfilePage },

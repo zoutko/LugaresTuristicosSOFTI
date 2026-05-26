@@ -166,7 +166,7 @@ confirmDeleteAccount(): void {
 
 
   goToCreateTours(): void {
-    this.router.navigate(['/admin/tours']);
+    this.router.navigate(['/admin/recorridos/crear']);
   }
 
   goToCreatePlaces(): void {
