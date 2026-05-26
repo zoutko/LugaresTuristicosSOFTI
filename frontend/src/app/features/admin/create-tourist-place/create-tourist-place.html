@@ -1,188 +1,48 @@
 <section class="admin-place-shell" aria-label="Crear lugar turistico">
   <div class="admin-heading">
     <span>Administrador</span>
-    <h1>Crear lugar turistico</h1>
-    <p>Registra la informacion principal, ubicacion, categorias, actividades e imagenes del lugar.</p>
+    <h1>Crear lugar turístico</h1>
+    <p>Registra la información principal, ubicación, categorías, actividades e imágenes del lugar.</p>
   </div>
 
-  <form class="place-form" (ngSubmit)="submit()">
-    <div class="form-grid">
-      <section class="form-panel">
-        <h2>Informacion general</h2>
-
-        <label class="field">
-          <span>Nombre</span>
-          <input type="text" name="name" [(ngModel)]="name" required placeholder="Ej. Monserrate" />
-        </label>
-
-        <label class="field">
-          <span>Descripcion</span>
-          <textarea name="description" [(ngModel)]="description" rows="5"></textarea>
-        </label>
-
-        <div class="inline-fields">
-          <label class="field">
-            <span>Duracion</span>
-            <input type="text" name="duration" [(ngModel)]="duration" placeholder="3 horas" />
-          </label>
-
-          <label class="field">
-            <span>Entorno</span>
-            <select name="environment" [(ngModel)]="environment">
-              <option *ngFor="let option of environments" [ngValue]="option.value">{{ option.label }}</option>
-            </select>
-          </label>
-        </div>
-      </section>
-
-      <section class="form-panel">
-        <h2>Ubicacion</h2>
-
-        <div class="triple-fields">
-          <label class="field">
-            <span>Pais</span>
-            <select
-              name="country"
-              [(ngModel)]="country"
-              (ngModelChange)="onCountryChange($event)"
-              [disabled]="loadingCountries()"
-              required
-            >
-              <option value="" disabled>Selecciona un pais</option>
-              <option *ngFor="let option of countries()" [value]="option">{{ option }}</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Departamento</span>
-            <select
-              name="department"
-              [(ngModel)]="department"
-              (ngModelChange)="onDepartmentChange($event)"
-              [disabled]="!country || loadingDepartments()"
-              required
-            >
-              <option value="" disabled>Selecciona un departamento</option>
-              <option *ngFor="let option of departmentOptions()" [value]="option">{{ option }}</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Ciudad</span>
-            <select name="city" [(ngModel)]="city" [disabled]="!department || loadingCities()" required>
-              <option value="" disabled>Selecciona una ciudad</option>
-              <option *ngFor="let option of cityOptions()" [value]="option">{{ option }}</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="inline-fields">
-          <label class="field">
-            <span>Latitud</span>
-            <input type="number" name="latitude" [(ngModel)]="latitude" step="any" />
-          </label>
-
-          <label class="field">
-            <span>Longitud</span>
-            <input type="number" name="longitude" [(ngModel)]="longitude" step="any" />
-          </label>
-        </div>
-      </section>
-
-      <section class="form-panel">
-        <h2>Categorias</h2>
-        <p class="helper">Selecciona categorias existentes o crea nuevas antes de guardar.</p>
-
-        <div *ngIf="loadingCategories()" class="mini-status">Cargando categorias...</div>
-
-        <div class="category-list" *ngIf="!loadingCategories()">
-          <label *ngFor="let category of categories()" class="check-row">
-            <input
-              type="checkbox"
-              [checked]="selectedCategoryIds().includes(category.id)"
-              (change)="toggleCategory(category.id, $any($event.target).checked)"
-            />
-            <span>{{ category.name }}</span>
-          </label>
-        </div>
-
-        <div class="add-row">
-          <input
-            type="text"
-            name="newCategoryName"
-            [(ngModel)]="newCategoryName"
-            placeholder="Nueva categoria"
-          />
-          <button type="button" (click)="addNewCategory()">Agregar</button>
-        </div>
-
-        <div class="pending-tags" *ngIf="newCategories().length > 0">
-          <button *ngFor="let category of newCategories()" type="button" (click)="removeNewCategory(category)">
-            {{ category }} x
-          </button>
-        </div>
-      </section>
-
-      <section class="form-panel">
-        <h2>Actividades</h2>
-        <div class="repeat-list">
-          <div class="repeat-row" *ngFor="let activity of activities(); let i = index; trackBy: trackByIndex">
-            <input
-              type="text"
-              [name]="'activity-' + i"
-              [ngModel]="activity"
-              [ngModelOptions]="{ standalone: true }"
-              (ngModelChange)="updateActivity(i, $event)"
-              placeholder="Descripcion de la actividad"
-            />
-            <button type="button" (click)="removeActivity(i)" [disabled]="activities().length === 1">Quitar</button>
-          </div>
-        </div>
-        <button class="ghost-button" type="button" (click)="addActivity()">Agregar actividad</button>
-      </section>
-
-      <section class="form-panel form-panel--wide">
-        <h2>Imagenes</h2>
-        <p class="helper">Agrega links publicos de imagenes para el album del lugar.</p>
-
-        <div class="photo-list">
-          <div class="photo-row" *ngFor="let photo of photos(); let i = index; trackBy: trackByIndex">
-            <label class="field">
-              <span>Link de imagen</span>
-              <input
-                type="url"
-                [name]="'photo-url-' + i"
-                [ngModel]="photo.filePath"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="updatePhoto(i, 'filePath', $event)"
-                placeholder="https://..."
-              />
-            </label>
-            <label class="field">
-              <span>Descripcion</span>
-              <input
-                type="text"
-                [name]="'photo-description-' + i"
-                [ngModel]="photo.description"
-                [ngModelOptions]="{ standalone: true }"
-                (ngModelChange)="updatePhoto(i, 'description', $event)"
-              />
-            </label>
-            <button type="button" (click)="removePhoto(i)" [disabled]="photos().length === 1">Quitar</button>
-          </div>
-        </div>
-
-        <button class="ghost-button" type="button" (click)="addPhoto()">Agregar imagen</button>
-      </section>
-    </div>
-
-    <div class="feedback feedback--error" *ngIf="error()">{{ error() }}</div>
-    <div class="feedback feedback--success" *ngIf="message()">{{ message() }}</div>
-
-    <div class="form-actions">
-      <button class="submit-button" type="submit" [disabled]="saving()">
-        {{ saving() ? 'Guardando...' : 'Crear lugar' }}
-      </button>
-    </div>
-  </form>
+  <app-tourist-place-form
+    [(name)]="name"
+    [(description)]="description"
+    [(duration)]="duration"
+    [(environment)]="environment"
+    [(country)]="country"
+    [(department)]="department"
+    [(city)]="city"
+    [(latitude)]="latitude"
+    [(longitude)]="longitude"
+    [(newCategoryName)]="newCategoryName"
+    [countries]="countries()"
+    [departments]="departmentOptions()"
+    [cities]="cityOptions()"
+    [loadingCountries]="loadingCountries()"
+    [loadingDepartments]="loadingDepartments()"
+    [loadingCities]="loadingCities()"
+    [categories]="categories()"
+    [selectedCategoryIds]="selectedCategoryIds()"
+    [newCategories]="newCategories()"
+    [loadingCategories]="loadingCategories()"
+    [activities]="activities()"
+    [photos]="photos()"
+    [saving]="saving()"
+    [message]="message()"
+    [error]="error()"
+    submitLabel="Crear lugar"
+    (countrySelected)="onCountryChange($event)"
+    (departmentSelected)="onDepartmentChange($event)"
+    (categoryToggled)="toggleCategory($event.categoryId, $event.checked)"
+    (newCategoryAdded)="addNewCategory()"
+    (newCategoryRemoved)="removeNewCategory($event)"
+    (activityAdded)="addActivity()"
+    (activityUpdated)="updateActivity($event.index, $event.value)"
+    (activityRemoved)="removeActivity($event)"
+    (photoAdded)="addPhoto()"
+    (photoUpdated)="updatePhoto($event.index, $event.field, $event.value)"
+    (photoRemoved)="removePhoto($event)"
+    (formSubmitted)="submit()"
+  ></app-tourist-place-form>
 </section>

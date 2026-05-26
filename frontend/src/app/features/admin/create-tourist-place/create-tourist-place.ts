@@ -7,6 +7,10 @@ import { Router } from '@angular/router';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 import { AuthTokenService } from '../../../core/services/auth-token.service';
 import { LocationCatalogService } from '../../../core/services/location-catalog.service';
+import {
+  TouristPlaceForm,
+  TouristPlacePhotoInput,
+} from '../shared/tourist-place-form/tourist-place-form';
 
 type Environment = 'INTERIOR' | 'MIXED' | 'EXTERIOR';
 
@@ -20,14 +24,9 @@ interface CreatedPlace {
   name: string;
 }
 
-interface PhotoInput {
-  filePath: string;
-  description: string;
-}
-
 @Component({
   selector: 'app-create-tourist-place',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TouristPlaceForm],
   templateUrl: './create-tourist-place.html',
   styleUrl: './create-tourist-place.css',
 })
@@ -37,8 +36,6 @@ export class CreateTouristPlace {
   private readonly authToken = inject(AuthTokenService);
   private readonly locationCatalog = inject(LocationCatalogService);
   private readonly destroyRef = inject(DestroyRef);
-
-  readonly trackByIndex = (index: number): number => index;
 
   readonly countries = signal<string[]>([]);
   readonly departments = signal<string[]>([]);
@@ -51,17 +48,11 @@ export class CreateTouristPlace {
   readonly selectedCategoryIds = signal<number[]>([]);
   readonly newCategories = signal<string[]>([]);
   readonly activities = signal<string[]>(['']);
-  readonly photos = signal<PhotoInput[]>([{ filePath: '', description: '' }]);
+  readonly photos = signal<TouristPlacePhotoInput[]>([{ filePath: '', description: '' }]);
   readonly loadingCategories = signal(true);
   readonly saving = signal(false);
   readonly message = signal('');
   readonly error = signal('');
-
-  readonly environments: { value: Environment; label: string }[] = [
-    { value: 'EXTERIOR', label: 'Exterior' },
-    { value: 'INTERIOR', label: 'Interior' },
-    { value: 'MIXED', label: 'Mixto' },
-  ];
 
   name = '';
   description = '';
@@ -218,7 +209,7 @@ export class CreateTouristPlace {
     this.photos.update((current) => [...current, { filePath: '', description: '' }]);
   }
 
-  updatePhoto(index: number, field: keyof PhotoInput, value: string): void {
+  updatePhoto(index: number, field: keyof TouristPlacePhotoInput, value: string): void {
     this.photos.update((current) =>
       current.map((photo, i) => (i === index ? { ...photo, [field]: value } : photo))
     );

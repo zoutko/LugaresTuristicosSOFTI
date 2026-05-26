@@ -64,7 +64,7 @@ export class AdminTouristPlaces {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('No fue posible cargar los lugares turisticos desde el servidor.');
+        this.error.set('No fue posible cargar los lugares turísticos desde el servidor.');
         this.places.set([]);
         this.coverPhotoByPlaceId.set({});
         this.loading.set(false);
@@ -114,7 +114,7 @@ export class AdminTouristPlaces {
       return;
     }
 
-    const confirmed = confirm('¿Seguro que deseas eliminar este lugar turistico?');
+    const confirmed = confirm('¿Seguro que deseas eliminar este lugar turístico?');
     if (!confirmed) return;
 
     this.error.set('');
