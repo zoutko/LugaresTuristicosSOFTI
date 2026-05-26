@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-change-password-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: 'change-password-modal.html',
+  templateUrl: './change-password-modal.html',
   styleUrl: './change-password-modal.css',
 })
 export class ChangePasswordModalComponent implements OnChanges {

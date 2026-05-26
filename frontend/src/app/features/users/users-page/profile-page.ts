@@ -20,6 +20,8 @@ export class ProfilePage implements OnInit {
   loading = true;
   error = '';
 
+  isAdmin = false;
+
   // Modal de edición
   editModalOpen = false;
   editFieldName = '';
@@ -47,42 +49,48 @@ export class ProfilePage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.checkUserRole();
     this.loadProfile();
   }
 
-goToRecorridosGuardados(): void {
-    this.router.navigate(['/recorridos-guardados']);
-}
-goToChangePassword(): void {
-  this.openChangePasswordModal();
-}
-
-
-handleChangePassword(data: { currentPassword: string; newPassword: string }): void {
-  const token = localStorage.getItem('auth.token');
-  const email = localStorage.getItem('auth.email');
-  
-  if (!token || !email) {
-    this.showToast('No se pudo identificar al usuario', 'error');
-    this.closeChangePasswordModal();
-    return;
+  checkUserRole(): void {
+    const role = localStorage.getItem('auth.role');
+    this.isAdmin = role === 'ADMINISTRATOR';
   }
-  this.closeChangePasswordModal();
-  this.authService.changePassword({
-    token,
-    email,
-    currentPassword: data.currentPassword,
-    newPassword: data.newPassword
-  }).subscribe({
-    next: () => {
-      this.showToast('Contraseña cambiada exitosamente', 'success');
+
+  goToRecorridosGuardados(): void {
+    this.router.navigate(['/recorridos-guardados']);
+  }
+  goToChangePassword(): void {
+    this.openChangePasswordModal();
+  }
+
+
+  handleChangePassword(data: { currentPassword: string; newPassword: string }): void {
+    const token = localStorage.getItem('auth.token');
+    const email = localStorage.getItem('auth.email');
+    
+    if (!token || !email) {
+      this.showToast('No se pudo identificar al usuario', 'error');
       this.closeChangePasswordModal();
-    },
-    error: () => {
-      this.showToast('Error al cambiar la contraseña. Verifique su contraseña actual.', 'error');
+      return;
     }
-  });
-}
+    this.closeChangePasswordModal();
+    this.authService.changePassword({
+      token,
+      email,
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword
+    }).subscribe({
+      next: () => {
+        this.showToast('Contraseña cambiada exitosamente', 'success');
+        this.closeChangePasswordModal();
+      },
+      error: () => {
+        this.showToast('Error al cambiar la contraseña. Verifique su contraseña actual.', 'error');
+      }
+    });
+  }
 
 goToConfiguracion(): void {
   this.openDeleteConfirmModal();
@@ -155,6 +163,17 @@ confirmDeleteAccount(): void {
     
     this.editModalOpen = true;
   }
+
+
+  goToCreateTours(): void {
+    this.router.navigate(['/admin/tours']);
+  }
+
+  goToCreatePlaces(): void {
+    this.router.navigate(['/admin/lugares/crear']);
+  }
+
+
 
   closeEditModal(): void {
     if (this.isSaving) return;

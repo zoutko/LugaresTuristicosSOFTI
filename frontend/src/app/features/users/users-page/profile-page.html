@@ -38,10 +38,11 @@
                 <button class="edit-btn edit-btn-green" (click)="openEditField('documento', user.profile.document)">✎</button>
             </div>
         </div>
-        
+
 <div class="actions-card card" *ngIf="!loading && !error && user">
-    <div class="action-buttons">
-        <button class="action-btn action-btn--green" (click)="goToRecorridosGuardados()">
+  <div class="action-buttons">
+    <ng-container *ngIf="!isAdmin">
+      <button class="action-btn action-btn--green" (click)="goToRecorridosGuardados()">
             <span class="action-icon">
                 <img src="guardados.svg" alt="Recorridos Guardados" width="22" height="22">
             </span>
@@ -55,8 +56,26 @@
         <button class="action-btn action-btn--orange" (click)="goToConfiguracion()">
             <span class="action-text">Eliminar Cuenta</span>
         </button>
-      </div>
-    </div>
+    </ng-container>
+
+    <!-- Botones para ADMIN -->
+    <ng-container *ngIf="isAdmin">
+        <button class="action-btn action-btn--orange" (click)="goToChangePassword()">
+            <span class="action-text">Cambiar contraseña</span>
+        </button>
+
+        <button class="action-btn action-btn--green" (click)="goToCreatePlaces()">
+            <span class="action-text">Crear lugar turístico</span>
+        </button>
+
+      <button class="action-btn action-btn--green" (click)="goToCreateTours()">
+        <span class="action-text">Crear recorrido turístico</span>
+      </button>
+
+      
+    </ng-container>
+
+  </div>
 </div>
 
 <!-- Estados de carga y error -->
