@@ -186,8 +186,6 @@ confirmDeleteAccount(): void {
       this.showToast('El valor no puede estar vacío', 'error');
       return;
     }
-    const userIdStr = localStorage.getItem('auth.userId');
-
     this.isSaving = true;
 
     const userIdStr = localStorage.getItem('auth.userId'); 
