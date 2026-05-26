@@ -156,6 +156,10 @@ export class AuthPage {
     this.registerErrorMessage = 'Las contraseñas no coinciden.';
     return;
   }
+  if ((password ?? '').length < 8) {
+    this.registerErrorMessage = 'La contraseña debe tener al menos 8 caracteres.';
+    return;
+  }
 
   this.isRegistering = true;
 

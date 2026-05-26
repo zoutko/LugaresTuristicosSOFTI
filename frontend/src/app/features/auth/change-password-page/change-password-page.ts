@@ -52,6 +52,11 @@ export class ChangePasswordPage {
       return;
     }
 
+    if ((newPassword ?? '').length < 8) {
+      this.errorMessage = 'La contraseña debe tener al menos 8 caracteres.';
+      return;
+    }
+
     this.isSubmitting = true;
 
     try {

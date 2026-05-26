@@ -54,8 +54,8 @@ describe('ChangePasswordPage', () => {
     spyOn(router, 'navigate').and.resolveTo(true);
 
     component.temporaryPassword = 'temp';
-    component.newPassword = 'newpass';
-    component.confirmPassword = 'newpass';
+    component.newPassword = 'newpass1';
+    component.confirmPassword = 'newpass1';
 
     await component.submit();
 
