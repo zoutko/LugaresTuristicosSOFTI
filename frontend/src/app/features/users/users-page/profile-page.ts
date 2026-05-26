@@ -190,7 +190,6 @@ confirmDeleteAccount(): void {
 
     this.isSaving = true;
 
-    const userIdStr = localStorage.getItem('auth.userId'); 
       if (!userIdStr) {
         this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
         this.loading = false;
