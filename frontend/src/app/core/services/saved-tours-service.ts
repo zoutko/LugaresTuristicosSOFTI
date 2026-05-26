@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SavedTour } from '../models/tour-model';
-import { TourCard } from '../models/tour-model';
+import { SavedTour, TourCard } from '../models/tour-model';
 import { map } from 'rxjs/operators';
 import { AuthTokenService } from './auth-token.service';
 
@@ -29,22 +28,49 @@ export class SavedToursService {
     });
   }
 
-getSavedToursAsCards(userId: number): Observable<TourCard[]> {
-  return this.getSavedTours(userId).pipe(
-    map(tours => tours.map(tour => this.mapToTourCard(tour)))
-  );
-}
+  getSavedToursAsCards(userId: number): Observable<TourCard[]> {
+    return this.getSavedTours(userId).pipe(
+      map((tours) => tours.map((tour) => this.mapToTourCard(tour)))
+    );
+  }
 
-private mapToTourCard(tour: any): TourCard {
-  return {
-    id: tour.id,
-    name: tour.name || tour.titulo || '',
-    city: tour.city || tour.ciudad?.split(',')[0] || '',
-    country: tour.country || 'Colombia',
-    categories: tour.categories || tour.etiquetas || [],
-    environment: tour.environment || '',
-    price: tour.price || tour.precio || 0,
-    imageUrl: tour.imageUrl || tour.imagen || 'assets/images/default-tour.jpg'
-  };
-}
+  private mapToTourCard(tour: SavedTour): TourCard {
+    const imageUrl =
+      tour.album?.photos?.[0]?.filePath ||
+      tour.album?.currentPhoto?.filePath ||
+      tour.imageUrl ||
+      tour.imagen ||
+      '';
+
+    const city =
+      tour.city ||
+      tour.ciudad ||
+      this.extractCityFromLocation(tour.location) ||
+      '';
+
+    return {
+      id: tour.id,
+      name: tour.name || '',
+      city,
+      country: tour.country || this.extractCountryFromLocation(tour.location) || 'Colombia',
+      categories: tour.categories || [],
+      environment: tour.environment || '',
+      price: tour.price || 0,
+      imageUrl,
+    };
+  }
+
+  private extractCityFromLocation(location?: string | null): string {
+    if (!location) return '';
+
+    const [city] = location.split(',').map((part) => part.trim()).filter(Boolean);
+    return city ?? '';
+  }
+
+  private extractCountryFromLocation(location?: string | null): string {
+    if (!location) return '';
+
+    const parts = location.split(',').map((part) => part.trim()).filter(Boolean);
+    return parts.length > 1 ? parts[parts.length - 1] : '';
+  }
 }

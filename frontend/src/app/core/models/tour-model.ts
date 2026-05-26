@@ -63,6 +63,8 @@ export type SavedTourCard = TourCard;
 export interface SavedTour {
   id: number;
   name?: string;
+  city?: string;
+  country?: string;
   ciudad?: string;
   titulo?: string;
   etiquetas: (string | TourTag)[];
@@ -75,4 +77,6 @@ export interface SavedTour {
   calificacion?: number;
   location?: string;
   description?: string;
+  environment?: string;
+  album?: Album | null;
 }

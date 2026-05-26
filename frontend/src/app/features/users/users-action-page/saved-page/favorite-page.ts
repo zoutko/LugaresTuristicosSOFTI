@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SavedToursService } from '../../../../core/services/saved-tours-service';
 import { TourCardComponent } from '../../../../shared/tour-card/tour-card';
-import { SavedTour, TourCard } from '../../../../core/models/tour-model';
+import { TourCard } from '../../../../core/models/tour-model';
 import { ToastComponent, ToastVariant } from '../../../../shared/toast/toast';
 
 @Component({
