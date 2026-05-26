@@ -4,7 +4,9 @@
 }
 
 .admin-place-shell {
-  width: min(1180px, 100%);
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
   padding: 22px 26px 36px;
   color: #171717;
 }
@@ -106,8 +108,12 @@ select:focus {
 
 .triple-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+}
+
+.triple-fields > label:first-child {
+  grid-column: 1 / -1;
 }
 
 .category-list {

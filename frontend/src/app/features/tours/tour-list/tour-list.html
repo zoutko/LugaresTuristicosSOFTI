@@ -85,6 +85,9 @@
           <app-tour-card
             [tour]="tour"
             [showRemoveButton]="false"
+            [isSaved]="savedIds.has(tour.id)"
+            (save)="onSaveTour($event)"
+            (removeSaved)="onRemoveSavedTour($event)"
             (view)="viewTour($event)">
           </app-tour-card>
         }

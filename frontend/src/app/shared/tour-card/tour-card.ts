@@ -12,8 +12,11 @@ import { TourCard } from '../../core/models/tour-model';
 export class TourCardComponent {
   @Input() tour!: TourCard;
   @Input() showRemoveButton = false;
+  @Input() isSaved = false;
   @Output() view = new EventEmitter<number>();
   @Output() remove = new EventEmitter<number>();
+  @Output() save = new EventEmitter<number>();
+  @Output() removeSaved = new EventEmitter<number>();
 
   readonly fallbackImage =
     'https://images.unsplash.com/photo-1583531352515-8884af319dc1?auto=format&fit=crop&w=900&q=80';
@@ -32,6 +35,23 @@ export class TourCardComponent {
 
   onRemove(): void {
     this.remove.emit(this.tour.id);
+  }
+
+  onSave(): void {
+    this.save.emit(this.tour.id);
+  }
+
+  onRemoveSaved(): void {
+    this.removeSaved.emit(this.tour.id);
+  }
+
+  onToggleSaved(): void {
+    if (this.isSaved) {
+      this.onRemoveSaved();
+      return;
+    }
+
+    this.onSave();
   }
 
   formatPrice(price: number): string {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TourService } from '../../../core/services/tour.service';
+import { SavedToursService } from '../../../core/services/saved-tours-service';
+import { AuthTokenService } from '../../../core/services/auth-token.service';
 import { TourCardComponent } from '../../../shared/tour-card/tour-card';
 import { TourCard } from '../../../core/models/tour-model';
 import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
@@ -30,6 +32,8 @@ export class TourListComponent implements OnInit {
   availableCategories: string[] = [];
   selectedCategories: string[] = [];
 
+  savedIds = new Set<number>();
+
   environments = ['INTERIOR', 'EXTERIOR', 'MIXTO'];
   selectedEnvironments: string[] = [];
 
@@ -39,6 +43,8 @@ export class TourListComponent implements OnInit {
 
   constructor(
     private tourService: TourService,
+    private savedToursService: SavedToursService,
+    private authTokenService: AuthTokenService,
     private router: Router
   ) {}
 
@@ -56,6 +62,7 @@ export class TourListComponent implements OnInit {
         this.filteredTours = tours;
         this.syncPriceRange();
         this.extractAvailableCategories();
+        this.loadSavedIdsIfNeeded();
         this.loading = false;
       },
       error: (err) => {
@@ -64,6 +71,50 @@ export class TourListComponent implements OnInit {
         this.loading = false;
         this.showToast(this.error, 'error');
       },
+    });
+  }
+
+  private loadSavedIdsIfNeeded(): void {
+    const tokenExists = this.authTokenService.hasToken();
+    const userIdStr = localStorage.getItem('auth.userId');
+    const userId = userIdStr ? Number(userIdStr) : null;
+    if (!tokenExists || !userId) return;
+
+    this.savedToursService.getSavedTours(userId).subscribe({
+      next: (saved) => {
+        this.savedIds = new Set(saved.map((s) => s.id ?? s.id ?? s));
+      },
+      error: () => {
+        this.savedIds = new Set<number>();
+      },
+    });
+  }
+
+  onSaveTour(tourId: number): void {
+    const userIdStr = localStorage.getItem('auth.userId');
+    const userId = userIdStr ? Number(userIdStr) : null;
+    if (!this.authTokenService.hasToken() || !userId) {
+      this.showToast('Debes iniciar sesion para guardar recorridos', 'info');
+      return;
+    }
+
+    this.savedToursService.saveTour(userId, tourId).subscribe({
+      next: () => this.savedIds.add(tourId),
+      error: (err) => this.showToast('No fue posible guardar el recorrido', 'error'),
+    });
+  }
+
+  onRemoveSavedTour(tourId: number): void {
+    const userIdStr = localStorage.getItem('auth.userId');
+    const userId = userIdStr ? Number(userIdStr) : null;
+    if (!this.authTokenService.hasToken() || !userId) {
+      this.showToast('Debes iniciar sesion para quitar recorridos guardados', 'info');
+      return;
+    }
+
+    this.savedToursService.removeSavedTour(userId, tourId).subscribe({
+      next: () => this.savedIds.delete(tourId),
+      error: () => this.showToast('No fue posible quitar el recorrido guardado', 'error'),
     });
   }
 
@@ -99,12 +150,26 @@ export class TourListComponent implements OnInit {
     return 10000;
   }
 
+  private normalizeForSearch(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
   applyFilters(): void {
-    const normalizedSearch = this.searchTerm.trim().toLowerCase();
+    const normalizedSearch = this.normalizeForSearch(this.searchTerm);
 
     this.filteredTours = this.allTours.filter((tour) => {
-      if (normalizedSearch && !tour.name.toLowerCase().includes(normalizedSearch)) {
-        return false;
+      if (normalizedSearch) {
+        const searchHaystack = this.normalizeForSearch(
+          [tour.name, tour.city, tour.country].filter(Boolean).join(' ')
+        );
+
+        if (!searchHaystack.includes(normalizedSearch)) {
+          return false;
+        }
       }
 
       if (tour.price > this.maxPrice) {

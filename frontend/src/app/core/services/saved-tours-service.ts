@@ -4,22 +4,29 @@ import { Observable } from 'rxjs';
 import { SavedTour } from '../models/tour-model';
 import { TourCard } from '../models/tour-model';
 import { map } from 'rxjs/operators';
+import { AuthTokenService } from './auth-token.service';
 
 @Injectable({ providedIn: 'root' })
 export class SavedToursService {
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient, private readonly authToken: AuthTokenService) {}
 
   getSavedTours(userId: number): Observable<SavedTour[]> {
-    return this.http.get<SavedTour[]>(`/api/users/${userId}/saved-tours`);
+    return this.http.get<SavedTour[]>(`/api/users/${userId}/saved-tours`, {
+      headers: this.authToken.getAuthHeaders(),
+    });
   }
 
   removeSavedTour(userId: number, tourId: number): Observable<void> {
-    return this.http.delete<void>(`/api/users/${userId}/saved-tours/${tourId}`);
+    return this.http.delete<void>(`/api/users/${userId}/saved-tours/${tourId}`, {
+      headers: this.authToken.getAuthHeaders(),
+    });
   }
 
   saveTour(userId: number, tourId: number): Observable<void> {
-    return this.http.post<void>(`/api/users/${userId}/saved-tours/${tourId}`, {});
+    return this.http.post<void>(`/api/users/${userId}/saved-tours/${tourId}`, {}, {
+      headers: this.authToken.getAuthHeaders(),
+    });
   }
 
 getSavedToursAsCards(userId: number): Observable<TourCard[]> {
