@@ -22,6 +22,8 @@ export class ChangePasswordPage {
   isSubmitting = false;
   errorMessage = '';
 
+  private readonly returnUrl: string | null;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -29,6 +31,8 @@ export class ChangePasswordPage {
   ) {
     const emailParam = this.route.snapshot.queryParamMap.get('email');
     if (emailParam) this.email = emailParam;
+
+    this.returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
   }
 
   async submit(): Promise<void> {
@@ -66,7 +70,9 @@ export class ChangePasswordPage {
         })
       );
 
-      await this.router.navigate(['/auth']);
+      await this.router.navigate(['/auth'], {
+        queryParams: this.returnUrl ? { returnUrl: this.returnUrl } : undefined,
+      });
     } catch {
       this.errorMessage = 'No fue posible cambiar la contraseña. Verifica los datos e inténtalo de nuevo.';
     } finally {
@@ -75,6 +81,8 @@ export class ChangePasswordPage {
   }
 
   cancel(): void {
-    this.router.navigate(['/auth']);
+    this.router.navigate(['/auth'], {
+      queryParams: this.returnUrl ? { returnUrl: this.returnUrl } : undefined,
+    });
   }
 }

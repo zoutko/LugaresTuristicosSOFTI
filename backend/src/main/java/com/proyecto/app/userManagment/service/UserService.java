@@ -114,9 +114,9 @@ public class UserService {
     @Transactional
     public void deleteAccount(Long userId) {
         User user = findUserById(userId);
+        credentialService.deleteCredentialByUserId(userId);
         userRepository.delete(user);
     }
-
     @Transactional
     public UserResponse addContact(Long userId, UpdateContactRequest request) {
         User user = findUserById(userId);

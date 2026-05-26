@@ -15,14 +15,56 @@
 
         <nav class="menu" aria-label="Navegación principal">
             <a class="menu-item" routerLink="/">Inicio</a>
-            <a class="menu-item" routerLink="/recorridos">Recorridos</a>
+             <a class="menu-item" routerLink="/recorridos">Recorridos</a>
             <a class="menu-item" routerLink="/lugares">Lugares Turísticos</a>
         </nav>
 
-        <!-- Botón de perfil que navega a /profile -->
-        <button class="user" type="button" aria-label="Usuario" [routerLink]="['/profile']">
-            <span class="user-icon" aria-hidden="true"></span>
-        </button>
+        <div class="user-menu" (click)="$event.stopPropagation()">
+            <button
+                class="user"
+                type="button"
+                aria-label="Usuario"
+                aria-haspopup="menu"
+                [attr.aria-expanded]="userMenuOpen"
+                (click)="toggleUserMenu($event)"
+            >
+                <span class="user-icon" aria-hidden="true"></span>
+            </button>
+
+            <div class="user-dropdown" *ngIf="userMenuOpen" role="menu" aria-label="Opciones de usuario">
+                <a
+                    *ngIf="!isLoggedIn()"
+                    class="user-dropdown-item"
+                    role="menuitem"
+                    routerLink="/auth"
+                    [queryParams]="{ returnUrl: getReturnUrl() }"
+                    (click)="closeUserMenu()"
+                >
+                    Iniciar Sesión
+                </a>
+
+                <ng-container *ngIf="isLoggedIn()">
+                    <a
+                        *ngIf="!isOnProfilePage()"
+                        class="user-dropdown-item user-dropdown-item--button"
+                        role="menuitem"
+                        routerLink="/profile"
+                        (click)="closeUserMenu()"
+                    >
+                        Consultar Perfil
+                    </a>
+
+                    <button
+                        class="user-dropdown-item user-dropdown-item--button"
+                        type="button"
+                        role="menuitem"
+                        (click)="logout()"
+                    >
+                        Cerrar Sesión
+                    </button>
+                </ng-container>
+            </div>
+        </div>
     </header>
 
 <!-- Contenido de las páginas -->

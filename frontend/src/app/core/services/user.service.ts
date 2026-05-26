@@ -106,7 +106,12 @@ export class UserService {
    */
   updateProfileField(userId: number, field: string, newValue: string): Observable<UserResponse> {
     const request: UpdateUserRequest = { field, newValue };
-    return this.http.patch<UserResponse>(`/api/users/${userId}`, request);
+    if(field === "email"){
+      return this.http.patch<UserResponse>(`/api/auth/change-email`, request);
+    }else{
+      return this.http.patch<UserResponse>(`/api/users/${userId}`, request);
+    }
+    
   }
 
   /**

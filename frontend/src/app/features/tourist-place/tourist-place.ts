@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { TouristPlaceApiService } from '../../core/services/tourist-place-api.service';
+import { getTouristPlaceEnvironmentLabel } from '../../core/utils/tourist-place.utils';
 import {
   TouristPlace as TouristPlaceResponse,
   TouristPlaceAlbum,
@@ -17,9 +19,10 @@ import {
   styleUrl: './tourist-place.css',
 })
 export class TouristPlace {
-  private readonly http = inject(HttpClient);
+  private readonly placeApi = inject(TouristPlaceApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly place = signal<TouristPlaceResponse | null>(null);
   readonly album = signal<TouristPlaceAlbum | null>(null);
@@ -71,15 +74,14 @@ export class TouristPlace {
           }
 
           return forkJoin({
-            place: this.http.get<TouristPlaceResponse>(`/api/places/${id}`),
-            album: this.http
-              .get<TouristPlaceAlbum>(`/api/places/${id}/media/album`)
-              .pipe(catchError(() => of(null))),
+            place: this.placeApi.getPlace(id),
+            album: this.placeApi.getAlbum(id).pipe(catchError(() => of(null))),
           }).pipe(
             map((response) => ({ ...response, invalid: false })),
             catchError(() => of({ place: null, album: null, invalid: false }))
           );
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(({ place, album, invalid }) => {
         if (invalid) {
@@ -116,14 +118,7 @@ export class TouristPlace {
   }
 
   getEnvironmentLabel(): string {
-    const environment = this.place()?.environment;
-    const labels = {
-      INTERIOR: 'Interior',
-      MIXED: 'Mixto',
-      EXTERIOR: 'Exterior',
-    };
-
-    return environment ? labels[environment] : 'Ambiente';
+    return getTouristPlaceEnvironmentLabel(this.place()?.environment);
   }
 
   getCoordinates(): string {

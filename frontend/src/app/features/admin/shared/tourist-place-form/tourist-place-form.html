@@ -1,0 +1,221 @@
+<form class="place-form" (ngSubmit)="formSubmitted.emit()">
+  <div class="form-grid">
+    <section class="form-panel">
+      <h2>Información general</h2>
+
+      <label class="field">
+        <span>Nombre</span>
+        <input
+          type="text"
+          name="name"
+          [ngModel]="name"
+          (ngModelChange)="nameChange.emit($event)"
+          required
+          placeholder="Ej. Monserrate"
+        />
+      </label>
+
+      <label class="field">
+        <span>Descripción</span>
+        <textarea
+          name="description"
+          [ngModel]="description"
+          (ngModelChange)="descriptionChange.emit($event)"
+          rows="5"
+        ></textarea>
+      </label>
+
+      <div class="inline-fields">
+        <label class="field">
+          <span>Duración</span>
+          <input
+            type="text"
+            name="duration"
+            [ngModel]="duration"
+            (ngModelChange)="durationChange.emit($event)"
+            placeholder="3 horas"
+          />
+        </label>
+
+        <label class="field">
+          <span>Entorno</span>
+          <select
+            name="environment"
+            [ngModel]="environment"
+            (ngModelChange)="environmentChange.emit($event)"
+          >
+            <option *ngFor="let option of environments" [ngValue]="option.value">{{ option.label }}</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <h2>Ubicación</h2>
+
+      <div class="triple-fields">
+        <label class="field">
+          <span>País</span>
+          <select
+            name="country"
+            [ngModel]="country"
+            (ngModelChange)="onCountryChange($event)"
+            [disabled]="loadingCountries"
+            required
+          >
+            <option value="" disabled>Selecciona un pais</option>
+            <option *ngFor="let option of countries" [value]="option">{{ option }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Departamento</span>
+          <select
+            name="department"
+            [ngModel]="department"
+            (ngModelChange)="onDepartmentChange($event)"
+            [disabled]="!country || loadingDepartments"
+            required
+          >
+            <option value="" disabled>Selecciona un departamento</option>
+            <option *ngFor="let option of departments" [value]="option">{{ option }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Ciudad</span>
+          <select
+            name="city"
+            [ngModel]="city"
+            (ngModelChange)="cityChange.emit($event)"
+            [disabled]="!department || loadingCities"
+            required
+          >
+            <option value="" disabled>Selecciona una ciudad</option>
+            <option *ngFor="let option of cities" [value]="option">{{ option }}</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="inline-fields">
+        <label class="field">
+          <span>Latitud</span>
+          <input
+            type="number"
+            name="latitude"
+            [ngModel]="latitude"
+            (ngModelChange)="onLatitudeChange($event)"
+            step="any"
+          />
+        </label>
+
+        <label class="field">
+          <span>Longitud</span>
+          <input
+            type="number"
+            name="longitude"
+            [ngModel]="longitude"
+            (ngModelChange)="onLongitudeChange($event)"
+            step="any"
+          />
+        </label>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <h2>Categorias</h2>
+      <p class="helper">Selecciona categorias existentes o crea nuevas antes de guardar.</p>
+
+      <div *ngIf="loadingCategories" class="mini-status">Cargando categorias...</div>
+
+      <div class="category-list" *ngIf="!loadingCategories">
+        <label *ngFor="let category of categories" class="check-row">
+          <input
+            type="checkbox"
+            [checked]="selectedCategoryIds.includes(category.id)"
+            (change)="categoryToggled.emit({ categoryId: category.id, checked: $any($event.target).checked })"
+          />
+          <span>{{ category.name }}</span>
+        </label>
+      </div>
+
+      <div class="add-row">
+        <input
+          type="text"
+          name="newCategoryName"
+          [ngModel]="newCategoryName"
+          (ngModelChange)="newCategoryNameChange.emit($event)"
+          placeholder="Nueva categoria"
+        />
+        <button type="button" (click)="newCategoryAdded.emit()">Agregar</button>
+      </div>
+
+      <div class="pending-tags" *ngIf="newCategories.length > 0">
+        <button *ngFor="let category of newCategories" type="button" (click)="newCategoryRemoved.emit(category)">
+          {{ category }} x
+        </button>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <h2>Actividades</h2>
+      <div class="repeat-list">
+        <div class="repeat-row" *ngFor="let activity of activities; let i = index; trackBy: trackByIndex">
+          <input
+            type="text"
+            [name]="'activity-' + i"
+            [ngModel]="activity"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="activityUpdated.emit({ index: i, value: $event })"
+            placeholder="Descripción de la actividad"
+          />
+          <button type="button" (click)="activityRemoved.emit(i)" [disabled]="activities.length === 1">Quitar</button>
+        </div>
+      </div>
+      <button class="ghost-button" type="button" (click)="activityAdded.emit()">Agregar actividad</button>
+    </section>
+
+    <section class="form-panel form-panel--wide">
+      <h2>Imagenes</h2>
+      <p class="helper">Agrega links publicos de imagenes para el album del lugar.</p>
+
+      <div class="photo-list">
+        <div class="photo-row" *ngFor="let photo of photos; let i = index; trackBy: trackByIndex">
+          <label class="field">
+            <span>Link de imagen</span>
+            <input
+              type="url"
+              [name]="'photo-url-' + i"
+              [ngModel]="photo.filePath"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="photoUpdated.emit({ index: i, field: 'filePath', value: $event })"
+              placeholder="https://..."
+            />
+          </label>
+          <label class="field">
+            <span>Descripción</span>
+            <input
+              type="text"
+              [name]="'photo-description-' + i"
+              [ngModel]="photo.description"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="photoUpdated.emit({ index: i, field: 'description', value: $event })"
+            />
+          </label>
+          <button type="button" (click)="photoRemoved.emit(i)" [disabled]="photos.length === 1">Quitar</button>
+        </div>
+      </div>
+
+      <button class="ghost-button" type="button" (click)="photoAdded.emit()">Agregar imagen</button>
+    </section>
+  </div>
+
+  <div class="feedback feedback--error" *ngIf="error">{{ error }}</div>
+  <div class="feedback feedback--success" *ngIf="message">{{ message }}</div>
+
+  <div class="form-actions">
+    <button class="submit-button" type="submit" [disabled]="saving">
+      {{ saving ? savingLabel : submitLabel }}
+    </button>
+  </div>
+</form>

@@ -61,7 +61,7 @@
 }
 
 .tours-horizontal::-webkit-scrollbar-thumb {
-    background: #2f7c2f;
+    background: var(--color-primary);
     border-radius: 5px;
 }
 
@@ -89,7 +89,7 @@
 .btn-back {
     background: none;
     border: none;
-    color: #2f7c2f;
+    color: var(--color-primary);
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
@@ -99,12 +99,12 @@
 }
 
 .btn-back:hover {
-    background-color: #efe9cf;
+    background-color: var(--color-cream);
     transform: translateX(-4px);
 }
 
 .saved-tours-header h1 {
-    color: #2f7c2f;
+    color: var(--color-primary);
     font-size: 28px;
     margin: 0;
     flex: 1;
@@ -113,9 +113,9 @@
 .loading, .error, .empty-state {
     text-align: center;
     padding: 60px 20px;
-    background: white;
+    background: var(--color-surface);
     border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-topbar);
 }
 
 .error {

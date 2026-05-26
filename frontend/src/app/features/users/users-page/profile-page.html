@@ -33,44 +33,49 @@
             </div>
             
             <div class="info-field">
-                <div class="field-label">Correo:</div>
-                <div class="field-value">{{ user.email }}</div>
-                <button class="edit-btn edit-btn-green" (click)="openEditField('correo', user.email)">✎</button>
-            </div>
-            
-            <div class="info-field">
-                <div class="field-label">Documento:</div>
+                <div class="field-label">Documento: </div>
                 <div class="field-value">{{ user.profile.document }}</div>
                 <button class="edit-btn edit-btn-green" (click)="openEditField('documento', user.profile.document)">✎</button>
             </div>
         </div>
-        
-       <!-- Columna derecha - Acciones -->
+
 <div class="actions-card card" *ngIf="!loading && !error && user">
-    <div class="action-buttons">
-        <button class="action-btn action-btn--green" (click)="goToMisReservas()">
-            <span class="action-icon">
-                <img src="reservas.svg" alt="Reservas" width="22" height="22">
-            </span>
-            <span class="action-text">Mis Reservas</span>
-        </button>
-        
-        <button class="action-btn action-btn--green" (click)="goToRecorridosGuardados()">
+  <div class="action-buttons">
+    <ng-container *ngIf="!isAdmin">
+      <button class="action-btn action-btn--green" (click)="goToRecorridosGuardados()">
             <span class="action-icon">
                 <img src="guardados.svg" alt="Recorridos Guardados" width="22" height="22">
             </span>
             <span class="action-text">Recorridos Guardados</span>
         </button>
-        
-        <button class="action-btn action-btn--orange" (click)="goToFavoritos()">
+
+        <button class="action-btn action-btn--orange" (click)="goToChangePassword()">
             <span class="action-text">Cambiar contraseña</span>
         </button>
         
         <button class="action-btn action-btn--orange" (click)="goToConfiguracion()">
             <span class="action-text">Eliminar Cuenta</span>
         </button>
-      </div>
-    </div>
+    </ng-container>
+
+    <!-- Botones para ADMIN -->
+    <ng-container *ngIf="isAdmin">
+        <button class="action-btn action-btn--orange" (click)="goToChangePassword()">
+            <span class="action-text">Cambiar contraseña</span>
+        </button>
+
+        <button class="action-btn action-btn--green" (click)="goToCreatePlaces()">
+            <span class="action-text">Crear lugar turístico</span>
+        </button>
+
+      <button class="action-btn action-btn--green" (click)="goToCreateTours()">
+        <span class="action-text">Crear recorrido turístico</span>
+      </button>
+
+      
+    </ng-container>
+
+  </div>
 </div>
 
 <!-- Estados de carga y error -->
@@ -95,6 +100,25 @@
         </div>
     </div>
 </div>
+<!-- Modal de confirmación para eliminar cuenta -->
+<div class="modal-overlay" *ngIf="showDeleteConfirmModal" (click)="closeDeleteConfirmModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>⚠️ ¿Eliminar cuenta?</h3>
+    <p>Esta acción es irreversible. Todos tus datos serán eliminados permanentemente.</p>
+    <div class="modal-buttons">
+      <button class="btn-cancel" (click)="closeDeleteConfirmModal()">Cancelar</button>
+      <button class="btn-confirm-delete" (click)="confirmDeleteAccount()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<app-change-password-modal
+  [open]="changePasswordModalOpen"
+  [isSubmitting]="false"
+  [errorMessage]="''"
+  (closed)="closeChangePasswordModal()"
+  (submitted)="handleChangePassword($event)"
+></app-change-password-modal>
 
 <app-toast
     [open]="toastOpen"

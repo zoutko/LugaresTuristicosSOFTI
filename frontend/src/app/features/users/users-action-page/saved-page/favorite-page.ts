@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SavedToursService } from '../../../../core/services/saved-tours-service';
 import { TourCardComponent } from '../../../../shared/tour-card/tour-card';
-import { SavedTour } from '../../../../core/models/tour-model';
+import { TourCard } from '../../../../core/models/tour-model';
 import { ToastComponent, ToastVariant } from '../../../../shared/toast/toast';
 
 @Component({
@@ -14,7 +14,7 @@ import { ToastComponent, ToastVariant } from '../../../../shared/toast/toast';
   styleUrls: ['./favorite-page.css']
 })
 export class SavedToursListComponent implements OnInit {
-  tours: SavedTour[] = [];
+  tours: TourCard[] = [];
   loading = true;
   error = '';
 
@@ -31,17 +31,15 @@ export class SavedToursListComponent implements OnInit {
     this.loadSavedTours();
   }
 
-  private loadSavedTours(): void {
-    // Temporal: userId fijo para pruebas
-    const userIdStr = "1";
-    const userId = userIdStr ? parseInt(userIdStr, 10) : null;
-
-    if (!userId) {
+  /*private loadSavedTours(): void {
+    const userIdStr = localStorage.getItem('auth.userId'); 
+    if (!userIdStr) {
       this.error = 'No se pudo identificar al usuario.';
       this.loading = false;
       return;
     }
 
+    const userId = parseInt(userIdStr, 10);
     this.savedToursService.getSavedTours(userId).subscribe({
       next: (tours) => {
         this.tours = tours;
@@ -54,7 +52,29 @@ export class SavedToursListComponent implements OnInit {
         this.showToast(this.error, 'error');
       }
     });
+  }*/
+ private loadSavedTours(): void {
+  const userIdStr = localStorage.getItem('auth.userId');
+  if (!userIdStr) {
+    this.error = 'No se pudo identificar al usuario.';
+    this.loading = false;
+    return;
   }
+
+  const userId = parseInt(userIdStr, 10);
+  this.savedToursService.getSavedToursAsCards(userId).subscribe({
+    next: (tours) => {
+      this.tours = tours;
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Error:', err);
+      this.error = 'Error al cargar los recorridos guardados';
+      this.loading = false;
+      this.showToast(this.error, 'error');
+    }
+  });
+}
 
   viewTour(tourId: number): void {
     this.router.navigate(['/tour', tourId]);

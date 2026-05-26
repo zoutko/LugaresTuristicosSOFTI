@@ -2,11 +2,11 @@
   <div class="hero-panel">
     <div class="hero-actions">
       <a class="hero-button" routerLink="/recorridos">
-        <span>Explorar Recorridos Turisticos</span>
+        <span>Explorar Recorridos Turísticos</span>
         <span class="arrow" aria-hidden="true"></span>
       </a>
       <a class="hero-button" routerLink="/lugares">
-        <span>Explorar Lugares Turisticos</span>
+        <span>Explorar Lugares Turísticos</span>
         <span class="arrow" aria-hidden="true"></span>
       </a>
     </div>
@@ -17,45 +17,24 @@
       <div>
         <span class="section-kicker">Recomendados</span>
         <h1>Recorridos para empezar tu viaje</h1>
-        <p>Elige una experiencia destacada y descubre lugares, actividades y rutas pensadas para explorar Colombia.</p>
+        <p>Elige una experiencia destacada y descubre lugares, actividades y rutas pensadas para explorar el mundo.</p>
       </div>
       <a routerLink="/recorridos">Ver todos</a>
     </div>
 
     <div *ngIf="loading()" class="home-status">Cargando recorridos destacados...</div>
 
-    <div *ngIf="!loading() && featuredTours().length === 0" class="home-status">
+    <div *ngIf="!loading() && featuredTourCards().length === 0" class="home-status">
       No hay recorridos destacados para mostrar.
     </div>
 
-    <div *ngIf="!loading() && featuredTours().length > 0" class="featured-grid">
-      <article *ngFor="let tour of featuredTours(); let index = index" class="tour-card">
-        <div class="image-frame">
-          <img [src]="getImage(tour, index)" [alt]="tour.name" loading="lazy" />
-        </div>
-
-        <div class="tour-body">
-          <div class="tour-location">
-            <span class="pin" aria-hidden="true"></span>
-            <span>{{ tour.location || 'Ubicacion por confirmar' }}</span>
-          </div>
-
-          <div class="tour-main">
-            <h2>{{ tour.name }}</h2>
-            <div class="tour-price">
-              <strong>{{ formatPrice(tour.price) }}</strong>
-              <span>Por persona</span>
-            </div>
-          </div>
-
-          <div class="card-footer">
-            <div class="tags">
-              <span *ngFor="let category of getCategories(tour)">{{ category }}</span>
-            </div>
-            <a routerLink="/recorridos">Ver</a>
-          </div>
-        </div>
-      </article>
+    <div *ngIf="!loading() && featuredTourCards().length > 0" class="featured-grid">
+      <app-tour-card
+        *ngFor="let tour of featuredTourCards()"
+        [tour]="tour"
+        [showRemoveButton]="false"
+        (view)="viewTour($event)"
+      ></app-tour-card>
     </div>
   </div>
 </section>

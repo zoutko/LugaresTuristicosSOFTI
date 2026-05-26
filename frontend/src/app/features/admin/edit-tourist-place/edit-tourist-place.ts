@@ -1,11 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { TouristPlace, TouristPlaceEnvironment } from '../../tourist-places/tourist-places.types';
+import { forkJoin, from, of } from 'rxjs';
+import { catchError, concatMap, map, switchMap, toArray } from 'rxjs/operators';
+import {
+  TouristPlace,
+  TouristPlaceActivity,
+  TouristPlaceAlbum,
+  TouristPlaceEnvironment,
+} from '../../tourist-places/tourist-places.types';
+import { AuthTokenService } from '../../../core/services/auth-token.service';
+import { LocationCatalogService } from '../../../core/services/location-catalog.service';
+import {
+  TouristPlaceForm,
+  TouristPlacePhotoInput,
+} from '../shared/tourist-place-form/tourist-place-form';
 
 type Environment = TouristPlaceEnvironment;
 
@@ -16,7 +28,7 @@ interface Category {
 
 @Component({
   selector: 'app-edit-tourist-place',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TouristPlaceForm],
   templateUrl: './edit-tourist-place.html',
   styleUrl: './edit-tourist-place.css',
 })
@@ -24,10 +36,15 @@ export class EditTouristPlace {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly authToken = inject(AuthTokenService);
+  private readonly locationCatalog = inject(LocationCatalogService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly categories = signal<Category[]>([]);
   readonly selectedCategoryIds = signal<number[]>([]);
   readonly newCategories = signal<string[]>([]);
+  readonly activities = signal<string[]>(['']);
+  readonly photos = signal<TouristPlacePhotoInput[]>([{ filePath: '', description: '' }]);
 
   readonly loading = signal(true);
   readonly loadingCategories = signal(true);
@@ -35,13 +52,14 @@ export class EditTouristPlace {
   readonly message = signal('');
   readonly error = signal('');
 
-  readonly placeId = signal<number | null>(null);
+  readonly countries = signal<string[]>([]);
+  readonly departments = signal<string[]>([]);
+  readonly cities = signal<string[]>([]);
+  readonly loadingCountries = signal(false);
+  readonly loadingDepartments = signal(false);
+  readonly loadingCities = signal(false);
 
-  readonly environments: { value: Environment; label: string }[] = [
-    { value: 'EXTERIOR', label: 'Exterior' },
-    { value: 'INTERIOR', label: 'Interior' },
-    { value: 'MIXED', label: 'Mixto' },
-  ];
+  readonly placeId = signal<number | null>(null);
 
   name = '';
   description = '';
@@ -50,15 +68,19 @@ export class EditTouristPlace {
 
   city = '';
   department = '';
-  country = 'Colombia';
+  country = '';
   latitude: number | null = null;
   longitude: number | null = null;
 
   newCategoryName = '';
+  private originalActivityIds: number[] = [];
+  private originalPhotoCount = 0;
 
-  readonly hasToken = computed(() => Boolean(localStorage.getItem('auth.token')));
+  readonly hasToken = computed(() => this.authToken.hasToken());
 
   constructor() {
+    this.loadCountries();
+
     this.route.paramMap
       .pipe(
         map((params) => Number(params.get('id'))),
@@ -76,16 +98,23 @@ export class EditTouristPlace {
 
           return forkJoin({
             place: this.http.get<TouristPlace>(`/api/places/${id}`).pipe(catchError(() => of(null))),
+            activities: this.http
+              .get<TouristPlaceActivity[]>(`/api/places/${id}/activities`)
+              .pipe(catchError(() => of([]))),
+            album: this.http
+              .get<TouristPlaceAlbum>(`/api/places/${id}/media/album`)
+              .pipe(catchError(() => of(null))),
             categories: this.http
-              .get<Category[]>('/api/categories', { headers: this.authHeaders() })
+              .get<Category[]>('/api/categories', { headers: this.authToken.getAuthHeaders() })
               .pipe(catchError(() => of([]))),
           });
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((result) => {
         if (!result) return;
 
-        const { place, categories } = result;
+        const { place, categories, activities, album } = result;
         this.categories.set(categories ?? []);
         this.loadingCategories.set(false);
 
@@ -102,14 +131,169 @@ export class EditTouristPlace {
 
         this.city = place.location?.city ?? '';
         this.department = place.location?.department ?? '';
-        this.country = place.location?.country ?? 'Colombia';
+        this.country = place.location?.country ?? '';
         this.latitude = place.location?.latitude ?? null;
         this.longitude = place.location?.longitude ?? null;
 
+        this.syncDepartmentsAndCitiesFromCurrentSelection();
+
         const categoryIds = this.resolveCategoryIds(place.categories ?? [], categories ?? []);
         this.selectedCategoryIds.set(categoryIds);
+        this.originalActivityIds = (activities ?? []).map((activity) => activity.id);
+        this.activities.set(
+          activities && activities.length > 0
+            ? activities.map((activity) => activity.description ?? '')
+            : ['']
+        );
+
+        const photos = album?.photos ?? [];
+        this.originalPhotoCount = photos.length;
+        this.photos.set(
+          photos.length > 0
+            ? photos.map((photo) => ({
+                filePath: photo.filePath ?? '',
+                description: photo.description ?? '',
+              }))
+            : [{ filePath: '', description: '' }]
+        );
 
         this.loading.set(false);
+      });
+  }
+
+  departmentOptions(): string[] {
+    return this.departments();
+  }
+
+  cityOptions(): string[] {
+    return this.cities();
+  }
+
+  onCountryChange(value: string): void {
+    this.country = value;
+    this.department = '';
+    this.city = '';
+    this.departments.set([]);
+    this.cities.set([]);
+
+    const country = value?.trim();
+    if (!country) return;
+
+    this.loadingDepartments.set(true);
+    this.locationCatalog
+      .getDepartments(country)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (departments) => {
+          this.departments.set(departments ?? []);
+          this.loadingDepartments.set(false);
+        },
+        error: () => {
+          this.departments.set([]);
+          this.loadingDepartments.set(false);
+        },
+      });
+  }
+
+  onDepartmentChange(value: string): void {
+    this.department = value;
+    this.city = '';
+    this.cities.set([]);
+
+    const country = this.country?.trim();
+    const department = value?.trim();
+    if (!country || !department) return;
+
+    this.loadingCities.set(true);
+    this.locationCatalog
+      .getCities(country, department)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (cities) => {
+          const list = (cities ?? []).filter(Boolean);
+          if (list.length === 0) {
+            this.cities.set([department]);
+            this.city = department;
+          } else {
+            this.cities.set(list);
+          }
+          this.loadingCities.set(false);
+        },
+        error: () => {
+          this.cities.set([department]);
+          this.city = department;
+          this.loadingCities.set(false);
+        },
+      });
+  }
+
+  private loadCountries(): void {
+    this.loadingCountries.set(true);
+
+    this.locationCatalog
+      .getCountries()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (countries) => {
+          const list = countries ?? [];
+          const current = this.country?.trim();
+          this.countries.set(current && !list.includes(current) ? [current, ...list] : list);
+          this.loadingCountries.set(false);
+        },
+        error: () => {
+          const current = this.country?.trim();
+          this.countries.set(current ? [current] : []);
+          this.loadingCountries.set(false);
+        },
+      });
+  }
+
+  private syncDepartmentsAndCitiesFromCurrentSelection(): void {
+    const country = this.country?.trim();
+    const department = this.department?.trim();
+    const city = this.city?.trim();
+    if (!country) return;
+
+    this.loadingDepartments.set(true);
+    this.locationCatalog
+      .getDepartments(country)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (departments) => {
+          const deptList = departments ?? [];
+          this.departments.set(deptList.includes(department) ? deptList : department ? [department, ...deptList] : deptList);
+          this.loadingDepartments.set(false);
+
+          if (!department) return;
+
+          this.loadingCities.set(true);
+          this.locationCatalog
+            .getCities(country, department)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (cities) => {
+                const cityList = (cities ?? []).filter(Boolean);
+                if (cityList.length === 0) {
+                  this.cities.set([department]);
+                  if (!this.city?.trim()) this.city = department;
+                } else {
+                  this.cities.set(
+                    cityList.includes(city) ? cityList : city ? [city, ...cityList] : cityList
+                  );
+                }
+                this.loadingCities.set(false);
+              },
+              error: () => {
+                this.cities.set(city ? [city] : [department]);
+                if (!this.city?.trim()) this.city = department;
+                this.loadingCities.set(false);
+              },
+            });
+        },
+        error: () => {
+          this.departments.set(department ? [department] : []);
+          this.loadingDepartments.set(false);
+        },
       });
   }
 
@@ -137,14 +321,39 @@ export class EditTouristPlace {
     this.newCategories.update((current) => current.filter((category) => category !== name));
   }
 
+  addActivity(): void {
+    this.activities.update((current) => [...current, '']);
+  }
+
+  updateActivity(index: number, value: string): void {
+    this.activities.update((current) => current.map((activity, i) => (i === index ? value : activity)));
+  }
+
+  removeActivity(index: number): void {
+    this.activities.update((current) => current.filter((_, i) => i !== index));
+  }
+
+  addPhoto(): void {
+    this.photos.update((current) => [...current, { filePath: '', description: '' }]);
+  }
+
+  updatePhoto(index: number, field: keyof TouristPlacePhotoInput, value: string): void {
+    this.photos.update((current) =>
+      current.map((photo, i) => (i === index ? { ...photo, [field]: value } : photo))
+    );
+  }
+
+  removePhoto(index: number): void {
+    this.photos.update((current) => current.filter((_, i) => i !== index));
+  }
+
   submit(): void {
     if (this.saving()) return;
 
     this.error.set('');
     this.message.set('');
 
-    const token = localStorage.getItem('auth.token');
-    if (!token) {
+    if (!this.authToken.hasToken()) {
       this.error.set('Debes iniciar sesion como administrador para editar lugares.');
       return;
     }
@@ -162,7 +371,7 @@ export class EditTouristPlace {
 
     this.saving.set(true);
 
-    const headers = this.authHeaders();
+    const headers = this.authToken.getAuthHeaders();
     const newCategoryRequests = this.newCategories().map((name) =>
       this.http.post<Category>('/api/categories', { name }, { headers })
     );
@@ -192,7 +401,8 @@ export class EditTouristPlace {
             },
             { headers }
           );
-        })
+        }),
+        switchMap(() => this.replaceActivitiesAndPhotos(id, headers))
       )
       .subscribe({
         next: async () => {
@@ -217,8 +427,38 @@ export class EditTouristPlace {
       .map((category) => category.id);
   }
 
-  private authHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth.token');
-    return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+  private replaceActivitiesAndPhotos(id: number, headers: ReturnType<AuthTokenService['getAuthHeaders']>) {
+    const activityDeleteRequests = this.originalActivityIds.map((activityId) =>
+      this.http.delete(`/api/places/${id}/activities/${activityId}`, { headers }).pipe(catchError(() => of(null)))
+    );
+
+    const photoDeleteRequests = Array.from(
+      { length: this.originalPhotoCount },
+      (_, index) => this.originalPhotoCount - index - 1
+    ).map((index) =>
+        this.http.delete(`/api/places/${id}/media/photos/${index}`, { headers }).pipe(catchError(() => of(null)))
+      );
+
+    const activityCreateRequests = this.activities()
+      .map((activity) => activity.trim())
+      .filter(Boolean)
+      .map((description) => this.http.post(`/api/places/${id}/activities`, { description }, { headers }));
+
+    const photoCreateRequests = this.photos()
+      .map((photo) => ({
+        filePath: photo.filePath.trim(),
+        description: photo.description.trim(),
+      }))
+      .filter((photo) => photo.filePath)
+      .map((photo) => this.http.post(`/api/places/${id}/media/photos`, photo, { headers }));
+
+    const requests = [
+      ...activityDeleteRequests,
+      ...photoDeleteRequests,
+      ...activityCreateRequests,
+      ...photoCreateRequests,
+    ];
+
+    return requests.length > 0 ? from(requests).pipe(concatMap((request) => request), toArray()) : of([]);
   }
 }

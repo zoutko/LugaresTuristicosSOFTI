@@ -47,13 +47,13 @@ public class SecurityConfig {
                                 "/api/auth/change-password",
                                 "/api/users/register",
                                 "/api/users/{userId}",
-                                "/api/tours/**",
-                                "/api/users/{userId}/saved-tours",  
-                                "/api/places/**",
+                                "/api/users/{userId}/saved-tours",
+                                "/api/places",
                                 "/api/auth/change-email",
+                                "/api/places/**",
                                 "/h2-console/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tours/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/tours/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/tours/*/reviews").hasRole("USER")
                         .requestMatchers(HttpMethod.PATCH, "/api/tours/*/reviews/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/tours/*/reviews/**").hasAnyRole("USER", "ADMINISTRATOR")

@@ -15,7 +15,7 @@
   align-items: center;
   gap: 6px;
   padding: 8px 0 16px;
-  color: #2f7c2f;
+  color: var(--color-primary);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -27,7 +27,7 @@
 
 /* PLACE CARD */
 .place-card {
-  background: #fff;
+  background: var(--color-surface);
   border: 1.5px solid #c8dfc8;
   overflow: hidden;
 }
@@ -81,7 +81,7 @@
 .hero-location .pin {
   width: 14px;
   height: 14px;
-  background: #e88728;
+  background: var(--color-accent);
   border-radius: 50% 50% 50% 0;
   margin: 0 3px 0 0;
   transform: rotate(-45deg);
@@ -94,7 +94,7 @@
   position: absolute;
   inset: 4px;
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 /* THUMBNAILS */
@@ -142,7 +142,7 @@
 .tag {
   padding: 5px 14px;
   background: #edf5ec;
-  color: #2f7c2f;
+  color: var(--color-primary);
   border: 1px solid #c8dfc8;
   font-size: 13px;
   font-weight: 600;
@@ -178,7 +178,7 @@
 .section-title {
   font-size: 17px;
   font-weight: 700;
-  color: #2f7c2f;
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -205,7 +205,7 @@
 }
 
 .meta-key {
-  color: #2f7c2f;
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -237,7 +237,7 @@
   min-width: 22px;
   height: 22px;
   background: #edf5ec;
-  color: #2f7c2f;
+  color: var(--color-primary);
   border-radius: 50%;
   font-size: 11px;
   font-weight: 700;
@@ -309,7 +309,7 @@
 }
 
 .coords-row a {
-  color: #2f7c2f;
+  color: var(--color-primary);
   font-weight: 700;
   text-decoration: none;
 }
@@ -331,7 +331,7 @@
 
 /* STATUS */
 .status-panel {
-  background: #fff;
+  background: var(--color-surface);
   color: #2f2f2f;
   min-height: 200px;
   display: grid;
@@ -345,7 +345,7 @@
 .status-panel--error { color: #7a2323; }
 
 .status-panel a {
-  color: #2f7c2f;
+  color: var(--color-primary);
   font-weight: 700;
   text-decoration: none;
 }
