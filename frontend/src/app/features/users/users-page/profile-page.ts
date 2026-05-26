@@ -166,7 +166,7 @@ confirmDeleteAccount(): void {
 
 
   goToCreateTours(): void {
-    this.router.navigate(['/admin/tours']);
+    this.router.navigate(['/admin/recorridos/crear']);
   }
 
   goToCreatePlaces(): void {
@@ -186,7 +186,8 @@ confirmDeleteAccount(): void {
       this.showToast('El valor no puede estar vacío', 'error');
       return;
     }
-    
+    const userIdStr = localStorage.getItem('auth.userId');
+
     this.isSaving = true;
 
     const userIdStr = localStorage.getItem('auth.userId'); 
