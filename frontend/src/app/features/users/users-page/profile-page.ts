@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, UserResponse } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ChangePasswordModalComponent } from '../users-action-page/change-password-modal/change-password-modal'
+import { ChangePasswordModalComponent } from '../users-action-page/change-password-modal/change-password-modal';
 import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
 import { Router } from '@angular/router';
-
 
 @Component({
   selector: 'app-profile-page',
@@ -29,12 +28,10 @@ export class ProfilePage implements OnInit {
   editFieldValue = '';
   isSaving = false;
 
-  //Modal de confirmación al eliminar cuenta
-
+  // Modal de confirmación al eliminar cuenta
   showDeleteConfirmModal = false;
 
-  //Modal de cambio de contraseña
-  
+  // Modal de cambio de contraseña
   changePasswordModalOpen = false;
 
   // Toast
@@ -61,10 +58,10 @@ export class ProfilePage implements OnInit {
   goToRecorridosGuardados(): void {
     this.router.navigate(['/recorridos-guardados']);
   }
+
   goToChangePassword(): void {
     this.openChangePasswordModal();
   }
-
 
   handleChangePassword(data: { currentPassword: string; newPassword: string }): void {
     const token = localStorage.getItem('auth.token');
@@ -92,29 +89,29 @@ export class ProfilePage implements OnInit {
     });
   }
 
-goToConfiguracion(): void {
-  this.openDeleteConfirmModal();
-}
-
-confirmDeleteAccount(): void {
-  this.closeDeleteConfirmModal();
-    
-  const userIdStr = localStorage.getItem('auth.userId');
-  if (!userIdStr) {
-    this.showToast('No se pudo identificar al usuario', 'error');
-    return;
+  goToConfiguracion(): void {
+    this.openDeleteConfirmModal();
   }
+
+  confirmDeleteAccount(): void {
+    this.closeDeleteConfirmModal();
     
-  const userId = parseInt(userIdStr, 10);
+    const userIdStr = localStorage.getItem('auth.userId');
+    if (!userIdStr) {
+      this.showToast('No se pudo identificar al usuario', 'error');
+      return;
+    }
     
-  this.userService.deleteAccount(userId).subscribe({
-    next: () => {
-      localStorage.clear();
-      this.showToast('Cuenta eliminada exitosamente', 'success');
-      setTimeout(() => {
-        this.router.navigate(['/auth']);
-      }, 2000);
-    },
+    const userId = parseInt(userIdStr, 10);
+    
+    this.userService.deleteAccount(userId).subscribe({
+      next: () => {
+        localStorage.clear();
+        this.showToast('Cuenta eliminada exitosamente', 'success');
+        setTimeout(() => {
+          this.router.navigate(['/auth']);
+        }, 2000);
+      },
       error: (err) => {
         console.error('Error deleting account:', err);
         this.showToast('Error al eliminar la cuenta', 'error');
@@ -125,10 +122,10 @@ confirmDeleteAccount(): void {
   private loadProfile(): void {
     const userIdStr = localStorage.getItem('auth.userId');
     if (!userIdStr) {
-    this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
-    this.loading = false;
-    return;
-  }
+      this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
+      this.loading = false;
+      return;
+    }
     
     const userId = parseInt(userIdStr, 10);
 
@@ -164,7 +161,6 @@ confirmDeleteAccount(): void {
     this.editModalOpen = true;
   }
 
-
   goToCreateTours(): void {
     this.router.navigate(['/admin/recorridos/crear']);
   }
@@ -172,8 +168,6 @@ confirmDeleteAccount(): void {
   goToCreatePlaces(): void {
     this.router.navigate(['/admin/lugares/crear']);
   }
-
-
 
   closeEditModal(): void {
     if (this.isSaving) return;
@@ -186,15 +180,15 @@ confirmDeleteAccount(): void {
       this.showToast('El valor no puede estar vacío', 'error');
       return;
     }
+
     const userIdStr = localStorage.getItem('auth.userId');
+    if (!userIdStr) {
+      this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
+      this.loading = false;
+      return;
+    }
 
     this.isSaving = true;
-
-      if (!userIdStr) {
-        this.error = 'No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.';
-        this.loading = false;
-        return;
-      }
     const userId = parseInt(userIdStr, 10);
     
     this.userService.updateProfileField(userId, this.editFieldKey, this.editFieldValue).subscribe({
