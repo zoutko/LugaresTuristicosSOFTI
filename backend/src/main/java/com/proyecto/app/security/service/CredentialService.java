@@ -8,6 +8,10 @@ import com.proyecto.app.security.dto.request.LoginRequest;
 import com.proyecto.app.security.dto.request.RegisterRequest;
 import com.proyecto.app.security.dto.response.LoginResponse;
 import com.proyecto.app.security.repository.CredentialRepository;
+import com.proyecto.app.security.repository.TokenRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,15 +26,18 @@ public class CredentialService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
+    private final TokenRepository tokenRepository;
 
     public CredentialService(CredentialRepository credentialRepository,
                              PasswordEncoder passwordEncoder,
                              TokenService tokenService,
-                             AuthenticationManager authenticationManager) {
+                             AuthenticationManager authenticationManager,
+                            TokenRepository tokenRepository) {
         this.credentialRepository = credentialRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.authenticationManager = authenticationManager;
+        this.tokenRepository = tokenRepository;
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -129,4 +136,12 @@ public class CredentialService {
         return credentialRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Credencial no encontrada con id: " + id));
     }
-}
+
+    @Transactional
+    public void deleteCredentialByUserId(Long userId) {
+    Credential credential = credentialRepository.findByUserId(userId)
+            .orElseThrow(() -> new UsernameNotFoundException("Credencial no encontrada para userId: " + userId));
+    tokenRepository.deleteByCredential_Id(credential.getId());
+    credentialRepository.delete(credential);
+    }
+} 
