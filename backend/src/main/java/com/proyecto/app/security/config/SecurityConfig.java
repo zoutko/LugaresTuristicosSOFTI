@@ -51,6 +51,8 @@ public class SecurityConfig {
                                 "/api/places",
                                 "/api/auth/change-email",
                                 "/api/places/**",
+                                "/api/categories",
+                                "/api/categories/**", 
                                 "/h2-console/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/tours/**").permitAll()

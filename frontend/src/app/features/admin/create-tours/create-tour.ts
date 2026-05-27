@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin, map, of, switchMap } from 'rxjs';
+import { forkJoin, of, switchMap } from 'rxjs';
 import { AuthTokenService } from '../../../core/services/auth-token.service';
 import { LocationCatalogService } from '../../../core/services/location-catalog.service';
 
@@ -15,20 +15,19 @@ interface Category {
   name: string;
 }
 
-interface ItineraryItem {
-  placeName: string;
-  description: string;
-  duration?: string;
-}
-
-interface PriceOption {
-  category: string;
-  amount: number;
+interface Place {
+  id: number;
+  name: string;
 }
 
 interface ImageInput {
   url: string;
   description: string;
+}
+
+interface TourResponse {
+  id: number;
+  name: string;
 }
 
 @Component({
@@ -60,19 +59,23 @@ export class CreateTour {
   readonly newCategories = signal<string[]>([]);
   readonly loadingCategories = signal(true);
 
-  // Itinerario (lugares)
-  readonly itinerary = signal<ItineraryItem[]>([{ placeName: '', description: '' }]);
-  
-  // Galería de imágenes
+  // Lugares disponibles para itinerario (vienen del backend)
+  readonly places = signal<Place[]>([]);
+  readonly loadingPlaces = signal(false);
+  readonly selectedPlaceIds = signal<number[]>([]);
+
+  // Galería de imágenes (se guardan después)
   readonly images = signal<ImageInput[]>([{ url: '', description: '' }]);
-  
-  // Tarifas
-  readonly priceOptions = signal<PriceOption[]>([{ category: '', amount: 0 }]);
 
   // Estado del formulario
   readonly saving = signal(false);
+  readonly uploadingImages = signal(false);
   readonly message = signal('');
   readonly error = signal('');
+
+  // Tour creado (para saber a qué tour agregar imágenes)
+  createdTourId: number | null = null;
+  tourCreated = false;
 
   // Entornos
   readonly environments: { value: Environment; label: string }[] = [
@@ -85,21 +88,21 @@ export class CreateTour {
   name = '';
   description = '';
   recommendations = '';
-  duration = '';
   environment: Environment = 'EXTERIOR';
-  meetingPoint = '';
-  pricePerPerson = 0;
+  price = 0;
   city = '';
   department = '';
   country = '';
   meetingPointCity = '';
   meetingPointDepartment = '';
   meetingPointCountry = '';
+  meetingPointAddress = '';
   newCategoryName = '';
 
   constructor() {
     this.loadCountries();
     this.loadCategories();
+    this.loadPlaces();
   }
 
   // ============ UBICACIÓN ============
@@ -170,16 +173,16 @@ export class CreateTour {
   }
 
   // ============ PUNTO DE ENCUENTRO ============
-  onMeetingPointCountryChange(value: string): void {
-    this.meetingPointCountry = value;
-    this.meetingPointDepartment = '';
-    this.meetingPointCity = '';
-  }
+onMeetingPointCountryChange(value: string): void {
+  this.meetingPointCountry = value;
+  this.meetingPointDepartment = '';
+  this.meetingPointCity = '';
+}
 
-  onMeetingPointDepartmentChange(value: string): void {
-    this.meetingPointDepartment = value;
-    this.meetingPointCity = '';
-  }
+onMeetingPointDepartmentChange(value: string): void {
+  this.meetingPointDepartment = value;
+  this.meetingPointCity = '';
+}
 
   private loadCountries(): void {
     this.loadingCountries.set(true);
@@ -239,34 +242,26 @@ export class CreateTour {
     this.newCategories.update((current) => current.filter((category) => category !== name));
   }
 
-  // ============ ITINERARIO ============
-  addItineraryItem(): void {
-    this.itinerary.update((current) => [...current, { placeName: '', description: '' }]);
+  // ============ LUGARES PARA ITINERARIO ============
+  loadPlaces(): void {
+    this.loadingPlaces.set(true);
+
+    this.http.get<Place[]>('/api/places', { headers: this.authToken.getAuthHeaders() }).subscribe({
+      next: (places) => {
+        this.places.set(places ?? []);
+        this.loadingPlaces.set(false);
+      },
+      error: () => {
+        this.places.set([]);
+        this.loadingPlaces.set(false);
+      },
+    });
   }
 
-  updateItineraryItem(index: number, field: keyof ItineraryItem, value: string): void {
-    this.itinerary.update((current) =>
-      current.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+  togglePlace(placeId: number, checked: boolean): void {
+    this.selectedPlaceIds.update((current) =>
+      checked ? [...current, placeId] : current.filter((id) => id !== placeId)
     );
-  }
-
-  removeItineraryItem(index: number): void {
-    this.itinerary.update((current) => current.filter((_, i) => i !== index));
-  }
-
-  // ============ TARIFAS ============
-  addPriceOption(): void {
-    this.priceOptions.update((current) => [...current, { category: '', amount: 0 }]);
-  }
-
-  updatePriceOption(index: number, field: keyof PriceOption, value: string | number): void {
-    this.priceOptions.update((current) =>
-      current.map((option, i) => (i === index ? { ...option, [field]: value } : option))
-    );
-  }
-
-  removePriceOption(index: number): void {
-    this.priceOptions.update((current) => current.filter((_, i) => i !== index));
   }
 
   // ============ IMÁGENES ============
@@ -284,8 +279,48 @@ export class CreateTour {
     this.images.update((current) => current.filter((_, i) => i !== index));
   }
 
-  // ============ SUBMIT ============
-  submit(): void {
+  // Subir imágenes del tour creado
+  uploadImages(): void {
+    if (this.uploadingImages()) return;
+    if (!this.createdTourId) return;
+
+    const validImages = this.images()
+      .filter(img => img.url.trim())
+      .map(img => ({
+        url: img.url.trim(),
+        description: img.description.trim()
+      }));
+
+    if (validImages.length === 0) {
+      this.error.set('Agrega al menos una URL de imagen válida.');
+      return;
+    }
+
+    this.uploadingImages.set(true);
+    this.error.set('');
+    const headers = this.authToken.getAuthHeaders();
+
+    const imageRequests = validImages.map(image =>
+      this.http.post(`/api/tours/${this.createdTourId}/media/photos`, image, { headers })
+    );
+
+    forkJoin(imageRequests).subscribe({
+      next: () => {
+        this.uploadingImages.set(false);
+        this.message.set('Imágenes agregadas exitosamente.');
+        setTimeout(() => {
+          this.router.navigate(['/admin/tours']);
+        }, 2000);
+      },
+      error: () => {
+        this.uploadingImages.set(false);
+        this.error.set('Error al subir las imágenes. Intenta nuevamente.');
+      }
+    });
+  }
+
+  // ============ CREAR TOUR ============
+  createTour(): void {
     if (this.saving()) return;
 
     this.error.set('');
@@ -298,6 +333,16 @@ export class CreateTour {
 
     if (!this.name.trim() || !this.city.trim() || !this.department.trim() || !this.country.trim()) {
       this.error.set('Completa nombre, ciudad, departamento y país.');
+      return;
+    }
+
+    if (this.selectedPlaceIds().length === 0) {
+      this.error.set('Selecciona al menos un lugar para el itinerario.');
+      return;
+    }
+
+    if (this.selectedCategoryIds().length === 0 && this.newCategories().length === 0) {
+      this.error.set('Selecciona o crea al menos una categoría.');
       return;
     }
 
@@ -317,33 +362,15 @@ export class CreateTour {
             ...createdCategories.map((category) => category.id),
           ];
 
-          // Filtrar itinerario válido
-          const validItinerary = this.itinerary()
-            .filter(item => item.placeName.trim())
-            .map(item => ({
-              placeName: item.placeName.trim(),
-              description: item.description.trim(),
-              duration: item.duration
-            }));
-
-          // Filtrar tarifas válidas
-          const validPrices = this.priceOptions()
-            .filter(price => price.category.trim() && price.amount > 0);
-
-          // Filtrar imágenes válidas
-          const validImages = this.images()
-            .filter(img => img.url.trim())
-            .map(img => ({
-              url: img.url.trim(),
-              description: img.description.trim()
-            }));
-
-          return this.http.post('/api/tours', {
+          // Construir el body según CreateTourRequest del backend
+          const requestBody = {
             name: this.name.trim(),
             description: this.description.trim(),
             recommendations: this.recommendations.trim(),
-            duration: this.duration.trim(),
             environment: this.environment,
+            price: this.price,
+            categoryIds: categoryIds,
+            itineraryPlaceIds: this.selectedPlaceIds(),
             location: {
               city: this.city.trim(),
               department: this.department.trim(),
@@ -353,26 +380,56 @@ export class CreateTour {
               city: this.meetingPointCity.trim(),
               department: this.meetingPointDepartment.trim(),
               country: this.meetingPointCountry.trim(),
-              address: this.meetingPoint.trim()
+              address: this.meetingPointAddress.trim(),
             },
-            pricePerPerson: this.pricePerPerson,
-            categoryIds,
-            itinerary: validItinerary,
-            prices: validPrices,
-            images: validImages
-          }, { headers });
+          };
+
+          return this.http.post<TourResponse>('/api/tours', requestBody, { headers });
         })
       )
       .subscribe({
-        next: async (tour) => {
+        next: (tour) => {
           this.saving.set(false);
-          this.message.set('Recorrido turístico creado correctamente.');
-          await this.router.navigate(['/admin/tours']);
+          this.createdTourId = tour.id;
+          this.tourCreated = true;
+          this.message.set(`Recorrido "${tour.name}" creado exitosamente. Ahora puedes agregar imágenes.`);
+          
+          // Limpiar formulario de imágenes
+          this.images.set([{ url: '', description: '' }]);
         },
-        error: () => {
+        error: (err) => {
+          console.error('Error creating tour:', err);
           this.saving.set(false);
           this.error.set('No fue posible crear el recorrido. Verifica los datos y permisos de administrador.');
         },
       });
+  }
+
+  // ============ NAVEGACIÓN ============
+  goToAdminTours(): void {
+    this.router.navigate(['/admin/tours']);
+  }
+
+  resetForm(): void {
+    this.tourCreated = false;
+    this.createdTourId = null;
+    this.name = '';
+    this.description = '';
+    this.recommendations = '';
+    this.environment = 'EXTERIOR';
+    this.price = 0;
+    this.city = '';
+    this.department = '';
+    this.country = '';
+    this.meetingPointCity = '';
+    this.meetingPointDepartment = '';
+    this.meetingPointCountry = '';
+    this.meetingPointAddress = '';
+    this.selectedCategoryIds.set([]);
+    this.newCategories.set([]);
+    this.selectedPlaceIds.set([]);
+    this.images.set([{ url: '', description: '' }]);
+    this.message.set('');
+    this.error.set('');
   }
 }

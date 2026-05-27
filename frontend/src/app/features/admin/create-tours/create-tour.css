@@ -260,4 +260,13 @@ button:disabled {
   .add-row {
     grid-template-columns: 1fr;
   }
+
+}
+.place-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 5px;
 }

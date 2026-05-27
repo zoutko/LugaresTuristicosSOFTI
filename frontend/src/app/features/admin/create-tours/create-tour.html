@@ -5,7 +5,7 @@
     <p>Registra la información principal, ubicación, categorías, itinerario, tarifas e imágenes del recorrido.</p>
   </div>
 
-  <form class="tour-form" (ngSubmit)="submit()">
+  <form class="tour-form" (ngSubmit)="createTour()">
     <div class="form-grid">
       
       <!-- Información general -->
@@ -28,10 +28,10 @@
         </label>
 
         <div class="inline-fields">
-          <label class="field">
+         <!-- <label class="field">
             <span>Duración</span>
             <input type="text" name="duration" [(ngModel)]="duration" placeholder="Ej. 4 horas, 1 día" />
-          </label>
+          </label>-->
 
           <label class="field">
             <span>Entorno</span>
@@ -86,7 +86,7 @@
 
         <label class="field">
           <span>Precio por persona</span>
-          <input type="number" name="pricePerPerson" [(ngModel)]="pricePerPerson" step="1000" placeholder="Ej. 90000" />
+          <input type="number" name="price" [(ngModel)]="price" step="1000" placeholder="Ej. 90000" />
         </label>
       </section>
 
@@ -121,9 +121,9 @@
         </div>
 
         <label class="field">
-          <span>Dirección / Referencia</span>
-          <input type="text" name="meetingPoint" [(ngModel)]="meetingPoint" placeholder="Ej. Parque de las Luces" />
-        </label>
+  <span>Dirección / Referencia</span>
+  <input type="text" name="meetingPointAddress" [(ngModel)]="meetingPointAddress" placeholder="Ej. Parque de las Luces" />
+</label>
       </section>
 
       <!-- Categorías -->
@@ -162,44 +162,31 @@
       </section>
 
       <!-- Itinerario -->
-      <section class="form-panel form-panel--wide">
-        <h2>Itinerario - Lugares</h2>
-        
-        <div class="repeat-list">
-          <div class="repeat-row" *ngFor="let item of itinerary(); let i = index; trackBy: trackByIndex">
-            <input
-              type="text"
-              [name]="'place-' + i"
-              [ngModel]="item.placeName"
-              [ngModelOptions]="{ standalone: true }"
-              (ngModelChange)="updateItineraryItem(i, 'placeName', $event)"
-              placeholder="Nombre del lugar"
-            />
-            <input
-              type="text"
-              [name]="'desc-' + i"
-              [ngModel]="item.description"
-              [ngModelOptions]="{ standalone: true }"
-              (ngModelChange)="updateItineraryItem(i, 'description', $event)"
-              placeholder="Descripción / actividad"
-            />
-            <input
-              type="text"
-              [name]="'duration-' + i"
-              [ngModel]="item.duration"
-              [ngModelOptions]="{ standalone: true }"
-              (ngModelChange)="updateItineraryItem(i, 'duration', $event)"
-              placeholder="Duración"
-              style="width: 100px;"
-            />
-            <button type="button" (click)="removeItineraryItem(i)" [disabled]="itinerary().length === 1">✖</button>
-          </div>
-        </div>
-        <button class="ghost-button" type="button" (click)="addItineraryItem()">+ Agregar lugar</button>
-      </section>
+      <!-- Lugares del itinerario -->
+<section class="form-panel">
+  <h2>Itinerario - Lugares</h2>
+  <p class="helper">Selecciona los lugares que forman parte del recorrido.</p>
+
+  <div *ngIf="loadingPlaces()" class="mini-status">Cargando lugares...</div>
+
+  <div class="place-list" *ngIf="!loadingPlaces()">
+    <label *ngFor="let place of places()" class="check-row">
+      <input
+        type="checkbox"
+        [checked]="selectedPlaceIds().includes(place.id)"
+        (change)="togglePlace(place.id, $any($event.target).checked)"
+      />
+      <span>{{ place.name }}</span>
+    </label>
+  </div>
+
+  <div *ngIf="places().length === 0 && !loadingPlaces()" class="mini-status">
+    No hay lugares registrados. Crea lugares primero.
+  </div>
+</section>
 
       <!-- Tarifas -->
-      <section class="form-panel">
+     <!-- <section class="form-panel">
         <h2>Tarifas adicionales</h2>
         
         <div class="repeat-list">
@@ -225,7 +212,7 @@
           </div>
         </div>
         <button class="ghost-button" type="button" (click)="addPriceOption()">+ Agregar tarifa</button>
-      </section>
+      </section>-->
 
       <!-- Galería de imágenes -->
       <section class="form-panel form-panel--wide">
