@@ -454,3 +454,165 @@
         padding: 0 16px 32px;
     }
 }
+
+/* ===== ESTILOS PARA CONTACTOS ===== */
+
+/* Campo de teléfonos */
+.contacts-field {
+  position: relative;
+  align-items: flex-start;
+}
+
+.contacts-list {
+  flex: 1;
+  position: relative;
+}
+
+/* Dropdown trigger */
+.contacts-dropdown {
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.dropdown-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9ec;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e8e4c9;
+  transition: all 0.2s ease;
+}
+
+.dropdown-trigger:hover {
+  border-color: #2f7c2f;
+  background-color: #f5f5e8;
+}
+
+/* Flecha del dropdown en color verde */
+.dropdown-arrow {
+  font-size: 12px;
+  color: #2f7c2f;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+/* Menú desplegable con mejor estilo */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  margin-top: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cada item de contacto */
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.contact-item:hover {
+  background-color: #f9f9ec;
+}
+
+.contact-item:last-child {
+  border-bottom: none;
+}
+
+/* Número de teléfono */
+.contact-number {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+/* Botones de acción dentro del contacto */
+.contact-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.edit-contact-btn, .delete-contact-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-contact-btn {
+  color: #e6851e;
+}
+
+.edit-contact-btn:hover {
+  background-color: rgba(230, 133, 30, 0.1);
+  transform: scale(1.05);
+}
+
+.delete-contact-btn {
+  color: #b42318;
+}
+
+.delete-contact-btn:hover {
+  background-color: rgba(180, 35, 24, 0.1);
+  transform: scale(1.05);
+}
+
+/* Opción de agregar contacto */
+.add-contact-option {
+  padding: 12px 16px;
+  text-align: center;
+  background-color: #f9f9ec;
+  color: #2f7c2f;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border-top: 1px solid #e8e4c9;
+}
+
+.add-contact-option:hover {
+  background-color: #efe9cf;
+  color: #236b23;
+}
+
+/* Cuando no hay contactos */
+.no-contacts {
+  padding: 12px 16px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}

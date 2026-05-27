@@ -39,6 +39,17 @@ export class ProfilePage implements OnInit {
   toastMessage = '';
   toastVariant: ToastVariant = 'info';
 
+  // Contactos
+  contactsDropdownOpen = false;
+  addContactModalOpen = false;
+  editContactModalOpen = false;
+  deleteContactModalOpen = false;
+  newContactNumber = '';
+  editContactNumber = '';
+  editContactId: number | null = null;
+  deleteContactId: number | null = null;
+  isSavingContact = false;
+
   constructor(
     private userService: UserService,
     private authService: AuthService,
@@ -220,6 +231,152 @@ export class ProfilePage implements OnInit {
 
   closeChangePasswordModal(): void {
     this.changePasswordModalOpen = false;
+  }
+
+  // ============ MÉTODOS PARA CONTACTOS ============
+
+  getContactsDisplayText(): string {
+    if (!this.user?.profile.contacts || this.user.profile.contacts.length === 0) {
+      return 'No hay teléfonos registrados';
+    }
+    if (this.contactsDropdownOpen) {
+      return 'Teléfonos registrados';
+    }
+    const firstContact = this.user.profile.contacts[0];
+    const count = this.user.profile.contacts.length;
+    if (count === 1) {
+      return firstContact.phoneNumber;
+    }
+    return `${firstContact.phoneNumber} (+${count - 1} más)`;
+  }
+
+  toggleContactsDropdown(): void {
+    this.contactsDropdownOpen = !this.contactsDropdownOpen;
+  }
+
+  openAddContactModal(): void {
+    this.newContactNumber = '';
+    this.addContactModalOpen = true;
+    this.contactsDropdownOpen = false;
+  }
+
+  closeAddContactModal(): void {
+    if (this.isSavingContact) return;
+    this.addContactModalOpen = false;
+    this.newContactNumber = '';
+  }
+
+  addContact(): void {
+    if (!this.newContactNumber.trim()) {
+      this.showToast('Ingrese un número de teléfono', 'error');
+      return;
+    }
+    
+    this.isSavingContact = true;
+    const userId = this.getUserId();
+    
+    this.userService.addContact(userId, this.newContactNumber.trim()).subscribe({
+      next: (updatedUser) => {
+        this.user = updatedUser;
+        this.isSavingContact = false;
+        this.closeAddContactModal();
+        this.showToast('Teléfono agregado correctamente', 'success');
+      },
+      error: () => {
+        this.isSavingContact = false;
+        this.showToast('Error al agregar el teléfono', 'error');
+      }
+    });
+  }
+
+  openEditContactModal(contact: { id: number; phoneNumber: string }): void {
+    this.editContactId = contact.id;
+    this.editContactNumber = contact.phoneNumber;
+    this.editContactModalOpen = true;
+    this.contactsDropdownOpen = false;
+  }
+
+  closeEditContactModal(): void {
+    if (this.isSavingContact) return;
+    this.editContactModalOpen = false;
+    this.editContactId = null;
+    this.editContactNumber = '';
+  }
+
+  updateContact(): void {
+  if (!this.editContactNumber.trim()) {
+    this.showToast('Ingrese un número de teléfono', 'error');
+    return;
+  }
+  
+  this.isSavingContact = true;
+  const userId = this.getUserId();
+  
+  // Enviar contactId y phoneNumber
+  this.userService.updateContact(
+    userId, 
+    this.editContactId!,      // contactId
+    this.editContactNumber.trim()  // phoneNumber
+  ).subscribe({
+    next: (updatedUser) => {
+      this.user = updatedUser;
+      this.isSavingContact = false;
+      this.closeEditContactModal();
+      this.showToast('Teléfono actualizado correctamente', 'success');
+    },
+    error: () => {
+      this.isSavingContact = false;
+      this.showToast('Error al actualizar el teléfono', 'error');
+    }
+  });
+}
+
+  openDeleteContactModal(contactId: number): void {
+    this.deleteContactId = contactId;
+    this.deleteContactModalOpen = true;
+    this.contactsDropdownOpen = false;
+  }
+
+  closeDeleteContactModal(): void {
+    this.deleteContactModalOpen = false;
+    this.deleteContactId = null;
+  }
+
+  confirmDeleteContact(): void {
+    this.closeDeleteContactModal();
+    this.isSavingContact = true;
+    
+    const userIdStr = localStorage.getItem('auth.userId');
+    if (!userIdStr) {
+      this.showToast('No se pudo identificar al usuario', 'error');
+      this.isSavingContact = false;
+      return;
+    }
+    
+    const userId = parseInt(userIdStr, 10);
+    
+    this.userService.deleteContact(userId, this.deleteContactId!).subscribe({
+      next: () => {
+        this.isSavingContact = false;
+        if (this.user) {
+          this.user.profile.contacts = this.user.profile.contacts.filter(
+            contact => contact.id !== this.deleteContactId
+          );
+        }
+        this.showToast('Teléfono eliminado correctamente', 'success');
+        this.deleteContactId = null;
+      },
+      error: (err) => {
+        console.error('Error deleting contact:', err);
+        this.isSavingContact = false;
+        this.showToast('Error al eliminar el teléfono', 'error');
+      }
+    });
+  }
+
+  private getUserId(): number {
+    const userIdStr = localStorage.getItem('auth.userId');
+    return userIdStr ? parseInt(userIdStr, 10) : 0;
   }
 
   private showToast(message: string, variant: ToastVariant = 'info'): void {

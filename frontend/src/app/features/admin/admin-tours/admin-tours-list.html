@@ -88,7 +88,7 @@
 
       <div class="tours-grid" *ngIf="!loading() && !error() && filteredTours().length > 0">
         @for (tour of filteredTours(); track tour.id) {
-          <app-tour-card
+          <!--<app-tour-card
             [tour]="tour"
             [showViewButton]="false"
             [showEditButton]="true"
@@ -97,7 +97,7 @@
             [showRemoveButton]="false"
             (edit)="editTour($event)"
             (delete)="deleteTour($event)">
-          </app-tour-card>
+          </app-tour-card>-->
         }
       </div>
     </main>
