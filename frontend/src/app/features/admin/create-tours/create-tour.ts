@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, Input, signal, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { AuthTokenService } from '../../../core/services/auth-token.service';
 import { LocationCatalogService } from '../../../core/services/location-catalog.service';
@@ -28,6 +28,23 @@ interface ImageInput {
 interface TourResponse {
   id: number;
   name: string;
+  description: string;
+  recommendations: string;
+  environment: string;
+  price: number;
+  location: {
+    city: string;
+    department: string;
+    country: string;
+  };
+  meetingPoint?: {
+    city: string;
+    department: string;
+    country: string;
+    address: string;
+  };
+  categoryIds: number[];
+  itineraryPlaceIds: number[];
 }
 
 @Component({
@@ -36,14 +53,19 @@ interface TourResponse {
   templateUrl: './create-tour.html',
   styleUrl: './create-tour.css',
 })
-export class CreateTour {
+export class CreateTour implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly authToken = inject(AuthTokenService);
   private readonly locationCatalog = inject(LocationCatalogService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly trackByIndex = (index: number): number => index;
+
+  // Modo edición
+  isEditMode = false;
+  tourId: number | null = null;
 
   // Ubicación
   readonly countries = signal<string[]>([]);
@@ -59,21 +81,22 @@ export class CreateTour {
   readonly newCategories = signal<string[]>([]);
   readonly loadingCategories = signal(true);
 
-  // Lugares disponibles para itinerario (vienen del backend)
+  // Lugares disponibles para itinerario
   readonly places = signal<Place[]>([]);
   readonly loadingPlaces = signal(false);
   readonly selectedPlaceIds = signal<number[]>([]);
 
-  // Galería de imágenes (se guardan después)
+  // Galería de imágenes
   readonly images = signal<ImageInput[]>([{ url: '', description: '' }]);
 
   // Estado del formulario
   readonly saving = signal(false);
+  readonly loading = signal(false);
   readonly uploadingImages = signal(false);
   readonly message = signal('');
   readonly error = signal('');
 
-  // Tour creado (para saber a qué tour agregar imágenes)
+  // Tour creado
   createdTourId: number | null = null;
   tourCreated = false;
 
@@ -103,6 +126,14 @@ export class CreateTour {
     this.loadCountries();
     this.loadCategories();
     this.loadPlaces();
+  }
+
+  ngOnInit(): void {
+    this.tourId = this.route.snapshot.params['id'];
+    if (this.tourId) {
+      this.isEditMode = true;
+      this.loadTourData();
+    }
   }
 
   // ============ UBICACIÓN ============
@@ -173,16 +204,16 @@ export class CreateTour {
   }
 
   // ============ PUNTO DE ENCUENTRO ============
-onMeetingPointCountryChange(value: string): void {
-  this.meetingPointCountry = value;
-  this.meetingPointDepartment = '';
-  this.meetingPointCity = '';
-}
+  onMeetingPointCountryChange(value: string): void {
+    this.meetingPointCountry = value;
+    this.meetingPointDepartment = '';
+    this.meetingPointCity = '';
+  }
 
-onMeetingPointDepartmentChange(value: string): void {
-  this.meetingPointDepartment = value;
-  this.meetingPointCity = '';
-}
+  onMeetingPointDepartmentChange(value: string): void {
+    this.meetingPointDepartment = value;
+    this.meetingPointCity = '';
+  }
 
   private loadCountries(): void {
     this.loadingCountries.set(true);
@@ -211,7 +242,8 @@ onMeetingPointDepartmentChange(value: string): void {
         this.categories.set(categories ?? []);
         this.loadingCategories.set(false);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error loading categories:', err);
         this.error.set('No fue posible cargar las categorías.');
         this.loadingCategories.set(false);
       },
@@ -279,44 +311,128 @@ onMeetingPointDepartmentChange(value: string): void {
     this.images.update((current) => current.filter((_, i) => i !== index));
   }
 
-  // Subir imágenes del tour creado
-  uploadImages(): void {
-    if (this.uploadingImages()) return;
-    if (!this.createdTourId) return;
+  // ============ CARGAR DATOS PARA EDICIÓN ============
+  loadTourData(): void {
+    this.loading.set(true);
+    this.error.set('');
 
-    const validImages = this.images()
-      .filter(img => img.url.trim())
-      .map(img => ({
-        url: img.url.trim(),
-        description: img.description.trim()
-      }));
+    this.http.get<TourResponse>(`/api/tours/${this.tourId}`, { headers: this.authToken.getAuthHeaders() }).subscribe({
+      next: (tour) => {
+        this.name = tour.name;
+        this.description = tour.description || '';
+        this.recommendations = tour.recommendations || '';
+        this.environment = tour.environment as Environment;
+        this.price = tour.price;
 
-    if (validImages.length === 0) {
-      this.error.set('Agrega al menos una URL de imagen válida.');
+        if (tour.location) {
+          this.country = tour.location.country || '';
+          this.department = tour.location.department || '';
+          this.city = tour.location.city || '';
+          if (this.country) this.onCountryChange(this.country);
+          if (this.department) this.onDepartmentChange(this.department);
+        }
+
+        if (tour.meetingPoint) {
+          this.meetingPointCountry = tour.meetingPoint.country || '';
+          this.meetingPointDepartment = tour.meetingPoint.department || '';
+          this.meetingPointCity = tour.meetingPoint.city || '';
+          this.meetingPointAddress = tour.meetingPoint.address || '';
+        }
+
+        this.selectedCategoryIds.set(tour.categoryIds || []);
+        this.selectedPlaceIds.set(tour.itineraryPlaceIds || []);
+
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading tour:', err);
+        this.error.set('No fue posible cargar el recorrido.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  // ============ ACTUALIZAR TOUR (EDICIÓN) ============
+  updateTour(): void {
+    if (this.saving()) return;
+
+    this.error.set('');
+    this.message.set('');
+
+    if (!this.authToken.hasToken()) {
+      this.error.set('Debes iniciar sesión como administrador.');
       return;
     }
 
-    this.uploadingImages.set(true);
-    this.error.set('');
-    const headers = this.authToken.getAuthHeaders();
+    if (!this.name.trim() || !this.city.trim() || !this.department.trim() || !this.country.trim()) {
+      this.error.set('Completa nombre, ciudad, departamento y país.');
+      return;
+    }
 
-    const imageRequests = validImages.map(image =>
-      this.http.post(`/api/tours/${this.createdTourId}/media/photos`, image, { headers })
+    if (this.selectedPlaceIds().length === 0) {
+      this.error.set('Selecciona al menos un lugar para el itinerario.');
+      return;
+    }
+
+    if (this.selectedCategoryIds().length === 0 && this.newCategories().length === 0) {
+      this.error.set('Selecciona o crea al menos una categoría.');
+      return;
+    }
+
+    this.saving.set(true);
+    const headers = this.authToken.getAuthHeaders();
+    const newCategoryRequests = this.newCategories().map((name) =>
+      this.http.post<Category>('/api/categories', { name }, { headers })
     );
 
-    forkJoin(imageRequests).subscribe({
-      next: () => {
-        this.uploadingImages.set(false);
-        this.message.set('Imágenes agregadas exitosamente.');
-        setTimeout(() => {
-          this.router.navigate(['/admin/tours']);
-        }, 2000);
-      },
-      error: () => {
-        this.uploadingImages.set(false);
-        this.error.set('Error al subir las imágenes. Intenta nuevamente.');
-      }
-    });
+    const categoriesRequest = newCategoryRequests.length > 0 ? forkJoin(newCategoryRequests) : of([]);
+
+    categoriesRequest
+      .pipe(
+        switchMap((createdCategories) => {
+          const categoryIds = [
+            ...this.selectedCategoryIds(),
+            ...createdCategories.map((category) => category.id),
+          ];
+
+          const requestBody = {
+            name: this.name.trim(),
+            description: this.description.trim(),
+            recommendations: this.recommendations.trim(),
+            environment: this.environment,
+            price: this.price,
+            categoryIds: categoryIds,
+            itineraryPlaceIds: this.selectedPlaceIds(),
+            location: {
+              city: this.city.trim(),
+              department: this.department.trim(),
+              country: this.country.trim(),
+            },
+            meetingPoint: {
+              city: this.meetingPointCity.trim(),
+              department: this.meetingPointDepartment.trim(),
+              country: this.meetingPointCountry.trim(),
+              address: this.meetingPointAddress.trim(),
+            },
+          };
+
+          return this.http.patch(`/api/tours/${this.tourId}`, requestBody, { headers });
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.message.set('Recorrido actualizado correctamente.');
+          setTimeout(() => {
+            this.router.navigate(['/admin/recorridos']);
+          }, 2000);
+        },
+        error: (err) => {
+          console.error('Error updating tour:', err);
+          this.saving.set(false);
+          this.error.set('No fue posible actualizar el recorrido.');
+        },
+      });
   }
 
   // ============ CREAR TOUR ============
@@ -362,7 +478,6 @@ onMeetingPointDepartmentChange(value: string): void {
             ...createdCategories.map((category) => category.id),
           ];
 
-          // Construir el body según CreateTourRequest del backend
           const requestBody = {
             name: this.name.trim(),
             description: this.description.trim(),
@@ -393,8 +508,6 @@ onMeetingPointDepartmentChange(value: string): void {
           this.createdTourId = tour.id;
           this.tourCreated = true;
           this.message.set(`Recorrido "${tour.name}" creado exitosamente. Ahora puedes agregar imágenes.`);
-          
-          // Limpiar formulario de imágenes
           this.images.set([{ url: '', description: '' }]);
         },
         error: (err) => {
@@ -405,9 +518,62 @@ onMeetingPointDepartmentChange(value: string): void {
       });
   }
 
+  // Subir imágenes del tour creado
+  uploadImages(): void {
+    if (this.uploadingImages()) return;
+    if (!this.createdTourId) return;
+
+    const validImages = this.images()
+      .filter(img => img.url.trim())
+      .map(img => ({
+        url: img.url.trim(),
+        description: img.description.trim()
+      }));
+
+    if (validImages.length === 0) {
+      this.error.set('Agrega al menos una URL de imagen válida.');
+      return;
+    }
+
+    this.uploadingImages.set(true);
+    this.error.set('');
+    const headers = this.authToken.getAuthHeaders();
+
+    const imageRequests = validImages.map(image =>
+      this.http.post(`/api/tours/${this.createdTourId}/media/photos`, image, { headers })
+    );
+
+    forkJoin(imageRequests).subscribe({
+      next: () => {
+        this.uploadingImages.set(false);
+        this.message.set('Imágenes agregadas exitosamente.');
+        setTimeout(() => {
+          this.router.navigate(['/admin/recorridos']);
+        }, 2000);
+      },
+      error: () => {
+        this.uploadingImages.set(false);
+        this.error.set('Error al subir las imágenes. Intenta nuevamente.');
+      }
+    });
+  }
+
+  // ============ ENVÍO ============
+  onSubmit(): void {
+    if (this.isEditMode) {
+      this.updateTour();
+    } else {
+      this.createTour();
+    }
+  }
+
   // ============ NAVEGACIÓN ============
+  goBack(): void {
+    this.router.navigate(['/admin/recorridos']);
+  }
+
   goToAdminTours(): void {
-    this.router.navigate(['/admin/tours']);
+    this.router.navigate(['/admin/recorridos']);
   }
 
   resetForm(): void {

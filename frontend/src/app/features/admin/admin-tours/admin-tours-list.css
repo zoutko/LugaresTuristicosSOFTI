@@ -1,0 +1,145 @@
+.admin-tours-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.admin-header h1 {
+  color: #2f7c2f;
+  margin: 0;
+}
+
+.btn-create {
+  background-color: #2f7c2f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-create:hover {
+  background-color: #236b23;
+  transform: translateY(-2px);
+}
+
+.tours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.tour-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tour-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.tour-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.tour-location {
+  font-size: 14px;
+  color: #e6851e;
+  margin: 0 0 8px 0;
+}
+
+.tour-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2f7c2f;
+  margin: 8px 0;
+}
+
+.tour-environment {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.tour-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-edit {
+  background-color: #e6851e;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  flex: 1;
+}
+
+.btn-edit:hover {
+  background-color: #d47719;
+}
+
+.btn-delete {
+  background-color: #b42318;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  flex: 1;
+}
+
+.btn-delete:hover {
+  background-color: #8b1a12;
+}
+
+.loading, .error, .empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.error {
+  color: #b42318;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .tours-grid {
+    grid-template-columns: 1fr;
+  }
+}
