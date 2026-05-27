@@ -1,19 +1,51 @@
-.admin-tours-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
+/* Reutiliza los mismos estilos de tour-list.css */
+.tours-page {
+  width: 100%;
+  min-height: calc(100vh - 144px);
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9ec;
 }
 
-.admin-header {
+.tours-layout {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin: 0;
+  padding: 20px 0 0 0;
+  background-color: #f9f9ec;
+}
+
+.filters-sidebar {
+  width: 380px;
+  flex-shrink: 0;
+  background: white;
+  padding: 20px;
+  margin-bottom: 500px;
+  border-right: 1px solid #e0e0e0;
+  box-sizing: border-box;
+}
+
+.tours-content {
+  flex: 1;
+  min-width: 0;
+  padding: 0 100px;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.admin-actions-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
-.admin-header h1 {
+.admin-actions-header h1 {
   color: #2f7c2f;
   margin: 0;
+  font-size: 24px;
 }
 
 .btn-create {
@@ -34,16 +66,18 @@
 
 .tours-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(2, minmax(400px, 1fr));
+  gap: 28px;
+  width: 100%;
+  padding: 20px 0;
 }
 
 .tour-card {
   background: white;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .tour-card:hover {
@@ -51,39 +85,65 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
-.tour-name {
+.tour-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.tour-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tour-content {
+  padding: 16px;
+}
+
+.tour-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #e6851e;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.tour-title {
   font-size: 18px;
   font-weight: 700;
   color: #1a1a1a;
   margin: 0 0 8px 0;
 }
 
-.tour-location {
-  font-size: 14px;
-  color: #e6851e;
-  margin: 0 0 8px 0;
+.tour-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  background-color: #efe9cf;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #2f7c2f;
 }
 
 .tour-price {
   font-size: 20px;
   font-weight: 700;
   color: #2f7c2f;
-  margin: 8px 0;
-}
-
-.tour-environment {
-  font-size: 12px;
-  color: #666;
-  margin: 0;
-  text-transform: uppercase;
+  margin-bottom: 16px;
 }
 
 .tour-actions {
   display: flex;
   gap: 12px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
 }
 
 .btn-edit {
@@ -128,18 +188,167 @@
   color: #b42318;
 }
 
-.empty-state p {
-  color: #666;
-  margin-bottom: 20px;
+/* Estilos de filtros */
+.filters-sidebar h2 {
+  font-size: 18px;
+  color: #2f7c2f;
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #efe9cf;
 }
 
-@media (max-width: 768px) {
-  .admin-header {
-    flex-direction: column;
-    gap: 16px;
+.filter-section {
+  margin-bottom: 24px;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #2f7c2f;
+}
+
+.price-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.price-input input[type="range"] {
+  width: 100%;
+  accent-color: #2f7c2f;
+}
+
+.price-badge {
+  font-size: 13px;
+  color: #2f7c2f;
+  font-weight: 600;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+}
+
+.checkbox-item input {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: #2f7c2f;
+}
+
+.btn-clear {
+  width: 100%;
+  padding: 8px;
+  background-color: #efe9cf;
+  color: #2f7c2f;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+.btn-clear:hover {
+  background-color: #e8e1b8;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1200px) {
+  .tours-grid {
+    grid-template-columns: repeat(2, minmax(350px, 1fr));
   }
-  
+  .tours-content {
+    padding: 0 50px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .filters-sidebar {
+    width: 280px;
+  }
+  .tours-content {
+    padding: 0 30px;
+  }
+}
+
+@media (max-width: 900px) {
+  .tours-layout {
+    flex-direction: column;
+  }
+  .filters-sidebar {
+    width: 100%;
+    border-right: none;
+    margin-bottom: 0;
+  }
+  .tours-content {
+    padding: 0 20px;
+  }
   .tours-grid {
     grid-template-columns: 1fr;
   }
+  .admin-actions-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+}
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.admin-header h1 {
+  color: #2f7c2f;
+  margin: 0;
+  font-size: 24px;
+}
+
+.btn-create {
+  background-color: #2f7c2f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-create:hover {
+  background-color: #236b23;
+  transform: translateY(-2px);
 }

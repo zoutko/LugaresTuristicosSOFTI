@@ -1,99 +1,112 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { AuthTokenService } from '../../../core/services/auth-token.service';
-import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
+<div class="tours-page">
+  <div class="tours-layout">
+    <aside class="filters-sidebar">
+      <h2><span class="filter-icon" aria-hidden="true"></span>Filtros</h2>
 
-// Interfaz completa que coincide con el backend
-interface Tour {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  environment: string;
-  location: {
-    city: string;
-    department: string;
-    country: string;
-  };
-}
+      <div class="filter-section">
+        <label class="filter-label">Buscar</label>
+        <input
+          type="text"
+          class="filter-input"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          placeholder="Nombre o ubicación del recorrido"
+        />
+      </div>
 
-@Component({
-  selector: 'app-admin-tours-list',
-  standalone: true,
-  imports: [CommonModule, ToastComponent],
-  templateUrl: './admin-tours-list.html',
-  styleUrls: ['./admin-tours-list.css']
-})
-export class AdminToursListComponent implements OnInit {
-  private readonly http = inject(HttpClient);
-  private readonly router = inject(Router);
-  private readonly authToken = inject(AuthTokenService);
+      <div class="filter-section filter-section--divider">
+        <label class="filter-label">Precio máximo</label>
+        <div class="price-input">
+          <span class="price-badge">{{ maxPrice | number:'1.0-0' }}</span>
+          <input
+            type="range"
+            [min]="priceMin"
+            [max]="priceMax"
+            [step]="priceStep"
+            [(ngModel)]="maxPrice"
+            (input)="onPriceChange()"
+          />
+        </div>
+      </div>
 
-  tours = signal<Tour[]>([]);
-  loading = signal(true);
-  error = signal('');
+      <div class="filter-section filter-section--divider">
+        <label class="filter-label">Categoría</label>
+        <div class="checkbox-group checkbox-grid">
+          @for (cat of availableCategories; track cat) {
+            <label class="checkbox-item">
+              <input
+                type="checkbox"
+                [checked]="selectedCategories.includes(cat)"
+                (change)="toggleCategory(cat)"
+              />
+              <span>{{ cat }}</span>
+            </label>
+          }
+        </div>
+      </div>
 
-  toastOpen = false;
-  toastMessage = '';
-  toastVariant: ToastVariant = 'info';
+      <div class="filter-section environment-section">
+        <label class="filter-label">Entorno</label>
+        <div class="checkbox-group">
+          @for (env of environments; track env) {
+            <label class="checkbox-item">
+              <input
+                type="checkbox"
+                [checked]="selectedEnvironments.includes(env)"
+                (change)="toggleEnvironment(env)"
+              />
+              <span>{{ environmentLabel(env) }}</span>
+            </label>
+          }
+        </div>
+      </div>
 
-  ngOnInit(): void {
-    this.loadTours();
-  }
+      <button class="btn-clear" (click)="clearFilters()">
+        Limpiar Filtros
+      </button>
+    </aside>
 
-  loadTours(): void {
-    this.loading.set(true);
-    this.error.set('');
+    <main class="tours-content">
+      <!-- Header de admin -->
+      <div class="admin-header">
+        <h1>Gestionar Recorridos</h1>
+        <button class="btn-create" (click)="goToCreate()">+ Nuevo Recorrido</button>
+      </div>
 
-    this.http.get<Tour[]>('/api/tours', { headers: this.authToken.getAuthHeaders() }).subscribe({
-      next: (tours) => {
-        this.tours.set(tours);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading tours:', err);
-        this.error.set('No fue posible cargar los recorridos.');
-        this.loading.set(false);
-      }
-    });
-  }
+      <div *ngIf="loading()" class="loading">
+        Cargando recorridos...
+      </div>
 
-  editTour(tourId: number): void {
-    this.router.navigate(['/admin/recorridos', tourId, 'editar']);
-  }
+      <div *ngIf="error()" class="error">
+        {{ error() }}
+      </div>
 
-  deleteTour(tourId: number): void {
-    if (confirm('¿Estás seguro de eliminar este recorrido? Esta acción no se puede deshacer.')) {
-      this.http.delete(`/api/tours/${tourId}`, { headers: this.authToken.getAuthHeaders() }).subscribe({
-        next: () => {
-          this.showToast('Recorrido eliminado exitosamente', 'success');
-          this.loadTours();
-        },
-        error: (err) => {
-          console.error('Error deleting tour:', err);
-          this.showToast('Error al eliminar el recorrido', 'error');
+      <div *ngIf="!loading() && !error() && filteredTours().length === 0" class="empty-state">
+        <p>No se encontraron recorridos con los filtros seleccionados.</p>
+        <button class="btn-clear" (click)="clearFilters()">Limpiar Filtros</button>
+      </div>
+
+      <div class="tours-grid" *ngIf="!loading() && !error() && filteredTours().length > 0">
+        @for (tour of filteredTours(); track tour.id) {
+          <app-tour-card
+            [tour]="tour"
+            [showViewButton]="false"
+            [showEditButton]="true"
+            [showDeleteButton]="true"
+            [showSaveButton]="false"
+            [showRemoveButton]="false"
+            (edit)="editTour($event)"
+            (delete)="deleteTour($event)">
+          </app-tour-card>
         }
-      });
-    }
-  }
+      </div>
+    </main>
+  </div>
+</div>
 
-  goToCreate(): void {
-    this.router.navigate(['/admin/recorridos/crear']);
-  }
-
-  goToEdit(tourId: number): void {
-    this.router.navigate(['/admin/recorridos', tourId, 'editar']);
-  }
-
-  private showToast(message: string, variant: ToastVariant = 'info'): void {
-    this.toastMessage = message;
-    this.toastVariant = variant;
-    this.toastOpen = true;
-  }
-
-  closeToast(): void {
-    this.toastOpen = false;
-  }
-}
+<app-toast
+  [open]="toastOpen"
+  [message]="toastMessage"
+  [variant]="toastVariant"
+  (closed)="closeToast()">
+</app-toast>

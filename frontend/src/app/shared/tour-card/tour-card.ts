@@ -17,6 +17,7 @@ export class TourCardComponent {
   @Output() remove = new EventEmitter<number>();
   @Output() save = new EventEmitter<number>();
   @Output() removeSaved = new EventEmitter<number>();
+  
 
   readonly fallbackImage =
     'https://images.unsplash.com/photo-1583531352515-8884af319dc1?auto=format&fit=crop&w=900&q=80';

@@ -15,6 +15,7 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+
 .tour-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-card-hover);
