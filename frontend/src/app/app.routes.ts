@@ -9,6 +9,8 @@ import { Home } from './features/home/home';
 import { CreateTouristPlace } from './features/admin/create-tourist-place/create-tourist-place';
 import { AdminTouristPlaces } from './features/admin/admin-tourist-places/admin-tourist-places';
 import { EditTouristPlace } from './features/admin/edit-tourist-place/edit-tourist-place';
+import { adminToursRedirectGuard } from './core/guards/admin-tours-redirect-guard';
+import { AdminToursListComponent } from './features/admin/admin-tours/admin-tours-list';
 import { adminGuard } from './core/guards/admin.guard';
 import { adminPlacesRedirectGuard } from './core/guards/admin-places-redirect.guard';
 import { TourListComponent } from './features/tours/tour-list/tour-list';
@@ -21,12 +23,13 @@ export const routes: Routes = [
     { path: 'admin/lugares/crear', component: CreateTouristPlace, canActivate: [adminGuard] },
     { path: 'admin/lugares/:id/editar', component: EditTouristPlace, canActivate: [adminGuard] },
     { path: 'admin/recorridos/crear', component: CreateTour, canActivate: [adminGuard] },
-    { path: 'admin/recorridos/:id/editar', component: EditTouristPlace, canActivate: [adminGuard] },
+    { path: 'admin/recorridos', component: AdminToursListComponent, canActivate: [adminGuard] },
+    { path: 'admin/recorridos/:id/editar', component: CreateTour, canActivate: [adminGuard] },
     { path: 'lugares/:id', component: TouristPlace },
     { path: 'lugares', component: TouristPlaces, canActivate: [adminPlacesRedirectGuard] },
     { path: 'profile', component: ProfilePage },
     { path: 'recorridos-guardados', component: SavedToursListComponent},
-    { path: 'recorridos', component: TourListComponent },
+    { path: 'recorridos', component: TourListComponent, canActivate: [adminToursRedirectGuard] },
     { path: 'recorridos/:id', component: TourDetailComponent },
     { path: 'tour/:id', component: TourDetailComponent },
     { path: 'auth/change-password', component: ChangePasswordPage },

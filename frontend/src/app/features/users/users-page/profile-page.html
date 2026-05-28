@@ -23,21 +23,47 @@
 <div class="two-columns-container">
     <div class="two-columns-grid">
         <!-- Columna izquierda - Información Personal -->
-        <div class="info-card card" *ngIf="!loading && !error && user">
-            <h3 class="card-title">Información Personal</h3>
-            
-            <div class="info-field">
-                <div class="field-label">Nombre:</div>
-                <div class="field-value">{{ user.profile.name }}</div>
-                <button class="edit-btn edit-btn-green" (click)="openEditField('nombre', user.profile.name)">✎</button>
-            </div>
-            
-            <div class="info-field">
-                <div class="field-label">Documento: </div>
-                <div class="field-value">{{ user.profile.document }}</div>
-                <button class="edit-btn edit-btn-green" (click)="openEditField('documento', user.profile.document)">✎</button>
-            </div>
+        <!-- Columna izquierda - Información Personal -->
+<div class="info-card card" *ngIf="!loading && !error && user">
+  <h3 class="card-title">Información Personal</h3>
+  
+  <div class="info-field">
+    <div class="field-label">Nombre:</div>
+    <div class="field-value">{{ user.profile.name }}</div>
+    <button class="edit-btn edit-btn-green" (click)="openEditField('nombre', user.profile.name)">✎</button>
+  </div>
+  
+  <div class="info-field">
+    <div class="field-label">Documento:</div>
+    <div class="field-value">{{ user.profile.document }}</div>
+    <button class="edit-btn edit-btn-green" (click)="openEditField('documento', user.profile.document)">✎</button>
+  </div>
+  
+  <!-- Teléfonos - Lista desplegable -->
+  <div class="info-field contacts-field">
+    <div class="field-label">Teléfonos:</div>
+    <div class="field-value contacts-list">
+      <div class="contacts-dropdown" (click)="toggleContactsDropdown()">
+        <span class="dropdown-trigger">
+          {{ getContactsDisplayText() }}
+          <span class="dropdown-arrow">{{ contactsDropdownOpen ? '▲' : '▼' }}</span>
+        </span>
+      </div>
+      <div class="dropdown-menu" *ngIf="contactsDropdownOpen">
+        <div class="contact-item" *ngFor="let contact of user.profile.contacts">
+          <span class="contact-number">{{ contact.phoneNumber }}</span>
+          <div class="contact-actions">
+            <button class="edit-contact-btn" (click)="openEditContactModal(contact)">✎</button>
+            <button class="delete-contact-btn" (click)="openDeleteContactModal(contact.id)">🗑️</button>
+          </div>
         </div>
+        <div class="add-contact-option" (click)="openAddContactModal()">
+          + Agregar teléfono
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="actions-card card" *ngIf="!loading && !error && user">
   <div class="action-buttons">
@@ -111,6 +137,64 @@
     </div>
   </div>
 </div>
+<!-- Modal para agregar contacto -->
+<div class="modal-overlay" *ngIf="addContactModalOpen" (click)="closeAddContactModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Agregar teléfono</h3>
+    <input 
+      type="tel" 
+      class="edit-input"
+      [(ngModel)]="newContactNumber"
+      placeholder="Ingrese el número telefónico"
+    />
+    <div class="modal-buttons">
+      <button class="btn-cancel" (click)="closeAddContactModal()">Cancelar</button>
+      <button class="btn-save" (click)="addContact()" [disabled]="isSavingContact">
+        {{ isSavingContact ? 'Guardando...' : 'Agregar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para editar contacto -->
+<div class="modal-overlay" *ngIf="editContactModalOpen" (click)="closeEditContactModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Editar teléfono</h3>
+    <input 
+      type="tel" 
+      class="edit-input"
+      [(ngModel)]="editContactNumber"
+      placeholder="Ingrese el nuevo número"
+    />
+    <div class="modal-buttons">
+      <button class="btn-cancel" (click)="closeEditContactModal()">Cancelar</button>
+      <button class="btn-save" (click)="updateContact()" [disabled]="isSavingContact">
+        {{ isSavingContact ? 'Guardando...' : 'Actualizar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para confirmar eliminar contacto -->
+<div class="modal-overlay" *ngIf="deleteContactModalOpen" (click)="closeDeleteContactModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>⚠️ ¿Eliminar teléfono?</h3>
+    <p>¿Estás seguro de que deseas eliminar este número de teléfono?</p>
+    <div class="modal-buttons">
+      <button class="btn-cancel" (click)="closeDeleteContactModal()">Cancelar</button>
+      <button class="btn-confirm-delete" (click)="confirmDeleteContact()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<app-change-password-modal
+  [open]="changePasswordModalOpen"
+  [isSubmitting]="false"
+  [errorMessage]="''"
+  (closed)="closeChangePasswordModal()"
+  (submitted)="handleChangePassword($event)"
+></app-change-password-modal>
+
 
 <app-change-password-modal
   [open]="changePasswordModalOpen"

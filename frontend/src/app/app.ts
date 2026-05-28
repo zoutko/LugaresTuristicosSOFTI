@@ -62,6 +62,8 @@ export class App {
     this.closeUserMenu();
   }
 
+
+  
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.closeUserMenu();

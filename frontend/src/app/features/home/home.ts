@@ -76,7 +76,7 @@ export class Home {
 
   getCategories(tour: Tour): string[] {
     const categories = tour.categories?.filter(Boolean) ?? [];
-    return categories.length > 0 ? categories.slice(0, 2) : ['Historico', 'Recreativo'];
+    return categories.slice(0, 2);
   }
 
   formatPrice(price: number): string {
