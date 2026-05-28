@@ -1,11 +1,11 @@
 <section class="admin-tour-shell" aria-label="Crear recorrido turístico">
   <div class="admin-heading">
-    <span>Administrador</span>
-    <h1>Registrar Recorrido Turístico</h1>
-    <p>Registra la información principal, ubicación, categorías, itinerario, tarifas e imágenes del recorrido.</p>
-  </div>
+  <span>Administrador</span>
+  <h1>{{ isEditMode ? 'Editar Recorrido Turístico' : 'Registrar Recorrido Turístico' }}</h1>
+  <p>{{ isEditMode ? 'Edita la información del recorrido.' : 'Registra la información principal, ubicación, categorías, lugares del itinerario y tarifa del recorrido.' }}</p>
+</div>
 
-  <form class="tour-form" (ngSubmit)="createTour()">
+  <form class="tour-form" (ngSubmit)="onSubmit()">
     <div class="form-grid">
       
       <!-- Información general -->
@@ -257,8 +257,8 @@
 
     <div class="form-actions">
       <button class="submit-button" type="submit" [disabled]="saving()">
-        {{ saving() ? 'Guardando...' : 'Crear Recorrido' }}
-      </button>
+        {{isEditMode ? (saving() ? 'Actualizando...' : 'Actualizar Recorrido') : (saving() ? 'Guardando...' : 'Crear Recorrido') }}
+    </button>
     </div>
   </form>
 </section>

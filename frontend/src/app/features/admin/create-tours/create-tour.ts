@@ -10,6 +10,22 @@ import { LocationCatalogService } from '../../../core/services/location-catalog.
 
 type Environment = 'INTERIOR' | 'MIXED' | 'EXTERIOR';
 
+interface AlbumPhoto {
+  filePath: string;
+  description: string;
+  id?: number;
+  position?: number;
+}
+
+interface AlbumResponse {
+  id?: number;
+  title?: string;
+  currentIndex?: number;
+  totalPhotos?: number;
+  currentPhoto?: AlbumPhoto;
+  photos?: AlbumPhoto[];
+}
+
 interface Category {
   id: number;
   name: string;
@@ -32,19 +48,12 @@ interface TourResponse {
   recommendations: string;
   environment: string;
   price: number;
-  location: {
-    city: string;
-    department: string;
-    country: string;
-  };
-  meetingPoint?: {
-    city: string;
-    department: string;
-    country: string;
-    address: string;
-  };
-  categoryIds: number[];
-  itineraryPlaceIds: number[];
+  location: string;      // ← Es un string, ej: "Medellín, Antioquia, Colombia"
+  meetingPoint: string;   // ← Es un string, ej: "Parque de las Luces, Medellín, Antioquia, Colombia"
+  categories: string[];   // ← Array de nombres de categorías
+  itinerary: Array<{ touristPlaceId: number; position?: number }>;
+  album?: any;
+  tourOffer?: any;
 }
 
 @Component({
@@ -313,45 +322,114 @@ export class CreateTour implements OnInit {
 
   // ============ CARGAR DATOS PARA EDICIÓN ============
   loadTourData(): void {
-    this.loading.set(true);
-    this.error.set('');
+  this.loading.set(true);
+  this.error.set('');
 
-    this.http.get<TourResponse>(`/api/tours/${this.tourId}`, { headers: this.authToken.getAuthHeaders() }).subscribe({
-      next: (tour) => {
-        this.name = tour.name;
-        this.description = tour.description || '';
-        this.recommendations = tour.recommendations || '';
-        this.environment = tour.environment as Environment;
-        this.price = tour.price;
+  this.http.get<TourResponse>(`/api/tours/${this.tourId}`, { headers: this.authToken.getAuthHeaders() }).subscribe({
+    next: (tour) => {
+      console.log('=== TOUR RECIBIDO ===', tour);
+      
+      // Datos básicos
+      this.name = tour.name;
+      this.description = tour.description || '';
+      this.recommendations = tour.recommendations || '';
+      this.environment = tour.environment as Environment;
+      this.price = tour.price;
 
-        if (tour.location) {
-          this.country = tour.location.country || '';
-          this.department = tour.location.department || '';
-          this.city = tour.location.city || '';
-          if (this.country) this.onCountryChange(this.country);
-          if (this.department) this.onDepartmentChange(this.department);
+      // ============ UBICACIÓN (string) ============
+      if (tour.location && typeof tour.location === 'string') {
+        const parts = tour.location.split(',').map(p => p.trim());
+        this.city = parts[0] || '';
+        this.department = parts[1] || '';
+        this.country = parts[2] || '';
+        console.log('Ubicación parseada:', { city: this.city, department: this.department, country: this.country });
+        
+        // Cargar selectores
+        if (this.country) {
+          this.onCountryChange(this.country);
+          if (this.department) {
+            setTimeout(() => {
+              this.onDepartmentChange(this.department);
+            }, 300);
+          }
         }
+      }
 
-        if (tour.meetingPoint) {
-          this.meetingPointCountry = tour.meetingPoint.country || '';
-          this.meetingPointDepartment = tour.meetingPoint.department || '';
-          this.meetingPointCity = tour.meetingPoint.city || '';
-          this.meetingPointAddress = tour.meetingPoint.address || '';
+      // ============ PUNTO DE ENCUENTRO (string) ============
+      if (tour.meetingPoint && typeof tour.meetingPoint === 'string') {
+        const parts = tour.meetingPoint.split(',').map(p => p.trim());
+        if (parts.length === 4) {
+          this.meetingPointAddress = parts[0] || '';
+          this.meetingPointCity = parts[1] || '';
+          this.meetingPointDepartment = parts[2] || '';
+          this.meetingPointCountry = parts[3] || '';
+        } else if (parts.length === 3) {
+          this.meetingPointCity = parts[0] || '';
+          this.meetingPointDepartment = parts[1] || '';
+          this.meetingPointCountry = parts[2] || '';
+          this.meetingPointAddress = '';
+        } else if (parts.length === 2) {
+          this.meetingPointCity = parts[0] || '';
+          this.meetingPointCountry = parts[1] || '';
+          this.meetingPointDepartment = '';
+          this.meetingPointAddress = '';
+        } else {
+          this.meetingPointCity = parts[0] || '';
+          this.meetingPointDepartment = '';
+          this.meetingPointCountry = '';
+          this.meetingPointAddress = '';
         }
+        console.log('Punto de encuentro parseado:', {
+          address: this.meetingPointAddress,
+          city: this.meetingPointCity,
+          department: this.meetingPointDepartment,
+          country: this.meetingPointCountry
+        });
+      }
 
-        this.selectedCategoryIds.set(tour.categoryIds || []);
-        this.selectedPlaceIds.set(tour.itineraryPlaceIds || []);
+      // ============ CATEGORÍAS ============
+      // tour.categories es un array de strings (nombres)
+      // Necesitamos convertir nombres a IDs
+      if (tour.categories && Array.isArray(tour.categories)) {
+        const categoryIds: number[] = [];
+        this.categories().forEach(cat => {
+          if (tour.categories.includes(cat.name)) {
+            categoryIds.push(cat.id);
+          }
+        });
+        this.selectedCategoryIds.set(categoryIds);
+        console.log('Categorías seleccionadas IDs:', categoryIds);
+      }
 
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading tour:', err);
-        this.error.set('No fue posible cargar el recorrido.');
-        this.loading.set(false);
-      },
-    });
-  }
+      // ============ ITINERARIO (LUGARES) ============
+      if (tour.itinerary && Array.isArray(tour.itinerary)) {
+        const placeIds = tour.itinerary
+          .map(item => item.touristPlaceId)
+          .filter(id => id);
+        this.selectedPlaceIds.set(placeIds);
+        console.log('Lugares seleccionados IDs:', placeIds);
+      }
 
+      // ============ IMÁGENES ============
+      // ============ IMÁGENES ============
+if (tour.album && tour.album.photos && Array.isArray(tour.album.photos) && tour.album.photos.length > 0) {
+  const imagesList = tour.album.photos.map((photo: AlbumPhoto) => ({
+    url: photo.filePath || '',
+    description: photo.description || ''
+  }));
+  this.images.set(imagesList);
+  console.log('Imágenes cargadas:', imagesList);
+}
+
+      this.loading.set(false);
+    },
+    error: (err) => {
+      console.error('Error loading tour:', err);
+      this.error.set('No fue posible cargar el recorrido.');
+      this.loading.set(false);
+    },
+  });
+}
   // ============ ACTUALIZAR TOUR (EDICIÓN) ============
   updateTour(): void {
     if (this.saving()) return;
