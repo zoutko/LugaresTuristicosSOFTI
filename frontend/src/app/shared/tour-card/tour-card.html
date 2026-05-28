@@ -37,9 +37,10 @@
           <span>Por persona</span>
         </div>
 
-        <button type="button" class="btn-view" (click)="onView()">Ver</button>
+        <button type="button" class="btn-view" (click)="onView()" *ngIf="mode === 'view'">Ver</button>
         <button type="button" class="btn-remove" *ngIf="showRemoveButton" (click)="onRemove()">Eliminar</button>
-        
+        <button type="button" class="btn-edit" *ngIf="showEditButton">Editar</button>
+        <button type="button" class="btn-delete" *ngIf="showDeleteButton">Eliminar</button>
       </div>
     </div>
   </div>

@@ -12,11 +12,16 @@ import { TourCard } from '../../core/models/tour-model';
 export class TourCardComponent {
   @Input() tour!: TourCard;
   @Input() showRemoveButton = false;
+  @Input() showViewButton = true;
+  @Input() showEditButton = false
+  @Input() showDeleteButton = false;
+  @Input() showSaveButton = false;
   @Input() isSaved = false;
   @Output() view = new EventEmitter<number>();
   @Output() remove = new EventEmitter<number>();
   @Output() save = new EventEmitter<number>();
   @Output() removeSaved = new EventEmitter<number>();
+  @Input() mode: 'view' | 'manage' = 'view';
   
 
   readonly fallbackImage =
