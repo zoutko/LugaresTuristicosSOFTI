@@ -33,10 +33,36 @@ export class TourCardComponent {
   readonly fallbackImage =
     'https://images.unsplash.com/photo-1583531352515-8884af319dc1?auto=format&fit=crop&w=900&q=80';
 
-  get locationLabel(): string {
+  /*get locationLabel(): string {
     return [this.tour.city, this.tour.country].filter(Boolean).join(', ');
+  }*/
+get locationLabel(): string {
+  // Prioridad: city + country
+  if (this.tour.city && this.tour.country) {
+    return `${this.tour.city}, ${this.tour.country}`;
   }
-
+  // Si tiene city sola
+  if (this.tour.city) {
+    return this.tour.city;
+  }
+  // Si tiene country sola
+  if (this.tour.country) {
+    return this.tour.country;
+  }
+  // Si tiene location (string completo)
+  if (this.tour.location) {
+    return this.tour.location;
+  }
+  return 'Ubicación por confirmar';
+}
+getEnvironmentLabel(): string {
+  const labels: Record<string, string> = {
+    'EXTERIOR': 'Exterior',
+    'INTERIOR': 'Interior',
+    'MIXED': 'Mixto'
+  };
+  return labels[this.tour.environment] || this.tour.environment || '';
+}
   get visibleCategories(): string[] {
     return this.tour.categories?.filter(Boolean).slice(0, 2) ?? [];
   }
@@ -85,6 +111,7 @@ export class TourCardComponent {
     this.router.navigate(['/admin/recorridos', this.tour.id, 'editar']);
   }
   onDelete(): void {
-    this.delete.emit(this.tour.id);
-  } 
+  console.log('🔴 TourCard: Emitiendo delete para tour ID:', this.tour.id);
+  this.delete.emit(this.tour.id);
+}
 }

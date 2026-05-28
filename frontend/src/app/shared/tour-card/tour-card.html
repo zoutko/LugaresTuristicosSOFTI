@@ -1,3 +1,4 @@
+
 <article class="tour-card">
   <div class="image-frame">
     <button
@@ -29,7 +30,12 @@
           <span>{{ category }}</span>
           }
         </div>
+        <div class="tour-environment" *ngIf="tour.environment">
+        {{ getEnvironmentLabel() }}
       </div>
+      </div>
+
+      
 
       <div class="tour-actions">
         <div class="tour-detail">
@@ -49,8 +55,6 @@
               <img src="edit.svg" alt="editar" width="22" height="22">
           </span>
         </button>
-
-        
 
       </div>
     </div>

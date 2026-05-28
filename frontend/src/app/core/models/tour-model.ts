@@ -40,14 +40,15 @@ export interface Tour {
   description: string;
   recommendations: string;
   price: number;
-  location: string;
   meetingPoint: string;
   itinerary: ItineraryItem[];
   tourOffer: any;
   album: Album;
+  location: string; 
 }
 
 export interface TourCard {
+  location?: string;
   id: number;
   name: string;
   city: string;

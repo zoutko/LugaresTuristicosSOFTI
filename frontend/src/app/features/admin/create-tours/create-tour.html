@@ -185,6 +185,33 @@
   </div>
 </section>
 
+      <!-- Sección de Descuentos -->
+<section class="form-panel">
+  <h2>Descuentos por tipo de usuario</h2>
+  <p class="helper">Agrega descuentos para diferentes tipos de usuarios (Estudiante, VIP, etc.)</p>
+
+  <div class="discounts-list">
+    <div class="discount-row" *ngFor="let discount of discounts(); let i = index; trackBy: trackByIndex">
+      <input
+        type="text"
+        [(ngModel)]="discount.userTypeName"
+        placeholder="Tipo de usuario (Ej. Estudiante, VIP)"
+        class="discount-name"
+      />
+      <input
+        type="number"
+        [(ngModel)]="discount.percentage"
+        placeholder="Porcentaje %"
+        step="5"
+        min="0"
+        max="100"
+        class="discount-percentage"
+      />
+      <button type="button" class="remove-discount-btn" (click)="removeDiscount(i)">✖</button>
+    </div>
+  </div>
+  <button class="ghost-button" type="button" (click)="addDiscount()">+ Agregar descuento</button>
+</section>
       <!-- Tarifas -->
      <!-- <section class="form-panel">
         <h2>Tarifas adicionales</h2>
