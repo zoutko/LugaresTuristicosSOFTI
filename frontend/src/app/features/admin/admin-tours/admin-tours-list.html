@@ -8,8 +8,8 @@
         <input
           type="text"
           class="filter-input"
-          [(ngModel)]="searchTerm"
-          (input)="onSearchChange()"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="setSearchTerm($event)"
           placeholder="Nombre o ubicación del recorrido"
         />
       </div>

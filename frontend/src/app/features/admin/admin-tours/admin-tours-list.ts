@@ -43,38 +43,39 @@ export class AdminToursListComponent implements OnInit {
   showDeleteModal = false;
   deleteTourId: number | null = null;
 
-filteredTours = computed(() => {
-  let result = this.allTours();
-  
-  const term = this.searchTerm().toLowerCase();
-  if (term) {
-    result = result.filter(t => 
-      t.name.toLowerCase().includes(term) || 
-      t.city.toLowerCase().includes(term)
-    );
-  }
-  
-  const price = this.maxPrice();
-  if (price > 0) {
-    result = result.filter(t => t.price <= price);
-  }
-  
-  const selectedCats = this.selectedCategories();
-  if (selectedCats.length > 0) {
-    result = result.filter(tour =>
-      selectedCats.some(cat => tour.categories.includes(cat))
-    );
-  }
-  
-  const selectedEnvs = this.selectedEnvironments();
-  if (selectedEnvs.length > 0) {
-    result = result.filter(tour =>
-      selectedEnvs.includes(tour.environment)
-    );
-  }
-  
-  return result;
-});
+  filteredTours = computed(() => {
+    let result = this.allTours();
+    
+    const term = this.searchTerm().toLowerCase();
+    if (term) {
+      result = result.filter(t => {
+        const nameMatch = t.name?.toLowerCase().includes(term) || false;
+        const cityMatch = t.city?.toLowerCase().includes(term) || false;
+        return nameMatch || cityMatch;
+      });
+    }
+    
+    const price = this.maxPrice();
+    if (price > 0) {
+      result = result.filter(t => t.price <= price);
+    }
+    
+    const selectedCats = this.selectedCategories();
+    if (selectedCats.length > 0) {
+      result = result.filter(tour =>
+        selectedCats.some(cat => tour.categories?.includes(cat) || false)
+      );
+    }
+    
+    const selectedEnvs = this.selectedEnvironments();
+    if (selectedEnvs.length > 0) {
+      result = result.filter(tour =>
+        selectedEnvs.includes(tour.environment)
+      );
+    }
+    
+    return result;
+  });
 
 
   ngOnInit(): void {
@@ -135,13 +136,12 @@ filteredTours = computed(() => {
     return labels[environment] ?? environment;
   }
 
-  onSearchChange(): void {
 
-  this.searchTerm.set(this.searchTerm());
+setSearchTerm(value: string): void {
+  this.searchTerm.set(value);
 }
 
 onPriceChange(): void {
- 
   this.maxPrice.set(this.maxPrice());
 }
 
