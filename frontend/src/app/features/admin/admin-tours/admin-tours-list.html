@@ -8,8 +8,8 @@
         <input
           type="text"
           class="filter-input"
-          [(ngModel)]="searchTerm"
-          (input)="onSearchChange()"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="setSearchTerm($event)"
           placeholder="Nombre o ubicación del recorrido"
         />
       </div>
@@ -17,7 +17,7 @@
       <div class="filter-section filter-section--divider">
         <label class="filter-label">Precio máximo</label>
         <div class="price-input">
-          <span class="price-badge">{{ maxPrice | number:'1.0-0' }}</span>
+          <span class="price-badge">{{ maxPrice() | number:'1.0-0' }}</span>
           <input
             type="range"
             [min]="priceMin"
@@ -36,7 +36,7 @@
             <label class="checkbox-item">
               <input
                 type="checkbox"
-                [checked]="selectedCategories.includes(cat)"
+                [checked]="selectedCategories().includes(cat)"
                 (change)="toggleCategory(cat)"
               />
               <span>{{ cat }}</span>
@@ -52,7 +52,7 @@
             <label class="checkbox-item">
               <input
                 type="checkbox"
-                [checked]="selectedEnvironments.includes(env)"
+                [checked]="selectedEnvironments().includes(env)"
                 (change)="toggleEnvironment(env)"
               />
               <span>{{ environmentLabel(env) }}</span>
@@ -67,7 +67,6 @@
     </aside>
 
     <main class="tours-content">
-      <!-- Header de admin -->
       <div class="admin-header">
         <h1>Gestionar Recorridos</h1>
         <button class="btn-create" (click)="goToCreate()">+ Nuevo Recorrido</button>
@@ -95,11 +94,23 @@
             [showDeleteButton]="true"
             [showSaveButton]="false"
             [showRemoveButton]="false"
-            [mode]="'manage'">
+            [mode]="'manage'"
+            (delete)="openDeleteModal($event)">
           </app-tour-card>
         }
       </div>
     </main>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>¿Eliminar recorrido?</h3>
+    <p>Esta acción es irreversible. El recorrido será eliminado permanentemente.</p>
+    <div class="modal-buttons">
+      <button class="btn-cancel" (click)="closeDeleteModal()">Cancelar</button>
+      <button class="btn-confirm-delete" (click)="confirmDelete()">Sí, eliminar</button>
+    </div>
   </div>
 </div>
 

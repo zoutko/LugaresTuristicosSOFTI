@@ -1,3 +1,4 @@
+
 <article class="tour-card">
   <div class="image-frame">
     <button
@@ -29,7 +30,12 @@
           <span>{{ category }}</span>
           }
         </div>
+        <div class="tour-environment" *ngIf="tour.environment">
+        {{ getEnvironmentLabel() }}
       </div>
+      </div>
+
+      
 
       <div class="tour-actions">
         <div class="tour-detail">
@@ -38,9 +44,18 @@
         </div>
 
         <button type="button" class="btn-view" (click)="onView()" *ngIf="mode === 'view'">Ver</button>
+        <button type="button" class="btn-delete" *ngIf="showDeleteButton" (click)="onDelete()">
+          <span>
+            <img src="eliminar.svg" alt="eliminar" width="22" height="22">
+          </span>
+        </button>
         <button type="button" class="btn-remove" *ngIf="showRemoveButton" (click)="onRemove()">Eliminar</button>
-        <button type="button" class="btn-edit" *ngIf="showEditButton">Editar</button>
-        <button type="button" class="btn-delete" *ngIf="showDeleteButton">Eliminar</button>
+        <button type="button" class="btn-edit" *ngIf="showEditButton" (click)="goToEdit()">
+          <span>
+              <img src="edit.svg" alt="editar" width="22" height="22">
+          </span>
+        </button>
+
       </div>
     </div>
   </div>

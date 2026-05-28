@@ -270,3 +270,45 @@ button:disabled {
   overflow-y: auto;
   padding: 5px;
 }
+
+/* Descuentos */
+.discounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.discount-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.discount-name {
+  flex: 2;
+  padding: 8px 12px;
+  border: 1px solid #cfd4c3;
+  border-radius: 4px;
+}
+
+.discount-percentage {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #cfd4c3;
+  border-radius: 4px;
+}
+
+.remove-discount-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #b42318;
+  padding: 4px 8px;
+}
+
+.remove-discount-btn:hover {
+  background-color: rgba(180, 35, 24, 0.1);
+  border-radius: 4px;
+}

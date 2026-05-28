@@ -1,11 +1,11 @@
 <section class="admin-tour-shell" aria-label="Crear recorrido turístico">
   <div class="admin-heading">
-    <span>Administrador</span>
-    <h1>Registrar Recorrido Turístico</h1>
-    <p>Registra la información principal, ubicación, categorías, itinerario, tarifas e imágenes del recorrido.</p>
-  </div>
+  <span>Administrador</span>
+  <h1>{{ isEditMode ? 'Editar Recorrido Turístico' : 'Registrar Recorrido Turístico' }}</h1>
+  <p>{{ isEditMode ? 'Edita la información del recorrido.' : 'Registra la información principal, ubicación, categorías, lugares del itinerario y tarifa del recorrido.' }}</p>
+</div>
 
-  <form class="tour-form" (ngSubmit)="createTour()">
+  <form class="tour-form" (ngSubmit)="onSubmit()">
     <div class="form-grid">
       
       <!-- Información general -->
@@ -185,6 +185,33 @@
   </div>
 </section>
 
+      <!-- Sección de Descuentos -->
+<section class="form-panel">
+  <h2>Descuentos por tipo de usuario</h2>
+  <p class="helper">Agrega descuentos para diferentes tipos de usuarios (Estudiante, VIP, etc.)</p>
+
+  <div class="discounts-list">
+    <div class="discount-row" *ngFor="let discount of discounts(); let i = index; trackBy: trackByIndex">
+      <input
+        type="text"
+        [(ngModel)]="discount.userTypeName"
+        placeholder="Tipo de usuario (Ej. Estudiante, VIP)"
+        class="discount-name"
+      />
+      <input
+        type="number"
+        [(ngModel)]="discount.percentage"
+        placeholder="Porcentaje %"
+        step="5"
+        min="0"
+        max="100"
+        class="discount-percentage"
+      />
+      <button type="button" class="remove-discount-btn" (click)="removeDiscount(i)">✖</button>
+    </div>
+  </div>
+  <button class="ghost-button" type="button" (click)="addDiscount()">+ Agregar descuento</button>
+</section>
       <!-- Tarifas -->
      <!-- <section class="form-panel">
         <h2>Tarifas adicionales</h2>
@@ -257,8 +284,8 @@
 
     <div class="form-actions">
       <button class="submit-button" type="submit" [disabled]="saving()">
-        {{ saving() ? 'Guardando...' : 'Crear Recorrido' }}
-      </button>
+        {{isEditMode ? (saving() ? 'Actualizando...' : 'Actualizar Recorrido') : (saving() ? 'Guardando...' : 'Crear Recorrido') }}
+    </button>
     </div>
   </form>
 </section>

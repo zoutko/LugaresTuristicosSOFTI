@@ -10,6 +10,30 @@ import { LocationCatalogService } from '../../../core/services/location-catalog.
 
 type Environment = 'INTERIOR' | 'MIXED' | 'EXTERIOR';
 
+interface AlbumPhoto {
+  filePath: string;
+  description: string;
+  id?: number;
+  position?: number;
+}
+
+// Interfaz para descuento (coincide con DiscountRequest del backend)
+interface DiscountInput {
+  userTypeName: string;  // Para mostrar en el formulario
+  percentage: number;
+  userTypeId?: number;    // Se obtendrá del backend si existe
+}
+
+
+interface AlbumResponse {
+  id?: number;
+  title?: string;
+  currentIndex?: number;
+  totalPhotos?: number;
+  currentPhoto?: AlbumPhoto;
+  photos?: AlbumPhoto[];
+}
+
 interface Category {
   id: number;
   name: string;
@@ -32,19 +56,12 @@ interface TourResponse {
   recommendations: string;
   environment: string;
   price: number;
-  location: {
-    city: string;
-    department: string;
-    country: string;
-  };
-  meetingPoint?: {
-    city: string;
-    department: string;
-    country: string;
-    address: string;
-  };
-  categoryIds: number[];
-  itineraryPlaceIds: number[];
+  location: string;      // ← Es un string, ej: "Medellín, Antioquia, Colombia"
+  meetingPoint: string;   // ← Es un string, ej: "Parque de las Luces, Medellín, Antioquia, Colombia"
+  categories: string[];   // ← Array de nombres de categorías
+  itinerary: Array<{ touristPlaceId: number; position?: number }>;
+  album?: any;
+  tourOffer?: any;
 }
 
 @Component({
@@ -74,6 +91,10 @@ export class CreateTour implements OnInit {
   readonly loadingCountries = signal(false);
   readonly loadingDepartments = signal(false);
   readonly loadingCities = signal(false);
+
+  //TARIFAS
+  // Agrega al principio del componente, después de las otras signals
+readonly discounts = signal<DiscountInput[]>([{ userTypeName: '', percentage: 0 }]);
 
   // Categorías
   readonly categories = signal<Category[]>([]);
@@ -313,127 +334,209 @@ export class CreateTour implements OnInit {
 
   // ============ CARGAR DATOS PARA EDICIÓN ============
   loadTourData(): void {
-    this.loading.set(true);
-    this.error.set('');
+  this.loading.set(true);
+  this.error.set('');
 
-    this.http.get<TourResponse>(`/api/tours/${this.tourId}`, { headers: this.authToken.getAuthHeaders() }).subscribe({
-      next: (tour) => {
-        this.name = tour.name;
-        this.description = tour.description || '';
-        this.recommendations = tour.recommendations || '';
-        this.environment = tour.environment as Environment;
-        this.price = tour.price;
+  this.http.get<TourResponse>(`/api/tours/${this.tourId}`, { headers: this.authToken.getAuthHeaders() }).subscribe({
+    next: (tour) => {
+      console.log('=== TOUR RECIBIDO ===', tour);
+      
+      // Datos básicos
+      this.name = tour.name;
+      this.description = tour.description || '';
+      this.recommendations = tour.recommendations || '';
+      this.environment = tour.environment as Environment;
+      this.price = tour.price;
 
-        if (tour.location) {
-          this.country = tour.location.country || '';
-          this.department = tour.location.department || '';
-          this.city = tour.location.city || '';
-          if (this.country) this.onCountryChange(this.country);
-          if (this.department) this.onDepartmentChange(this.department);
+      // ============ UBICACIÓN (string) ============
+      if (tour.location && typeof tour.location === 'string') {
+        const parts = tour.location.split(',').map(p => p.trim());
+        this.city = parts[0] || '';
+        this.department = parts[1] || '';
+        this.country = parts[2] || '';
+        console.log('Ubicación parseada:', { city: this.city, department: this.department, country: this.country });
+        
+        // Cargar selectores de ubicación
+        setTimeout(() => {
+          this.loadLocationSelectors();
+        }, 100);
+      }
+
+      // ============ PUNTO DE ENCUENTRO (string) ============
+      if (tour.meetingPoint && typeof tour.meetingPoint === 'string') {
+        const parts = tour.meetingPoint.split(',').map(p => p.trim());
+        if (parts.length === 4) {
+          this.meetingPointAddress = parts[0] || '';
+          this.meetingPointCity = parts[1] || '';
+          this.meetingPointDepartment = parts[2] || '';
+          this.meetingPointCountry = parts[3] || '';
+        } else if (parts.length === 3) {
+          this.meetingPointCity = parts[0] || '';
+          this.meetingPointDepartment = parts[1] || '';
+          this.meetingPointCountry = parts[2] || '';
+          this.meetingPointAddress = '';
+        } else if (parts.length === 2) {
+          this.meetingPointCity = parts[0] || '';
+          this.meetingPointCountry = parts[1] || '';
+          this.meetingPointDepartment = '';
+          this.meetingPointAddress = '';
+        } else {
+          this.meetingPointCity = parts[0] || '';
+          this.meetingPointDepartment = '';
+          this.meetingPointCountry = '';
+          this.meetingPointAddress = '';
         }
+        console.log('Punto de encuentro parseado:', {
+          address: this.meetingPointAddress,
+          city: this.meetingPointCity,
+          department: this.meetingPointDepartment,
+          country: this.meetingPointCountry
+        });
+        
+        // Cargar selectores de punto de encuentro
+        setTimeout(() => {
+          this.loadMeetingPointSelectors();
+        }, 200);
+      }
 
-        if (tour.meetingPoint) {
-          this.meetingPointCountry = tour.meetingPoint.country || '';
-          this.meetingPointDepartment = tour.meetingPoint.department || '';
-          this.meetingPointCity = tour.meetingPoint.city || '';
-          this.meetingPointAddress = tour.meetingPoint.address || '';
-        }
+      // ============ CATEGORÍAS ============
+      if (tour.categories && Array.isArray(tour.categories)) {
+        const categoryIds: number[] = [];
+        this.categories().forEach(cat => {
+          if (tour.categories.includes(cat.name)) {
+            categoryIds.push(cat.id);
+          }
+        });
+        this.selectedCategoryIds.set(categoryIds);
+        console.log('Categorías seleccionadas IDs:', categoryIds);
+      }
 
-        this.selectedCategoryIds.set(tour.categoryIds || []);
-        this.selectedPlaceIds.set(tour.itineraryPlaceIds || []);
+      // ============ ITINERARIO (LUGARES) ============
+      if (tour.itinerary && Array.isArray(tour.itinerary)) {
+        const placeIds = tour.itinerary
+          .map(item => item.touristPlaceId)
+          .filter(id => id);
+        this.selectedPlaceIds.set(placeIds);
+        console.log('Lugares seleccionados IDs:', placeIds);
+      }
 
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading tour:', err);
-        this.error.set('No fue posible cargar el recorrido.');
-        this.loading.set(false);
-      },
-    });
-  }
+      // ============ DESCUENTOS ============
+      // ============ DESCUENTOS ============
+// Verificar dónde vienen los descuentos en la respuesta del backend
+console.log('TourOffer completo:', tour.tourOffer);
+console.log('Discounts:', tour.tourOffer?.discounts);
 
+if (tour.tourOffer && tour.tourOffer.discounts && tour.tourOffer.discounts.length > 0) {
+  const discountList = tour.tourOffer.discounts.map((d: any) => ({
+    userTypeName: d.userTypeName || d.userType?.name || 'Desconocido',
+    percentage: d.percentage || 0
+  }));
+  this.discounts.set(discountList);
+  console.log('Descuentos cargados:', discountList);
+} else {
+  // Si no hay descuentos, mantener un registro vacío
+  this.discounts.set([{ userTypeName: '', percentage: 0 }]);
+}
+
+      // ============ IMÁGENES ============
+      if (tour.album && tour.album.photos && Array.isArray(tour.album.photos) && tour.album.photos.length > 0) {
+        const imagesList = tour.album.photos.map((photo: AlbumPhoto) => ({
+          url: photo.filePath || '',
+          description: photo.description || ''
+        }));
+        this.images.set(imagesList);
+        console.log('Imágenes cargadas:', imagesList);
+      }
+
+      this.loading.set(false);
+    },
+    error: (err) => {
+      console.error('Error loading tour:', err);
+      this.error.set('No fue posible cargar el recorrido.');
+      this.loading.set(false);
+    },
+  });
+
+}
   // ============ ACTUALIZAR TOUR (EDICIÓN) ============
   updateTour(): void {
-    if (this.saving()) return;
+  if (this.saving()) return;
 
-    this.error.set('');
-    this.message.set('');
+  this.error.set('');
+  this.message.set('');
 
-    if (!this.authToken.hasToken()) {
-      this.error.set('Debes iniciar sesión como administrador.');
-      return;
-    }
-
-    if (!this.name.trim() || !this.city.trim() || !this.department.trim() || !this.country.trim()) {
-      this.error.set('Completa nombre, ciudad, departamento y país.');
-      return;
-    }
-
-    if (this.selectedPlaceIds().length === 0) {
-      this.error.set('Selecciona al menos un lugar para el itinerario.');
-      return;
-    }
-
-    if (this.selectedCategoryIds().length === 0 && this.newCategories().length === 0) {
-      this.error.set('Selecciona o crea al menos una categoría.');
-      return;
-    }
-
-    this.saving.set(true);
-    const headers = this.authToken.getAuthHeaders();
-    const newCategoryRequests = this.newCategories().map((name) =>
-      this.http.post<Category>('/api/categories', { name }, { headers })
-    );
-
-    const categoriesRequest = newCategoryRequests.length > 0 ? forkJoin(newCategoryRequests) : of([]);
-
-    categoriesRequest
-      .pipe(
-        switchMap((createdCategories) => {
-          const categoryIds = [
-            ...this.selectedCategoryIds(),
-            ...createdCategories.map((category) => category.id),
-          ];
-
-          const requestBody = {
-            name: this.name.trim(),
-            description: this.description.trim(),
-            recommendations: this.recommendations.trim(),
-            environment: this.environment,
-            price: this.price,
-            categoryIds: categoryIds,
-            itineraryPlaceIds: this.selectedPlaceIds(),
-            location: {
-              city: this.city.trim(),
-              department: this.department.trim(),
-              country: this.country.trim(),
-            },
-            meetingPoint: {
-              city: this.meetingPointCity.trim(),
-              department: this.meetingPointDepartment.trim(),
-              country: this.meetingPointCountry.trim(),
-              address: this.meetingPointAddress.trim(),
-            },
-          };
-
-          return this.http.patch(`/api/tours/${this.tourId}`, requestBody, { headers });
-        })
-      )
-      .subscribe({
-        next: () => {
-          this.saving.set(false);
-          this.message.set('Recorrido actualizado correctamente.');
-          setTimeout(() => {
-            this.router.navigate(['/admin/recorridos']);
-          }, 2000);
-        },
-        error: (err) => {
-          console.error('Error updating tour:', err);
-          this.saving.set(false);
-          this.error.set('No fue posible actualizar el recorrido.');
-        },
-      });
+  if (!this.authToken.hasToken()) {
+    this.error.set('Debes iniciar sesión como administrador.');
+    return;
   }
+
+  if (!this.name.trim() || !this.city.trim() || !this.department.trim() || !this.country.trim()) {
+    this.error.set('Completa nombre, ciudad, departamento y país.');
+    return;
+  }
+
+  if (this.selectedPlaceIds().length === 0) {
+    this.error.set('Selecciona al menos un lugar para el itinerario.');
+    return;
+  }
+
+  if (this.selectedCategoryIds().length === 0 && this.newCategories().length === 0) {
+    this.error.set('Selecciona o crea al menos una categoría.');
+    return;
+  }
+
+  this.saving.set(true);
+  const headers = this.authToken.getAuthHeaders();
+  const newCategoryRequests = this.newCategories().map((name) =>
+    this.http.post<Category>('/api/categories', { name }, { headers })
+  );
+
+  const categoriesRequest = newCategoryRequests.length > 0 ? forkJoin(newCategoryRequests) : of([]);
+
+  categoriesRequest
+    .pipe(
+      switchMap((createdCategories) => {
+        const categoryIds = [
+          ...this.selectedCategoryIds(),
+          ...createdCategories.map((category) => category.id),
+        ];
+
+        const requestBody = {
+          name: this.name.trim(),
+          description: this.description.trim(),
+          recommendations: this.recommendations.trim(),
+          environment: this.environment,
+          price: this.price,
+          categoryIds: categoryIds,
+          itineraryPlaceIds: this.selectedPlaceIds(),
+          location: {
+            city: this.city.trim(),
+            department: this.department.trim(),
+            country: this.country.trim(),
+          },
+          meetingPoint: {
+            city: this.meetingPointCity.trim(),
+            department: this.meetingPointDepartment.trim(),
+            country: this.meetingPointCountry.trim(),
+            address: this.meetingPointAddress.trim(),
+          },
+        };
+
+        return this.http.patch(`/api/tours/${this.tourId}`, requestBody, { headers });
+      })
+    )
+    .subscribe({
+      next: () => {
+        // Actualizar descuentos después de actualizar el tour
+        this.updateTourDiscounts(this.tourId!);
+      },
+      error: (err) => {
+        console.error('Error updating tour:', err);
+        this.saving.set(false);
+        this.error.set('No fue posible actualizar el recorrido.');
+      },
+    });
+}
 
   // ============ CREAR TOUR ============
   createTour(): void {
@@ -516,6 +619,7 @@ export class CreateTour implements OnInit {
           this.error.set('No fue posible crear el recorrido. Verifica los datos y permisos de administrador.');
         },
       });
+      
   }
 
   // Subir imágenes del tour creado
@@ -598,4 +702,182 @@ export class CreateTour implements OnInit {
     this.message.set('');
     this.error.set('');
   }
+  // ============ CARGAR SELECTORES DE UBICACIÓN ============
+private loadLocationSelectors(): void {
+  console.log('=== loadLocationSelectors ===');
+  console.log('País:', this.country);
+  console.log('Departamento guardado:', this.department);
+  
+  if (!this.country) {
+    console.log('No hay país, saliendo');
+    return;
+  }
+
+  this.loadingDepartments.set(true);
+  this.locationCatalog
+    .getDepartments(this.country)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (departments) => {
+        console.log('Departamentos recibidos:', departments);
+        this.departments.set(departments ?? []);
+        this.loadingDepartments.set(false);
+        
+        if (this.department) {
+          this.loadLocationCities();
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando departamentos:', err);
+        this.departments.set([]);
+        this.loadingDepartments.set(false);
+      }
+    });
+}
+
+private loadLocationCities(): void {
+  console.log('=== loadLocationCities ===');
+  console.log('País:', this.country);
+  console.log('Departamento:', this.department);
+  
+  if (!this.country || !this.department) {
+    console.log('Falta país o departamento');
+    return;
+  }
+
+  this.loadingCities.set(true);
+  this.locationCatalog
+    .getCities(this.country, this.department)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (cities) => {
+        console.log('Ciudades recibidas:', cities);
+        const cityList = (cities ?? []).filter(Boolean);
+        if (cityList.length === 0) {
+          this.cities.set([this.department]);
+        } else {
+          this.cities.set(cityList);
+        }
+        this.loadingCities.set(false);
+      },
+      error: (err) => {
+        console.error('Error cargando ciudades:', err);
+        this.cities.set([this.department]);
+        this.loadingCities.set(false);
+      }
+    });
+}
+
+// ============ CARGAR SELECTORES DE PUNTO DE ENCUENTRO ============
+private loadMeetingPointSelectors(): void {
+  if (!this.meetingPointCountry) return;
+
+  this.locationCatalog
+    .getDepartments(this.meetingPointCountry)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (departments) => {
+        // Agregar departamentos sin duplicar con los existentes
+        const currentDepts = this.departments();
+        const newDepts = departments ?? [];
+        const allDepts = [...currentDepts, ...newDepts].filter((v, i, a) => a.indexOf(v) === i);
+        this.departments.set(allDepts);
+        
+        if (this.meetingPointDepartment) {
+          this.loadMeetingPointCities();
+        }
+      }
+    });
+}
+
+private loadMeetingPointCities(): void {
+  if (!this.meetingPointCountry || !this.meetingPointDepartment) return;
+
+  this.locationCatalog
+    .getCities(this.meetingPointCountry, this.meetingPointDepartment)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (cities) => {
+        const cityList = (cities ?? []).filter(Boolean);
+        const currentCities = this.cities();
+        const allCities = [...currentCities, ...cityList].filter((v, i, a) => a.indexOf(v) === i);
+        this.cities.set(allCities);
+      }
+    });
+  }
+
+  // ============ DESCUENTOS ============
+addDiscount(): void {
+  this.discounts.update(current => [...current, { userTypeName: '', percentage: 0 }]);
+}
+
+updateDiscount(index: number, field: keyof DiscountInput, value: string | number): void {
+  this.discounts.update(current =>
+    current.map((d, i) => i === index ? { ...d, [field]: value } : d)
+  );
+}
+
+removeDiscount(index: number): void {
+  this.discounts.update(current => current.filter((_, i) => i !== index));
+}
+
+private getValidDiscounts(): DiscountInput[] {
+  return this.discounts().filter(d => d.userTypeName.trim() && d.percentage > 0 && d.percentage <= 100);
+}
+private updateTourDiscounts(tourId: number): void {
+  const headers = this.authToken.getAuthHeaders();
+  const validDiscounts = this.getValidDiscounts();
+  
+  // Primero obtener los descuentos existentes
+  this.http.get<any[]>(`/api/tours/${tourId}/discounts`, { headers }).subscribe({
+    next: (existingDiscounts) => {
+      // Eliminar descuentos existentes
+      const deleteRequests = (existingDiscounts || []).map(d =>
+        this.http.delete(`/api/tours/${tourId}/discounts/${d.id}`, { headers }).toPromise()
+      );
+      
+      Promise.all(deleteRequests).then(() => {
+        // Crear nuevos descuentos
+        if (validDiscounts.length > 0) {
+          const discountRequests = validDiscounts.map(discount =>
+            this.http.post(`/api/tours/${tourId}/discounts`, {
+              userTypeName: discount.userTypeName,
+              percentage: discount.percentage
+            }, { headers }).toPromise()
+          );
+          Promise.all(discountRequests).then(() => {
+            this.saving.set(false);
+            this.message.set('Recorrido actualizado correctamente.');
+            setTimeout(() => this.router.navigate(['/admin/recorridos']), 2000);
+          });
+        } else {
+          this.saving.set(false);
+          this.message.set('Recorrido actualizado correctamente.');
+          setTimeout(() => this.router.navigate(['/admin/recorridos']), 2000);
+        }
+      });
+    },
+    error: () => {
+      // Si no se pueden obtener, solo crear nuevos
+      if (validDiscounts.length > 0) {
+        const discountRequests = validDiscounts.map(discount =>
+          this.http.post(`/api/tours/${tourId}/discounts`, {
+            userTypeName: discount.userTypeName,
+            percentage: discount.percentage
+          }, { headers }).toPromise()
+        );
+        Promise.all(discountRequests).then(() => {
+          this.saving.set(false);
+          this.message.set('Recorrido actualizado correctamente.');
+          setTimeout(() => this.router.navigate(['/admin/recorridos']), 2000);
+        });
+      } else {
+        this.saving.set(false);
+        this.message.set('Recorrido actualizado correctamente.');
+        setTimeout(() => this.router.navigate(['/admin/recorridos']), 2000);
+      }
+    }
+  });
+}
+  
 }
