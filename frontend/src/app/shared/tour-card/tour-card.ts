@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourCard } from '../../core/models/tour-model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tour-card',
@@ -21,8 +22,13 @@ export class TourCardComponent {
   @Output() remove = new EventEmitter<number>();
   @Output() save = new EventEmitter<number>();
   @Output() removeSaved = new EventEmitter<number>();
+  @Output() delete = new EventEmitter<number>();
   @Input() mode: 'view' | 'manage' = 'view';
   
+  constructor(
+    private router: Router
+  ){}
+
 
   readonly fallbackImage =
     'https://images.unsplash.com/photo-1583531352515-8884af319dc1?auto=format&fit=crop&w=900&q=80';
@@ -74,4 +80,11 @@ export class TourCardComponent {
       image.src = this.fallbackImage;
     }
   }
+
+  goToEdit(): void {
+    this.router.navigate(['/admin/recorridos', this.tour.id, 'editar']);
+  }
+  onDelete(): void {
+    this.delete.emit(this.tour.id);
+  } 
 }

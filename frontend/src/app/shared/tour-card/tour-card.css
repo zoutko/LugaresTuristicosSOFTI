@@ -15,7 +15,6 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-
 .tour-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-card-hover);
@@ -225,7 +224,7 @@
 }
 
 .btn-remove {
-  background: transparent;
+  background: transparent;;
   color: #b42318;
   border: 1px solid #b42318;
 }
