@@ -296,8 +296,10 @@ public class TourService {
             response.setEnvironment(tour.getEnvironment().name());
         if (tour.getLocation() != null)
             response.setLocation(tour.getLocation().getFullLocation());
-        if (tour.getMeetingPoint() != null)
+        if (tour.getMeetingPoint() != null) {
             response.setMeetingPoint(tour.getMeetingPoint().getFullLocation());
+            response.setMeetingPointLocation(tour.getMeetingPoint());
+        }
 
         response.setCategories(
                 tour.getCategories().stream()

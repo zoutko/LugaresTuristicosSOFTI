@@ -41,6 +41,13 @@ export interface Tour {
   recommendations: string;
   price: number;
   meetingPoint: string;
+  meetingPointLocation?: {
+    city?: string | null;
+    department?: string | null;
+    country?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+  } | null;
   itinerary: ItineraryItem[];
   tourOffer: any;
   album: Album;

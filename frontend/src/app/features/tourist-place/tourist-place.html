@@ -91,35 +91,14 @@
         <!-- DERECHA: MAPA -->
         <div class="body-right">
           <div class="map-placeholder">
-            <div class="map-inner" *ngIf="mapUrl() as safeMapUrl; else noMap">
-              <iframe
-                [src]="safeMapUrl"
-                [title]="'Mapa de ' + selectedPlace.name"
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-              ></iframe>
-            </div>
-            <ng-template #noMap>
-              <div class="map-inner">
-                <div class="map-mock">
-                  <i class="ti ti-map-2" aria-hidden="true"></i>
-                  <span>Mapa no disponible</span>
-                </div>
-              </div>
-            </ng-template>
-            <div class="coords-row">
-              <span>
-                <span class="coord-label">Latitud:</span>
-                <span class="coord-val">{{ selectedPlace.location?.latitude ?? '—' }}</span>
-              </span>
-              <span>
-                <span class="coord-label">Longitud:</span>
-                <span class="coord-val">{{ selectedPlace.location?.longitude ?? '—' }}</span>
-              </span>
-              <a *ngIf="hasCoordinates()" [href]="getOpenStreetMapLink()" target="_blank" rel="noopener">
-                Abrir mapa
-              </a>
-            </div>
+            <app-map-embed
+              [lat]="selectedPlace.location?.latitude"
+              [lng]="selectedPlace.location?.longitude"
+              [title]="'Mapa de ' + selectedPlace.name"
+              [showTitle]="false"
+              [showDetails]="true"
+              [minHeight]="260"
+            ></app-map-embed>
           </div>
         </div>
 

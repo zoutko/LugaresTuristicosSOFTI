@@ -122,11 +122,16 @@
         <aside class="body-right">
           <div class="side-card">
             <div class="map">
-              <div class="map-mock">
-                <span class="map-label">Mapa</span>
-              </div>
+              <app-map-embed
+                [lat]="selectedTour.meetingPointLocation?.latitude"
+                [lng]="selectedTour.meetingPointLocation?.longitude"
+                [title]="'Mapa del punto de encuentro'"
+                [showTitle]="false"
+                [showDetails]="true"
+                [minHeight]="160"
+              ></app-map-embed>
             </div>
-
+            
             <div class="side-section">
               <h3 class="side-title">Punto de encuentro</h3>
               <div class="side-row">

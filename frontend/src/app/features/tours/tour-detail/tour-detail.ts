@@ -10,12 +10,13 @@ import { TouristPlaceApiService } from '../../../core/services/tourist-place-api
 import { TourReviewService } from '../../../core/services/tour-review.service';
 import { ItineraryItem, Tour } from '../../../core/models/tour-model';
 import { TourReview } from '../../../core/models/review-model';
+import { MapEmbedComponent } from '../../../shared/map-embed/map-embed';
 import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
 
 @Component({
   selector: 'app-tour-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, ToastComponent],
+  imports: [CommonModule, RouterLink, ToastComponent, MapEmbedComponent],
   templateUrl: './tour-detail.html',
   styleUrl: './tour-detail.css',
 })
