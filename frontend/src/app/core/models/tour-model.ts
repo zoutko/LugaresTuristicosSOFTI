@@ -57,6 +57,7 @@ export interface TourCard {
   environment: string;
   price: number;
   imageUrl: string;
+   album?: any;
 }
 
 export type SavedTourCard = TourCard;

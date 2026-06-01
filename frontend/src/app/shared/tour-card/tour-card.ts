@@ -88,7 +88,6 @@ getEnvironmentLabel(): string {
       this.onRemoveSaved();
       return;
     }
-
     this.onSave();
   }
 
@@ -111,7 +110,7 @@ getEnvironmentLabel(): string {
     this.router.navigate(['/admin/recorridos', this.tour.id, 'editar']);
   }
   onDelete(): void {
-  console.log('🔴 TourCard: Emitiendo delete para tour ID:', this.tour.id);
-  this.delete.emit(this.tour.id);
-}
+    console.log('🔴 TourCard: Emitiendo delete para tour ID:', this.tour.id);
+    this.delete.emit(this.tour.id);
+  }
 }

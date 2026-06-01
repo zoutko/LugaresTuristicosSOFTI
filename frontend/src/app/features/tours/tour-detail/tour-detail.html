@@ -30,108 +30,92 @@
               <span class="tag" *ngFor="let category of categories()">{{ category }}</span>
             </div>
 
-            <button
-              class="btn-save"
-              type="button"
-              [class.btn-save--active]="isSaved()"
-              [disabled]="saving()"
-              (click)="toggleSaved()"
-            >
+            <button class="btn-save" type="button" [class.btn-save--active]="isSaved()" [disabled]="saving()"
+              (click)="toggleSaved()">
               {{ isSaved() ? 'Guardado' : 'Guardar' }}
             </button>
           </div>
 
           <div class="body-left">
-          <div class="section-block">
-            <h2 class="section-title">Descripción</h2>
-            <p class="description-text" *ngIf="selectedTour.description; else noDesc">
-              {{ selectedTour.description }}
-            </p>
-            <ng-template #noDesc>
-              <p class="muted">Sin descripción disponible.</p>
-            </ng-template>
-          </div>
-
-          <div class="section-block">
-            <h2 class="section-title">Recomendaciones</h2>
-            <ul class="recommendations" *ngIf="getRecommendations().length > 0; else noRec">
-              <li *ngFor="let item of getRecommendations()">{{ item }}</li>
-            </ul>
-            <ng-template #noRec>
-              <p class="muted">Sin recomendaciones registradas.</p>
-            </ng-template>
-          </div>
-
-          <div class="section-block reviews">
-            <h2 class="section-title">Reseñas</h2>
-            <div class="review-box">
-              <div class="review-head">
-                <span>Deja tu reseña del recorrido</span>
-                <span class="review-rate">Puntúa el recorrido</span>
-              </div>
-              <div class="stars" role="radiogroup" aria-label="Calificación">
-                <button
-                  type="button"
-                  class="star"
-                  *ngFor="let star of [1,2,3,4,5]"
-                  [class.star--active]="reviewRating() >= star"
-                  [attr.aria-checked]="reviewRating() === star"
-                  role="radio"
-                  (click)="setRating(star)"
-                  [disabled]="!canPublishReview() || reviewSubmitting()"
-                >
-                  ★
-                </button>
-              </div>
-              <div class="review-form">
-                <input
-                  type="text"
-                  class="review-input"
-                  placeholder="Ingresa tu reseña"
-                  [value]="reviewComment()"
-                  (input)="reviewComment.set(($any($event.target).value))"
-                  [disabled]="!canPublishReview() || reviewSubmitting()"
-                />
-                <button
-                  class="btn-send"
-                  type="button"
-                  (click)="submitReview()"
-                  [disabled]="!canPublishReview() || reviewSubmitting()"
-                >
-                  Enviar
-                </button>
-              </div>
-              <div class="review-note" *ngIf="!canPublishReview()">Inicia sesión para publicar una reseña.</div>
-              <div class="review-note" *ngIf="reviewsError()">{{ reviewsError() }}</div>
-              <div class="review-note" *ngIf="reviewsLoading()">Cargando reseñas...</div>
+            <div class="section-block">
+              <h2 class="section-title">Descripción</h2>
+              <p class="description-text" *ngIf="selectedTour.description; else noDesc">
+                {{ selectedTour.description }}
+              </p>
+              <ng-template #noDesc>
+                <p class="muted">Sin descripción disponible.</p>
+              </ng-template>
             </div>
 
-            <div class="reviews-list" *ngIf="!reviewsLoading() && reviews().length > 0">
-              <div class="review-item" *ngFor="let r of reviews(); trackBy: trackByReviewId">
-                <div class="review-item-head">
-                  <div class="review-author">
-                    <span class="review-author-name">{{ r.authorName }}</span>
-                    <span class="review-date">{{ r.publicationDate }}</span>
-                  </div>
-                  <div class="review-actions">
-                    <span class="review-stars" aria-label="Calificación">
-                      <span *ngFor="let star of [1,2,3,4,5]" [class.star--filled]="r.rating >= star">★</span>
-                    </span>
-                    <button
-                      *ngIf="canDeleteReview(r)"
-                      type="button"
-                      class="btn-delete"
-                      (click)="deleteReview(r.id)"
-                      aria-label="Eliminar reseña"
-                    >
-                      🗑
-                    </button>
-                  </div>
+            <div class="section-block">
+              <h2 class="section-title">Recomendaciones</h2>
+              <ul class="recommendations" *ngIf="getRecommendations().length > 0; else noRec">
+                <li *ngFor="let item of getRecommendations()">{{ item }}</li>
+              </ul>
+              <ng-template #noRec>
+                <p class="muted">Sin recomendaciones registradas.</p>
+              </ng-template>
+            </div>
+
+            <div class="section-block reviews">
+              <h2 class="section-title">Reseñas</h2>
+              <div class="review-box">
+                <div class="review-head">
+                  <span>{{ editingReviewId() ? 'Edita tu reseña del recorrido' : 'Deja tu reseña del recorrido'
+                    }}</span>
+                  <span class="review-rate">Puntúa el recorrido</span>
                 </div>
-                <div class="review-comment">{{ r.comment }}</div>
+                <div class="stars" role="radiogroup" aria-label="Calificación">
+                  <button type="button" class="star" *ngFor="let star of [1,2,3,4,5]"
+                    [class.star--active]="reviewRating() >= star" [attr.aria-checked]="reviewRating() === star"
+                    role="radio" (click)="setRating(star)" [disabled]="!canPublishReview() || reviewSubmitting()">
+                    ★
+                  </button>
+                </div>
+                <div class="review-form">
+                  <input type="text" class="review-input" placeholder="Ingresa tu reseña" [value]="reviewComment()"
+                    (input)="reviewComment.set(($any($event.target).value))"
+                    [disabled]="!canPublishReview() || reviewSubmitting()" />
+                  <button class="btn-send" type="button" (click)="submitReview()"
+                    [disabled]="!canPublishReview() || reviewSubmitting()">
+                    {{ editingReviewId() ? 'Guardar' : 'Enviar' }}
+                  </button>
+                  <button *ngIf="editingReviewId()" class="btn-cancel-review" type="button" (click)="cancelEditReview()"
+                    [disabled]="reviewSubmitting()">
+                    Cancelar
+                  </button>
+                </div>
+                <div class="review-note" *ngIf="!canPublishReview()">Inicia sesión para publicar una reseña.</div>
+                <div class="review-note" *ngIf="reviewsError()">{{ reviewsError() }}</div>
+                <div class="review-note" *ngIf="reviewsLoading()">Cargando reseñas...</div>
+              </div>
+
+              <div class="reviews-list" *ngIf="!reviewsLoading() && reviews().length > 0">
+                <div class="review-item" *ngFor="let r of reviews(); trackBy: trackByReviewId">
+                  <div class="review-item-head">
+                    <div class="review-author">
+                      <span class="review-author-name">{{ r.authorName }}</span>
+                      <span class="review-date">{{ r.publicationDate }}</span>
+                    </div>
+                    <div class="review-actions">
+                      <span class="review-stars" aria-label="Calificación">
+                        <span *ngFor="let star of [1,2,3,4,5]" [class.star--filled]="r.rating >= star">★</span>
+                      </span>
+                      <button *ngIf="canEditReview(r)" type="button" class="btn-review-action"
+                        (click)="startEditReview(r)" [disabled]="reviewSubmitting()" aria-label="Editar reseña">
+                        <img src="/edit.svg" alt="Editar" class="icon icon--edit" aria-hidden="true" />
+                      </button>
+
+                      <button *ngIf="canDeleteReview(r)" type="button" class="btn-delete" (click)="deleteReview(r.id)"
+                        [disabled]="reviewSubmitting()" aria-label="Eliminar reseña">
+                        <img src="/eliminar.svg" alt="Eliminar" class="icon icon--delete" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                  <div class="review-comment">{{ r.comment }}</div>
+                </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
 
@@ -154,11 +138,8 @@
             <div class="side-section">
               <h3 class="side-title">Itinerario</h3>
               <div class="itinerary" *ngIf="itinerary().length > 0; else noItinerary">
-                <a
-                  class="itinerary-item"
-                  *ngFor="let item of itinerary()"
-                  [routerLink]="['/lugares', item.touristPlaceId]"
-                >
+                <a class="itinerary-item" *ngFor="let item of itinerary()"
+                  [routerLink]="['/lugares', item.touristPlaceId]">
                   <span class="pin-sm" aria-hidden="true"></span>
                   <span>{{ itineraryPlaceName(item) }}</span>
                 </a>
@@ -170,7 +151,8 @@
 
             <div class="side-section">
               <h3 class="side-title">Fecha de reserva</h3>
-              <input class="date-input" type="date" [value]="bookingDate()" (input)="bookingDate.set(($any($event.target).value))" />
+              <input class="date-input" type="date" [value]="bookingDate()"
+                (input)="bookingDate.set(($any($event.target).value))" />
             </div>
 
             <div class="side-section">
@@ -220,9 +202,4 @@
   </ng-container>
 </section>
 
-<app-toast
-  [open]="toastOpen"
-  [message]="toastMessage"
-  [variant]="toastVariant"
-  (closed)="closeToast()"
-></app-toast>
+<app-toast [open]="toastOpen" [message]="toastMessage" [variant]="toastVariant" (closed)="closeToast()"></app-toast>

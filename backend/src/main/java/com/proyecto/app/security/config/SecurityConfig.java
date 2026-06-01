@@ -52,6 +52,7 @@ public class SecurityConfig {
                                 "/api/places",
                                 "/api/auth/change-email",
                                 "/api/tours",
+                                "/api/tours/{tourId}",
                                 "/api/places/**",
                                 "/api/categories",
                                 "/api/categories/**", 
