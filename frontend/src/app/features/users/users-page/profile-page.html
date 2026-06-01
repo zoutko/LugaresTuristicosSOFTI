@@ -30,13 +30,17 @@
   <div class="info-field">
     <div class="field-label">Nombre:</div>
     <div class="field-value">{{ user.profile.name }}</div>
-    <button class="edit-btn edit-btn-green" (click)="openEditField('nombre', user.profile.name)">✎</button>
+    <button class="edit-btn edit-btn-green" (click)="openEditField('nombre', user.profile.name)">
+      <img src="/edit.svg" alt="Editar" class="icon icon--edit" aria-hidden="true" />
+    </button>
   </div>
   
   <div class="info-field">
     <div class="field-label">Documento:</div>
     <div class="field-value">{{ user.profile.document }}</div>
-    <button class="edit-btn edit-btn-green" (click)="openEditField('documento', user.profile.document)">✎</button>
+    <button class="edit-btn edit-btn-green" (click)="openEditField('documento', user.profile.document)">
+      <img src="/edit.svg" alt="Editar" class="icon icon--edit" aria-hidden="true" />
+    </button>
   </div>
   
   <!-- Teléfonos - Lista desplegable -->
@@ -53,8 +57,12 @@
         <div class="contact-item" *ngFor="let contact of user.profile.contacts">
           <span class="contact-number">{{ contact.phoneNumber }}</span>
           <div class="contact-actions">
-            <button class="edit-contact-btn" (click)="openEditContactModal(contact)">✎</button>
-            <button class="delete-contact-btn" (click)="openDeleteContactModal(contact.id)">🗑️</button>
+            <button class="edit-contact-btn" (click)="openEditContactModal(contact)">
+              <img src="/edit.svg" alt="Editar" class="icon icon--edit" aria-hidden="true" />
+            </button>
+            <button class="delete-contact-btn" (click)="openDeleteContactModal(contact.id)">
+              <img src="/eliminar.svg" alt="Eliminar" class="icon icon--delete" aria-hidden="true" />
+            </button>
           </div>
         </div>
         <div class="add-contact-option" (click)="openAddContactModal()">

@@ -8,6 +8,16 @@
     z-index: 0;
 }
 
+.icon--edit {
+    width: 25px;
+    height: 25px;
+}
+
+.icon--delete {
+    width: 16px;
+    height: 16px;
+}
+
 /* ===== SECCIÓN 1: HERO CENTRADA ===== */
 .hero-section {
     position: relative;
@@ -156,10 +166,12 @@
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 16px;
-    padding: 4px 8px;
+    padding: 6px;
     border-radius: 4px;
     color: hsl(120, 45%, 34%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .edit-btn:hover {
@@ -562,7 +574,6 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
   padding: 6px;
   border-radius: 6px;
   transition: all 0.2s ease;
