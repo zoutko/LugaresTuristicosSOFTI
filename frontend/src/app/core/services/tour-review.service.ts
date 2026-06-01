@@ -34,6 +34,25 @@ export class TourReviewService {
     );
   }
 
+  updateReview(params: {
+    tourId: number;
+    reviewId: number;
+    requesterId: number;
+    rating: number;
+    comment: string;
+  }): Observable<TourReview> {
+    return this.http.patch<TourReview>(
+      `/api/tours/${params.tourId}/reviews/${params.reviewId}/user/${params.requesterId}`,
+      {
+        rating: params.rating,
+        comment: params.comment,
+      },
+      {
+        headers: this.authToken.getAuthHeaders(),
+      }
+    );
+  }
+
   deleteReview(params: { tourId: number; reviewId: number; requesterId: number }): Observable<void> {
     return this.http.delete<void>(
       `/api/tours/${params.tourId}/reviews/${params.reviewId}/user/${params.requesterId}`,

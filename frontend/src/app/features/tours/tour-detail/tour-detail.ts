@@ -48,6 +48,7 @@ export class TourDetailComponent {
   readonly reviewComment = signal('');
   readonly reviewRating = signal<number>(0);
   readonly reviewSubmitting = signal(false);
+  readonly editingReviewId = signal<number | null>(null);
 
   toastOpen = false;
   toastMessage = '';
@@ -88,6 +89,7 @@ export class TourDetailComponent {
           this.error.set('');
           this.tour.set(null);
           this.isSaved.set(false);
+          this.cancelEditReview();
 
           if (!Number.isFinite(id) || id <= 0) {
             return of({ tour: null as Tour | null, invalid: true });
@@ -291,6 +293,7 @@ export class TourDetailComponent {
 
     const tourId = this.tour()?.id;
     const userId = this.getUserId();
+    const editingReviewId = this.editingReviewId();
 
     if (!tourId) return;
     if (!userId || !this.isLoggedIn()) {
@@ -313,27 +316,68 @@ export class TourDetailComponent {
 
     this.reviewSubmitting.set(true);
 
-    this.reviewApi
-      .createReview({ tourId, authorId: userId, rating, comment })
+    const request = editingReviewId
+      ? this.reviewApi.updateReview({
+          tourId,
+          reviewId: editingReviewId,
+          requesterId: userId,
+          rating,
+          comment,
+        })
+      : this.reviewApi.createReview({ tourId, authorId: userId, rating, comment });
+
+    request
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (review) => {
           this.reviewSubmitting.set(false);
           this.reviewComment.set('');
           this.reviewRating.set(0);
-          this.reviews.set([review, ...this.reviews()]);
-          this.showToast('Reseña publicada.', 'success');
+          this.editingReviewId.set(null);
+          this.reviews.set(
+            editingReviewId
+              ? this.reviews().map((item) => (item.id === review.id ? review : item))
+              : [review, ...this.reviews()]
+          );
+          this.showToast(
+            editingReviewId ? 'Reseña actualizada.' : 'Reseña publicada.',
+            'success'
+          );
         },
         error: () => {
           this.reviewSubmitting.set(false);
-          this.showToast('No fue posible publicar la reseña.', 'error');
+          this.showToast(
+            editingReviewId ? 'No fue posible actualizar la reseña.' : 'No fue posible publicar la reseña.',
+            'error'
+          );
         },
       });
+  }
+
+  canEditReview(review: TourReview): boolean {
+    const userId = this.getUserId();
+    return Boolean(userId && review?.authorId === userId);
   }
 
   canDeleteReview(review: TourReview): boolean {
     const userId = this.getUserId();
     return Boolean(userId && review?.authorId === userId);
+  }
+
+  startEditReview(review: TourReview): void {
+    if (!this.canEditReview(review) || this.reviewSubmitting()) return;
+
+    this.editingReviewId.set(review.id);
+    this.reviewRating.set(review.rating);
+    this.reviewComment.set(review.comment ?? '');
+  }
+
+  cancelEditReview(): void {
+    if (this.reviewSubmitting()) return;
+
+    this.editingReviewId.set(null);
+    this.reviewRating.set(0);
+    this.reviewComment.set('');
   }
 
   deleteReview(reviewId: number): void {
@@ -348,6 +392,9 @@ export class TourDetailComponent {
       .subscribe({
         next: () => {
           this.reviews.set(this.reviews().filter((r) => r.id !== reviewId));
+          if (this.editingReviewId() === reviewId) {
+            this.cancelEditReview();
+          }
           this.showToast('Reseña eliminada.', 'success');
         },
         error: () => {
