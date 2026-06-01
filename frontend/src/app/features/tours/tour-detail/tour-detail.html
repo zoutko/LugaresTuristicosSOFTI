@@ -156,7 +156,7 @@
 
             <div class="side-section">
               <h3 class="side-title">Fecha de reserva</h3>
-              <input class="date-input" type="date" [value]="bookingDate()"
+              <input class="date-input" type="date" [value]="bookingDate() " [min]="minBookingDate"
                 (input)="bookingDate.set(($any($event.target).value))" />
             </div>
 

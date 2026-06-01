@@ -45,12 +45,17 @@ export class AuthPage {
     private readonly router: Router,
     private readonly authApi: AuthService,
     private readonly userApi: UserService,
-  ) {}
+  ) { }
 
-  private getPostLoginUrl(): string {
+  private getPostLoginUrl(role: string): string {
+    if (role === 'ADMINISTRATOR') {
+      return '/profile';
+    }
+
     const rawReturnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     const returnUrl = this.sanitizeReturnUrl(rawReturnUrl);
-    return returnUrl ?? '/';
+
+    return returnUrl ?? '/perfil';
   }
 
   private sanitizeReturnUrl(returnUrl: string | null): string | null {
@@ -125,7 +130,7 @@ export class AuthPage {
           this.loginEmail = '';
           this.loginPassword = '';
 
-          await this.router.navigateByUrl(this.getPostLoginUrl());
+          await this.router.navigateByUrl(this.getPostLoginUrl(res.role));
 
         } else {
           this.loginErrorMessage = 'Respuesta inválida del servidor.';
@@ -138,58 +143,58 @@ export class AuthPage {
     });
   }
 
- submitRegister(): void {
-  if (this.isRegistering) return;
-  this.registerErrorMessage = '';
+  submitRegister(): void {
+    if (this.isRegistering) return;
+    this.registerErrorMessage = '';
 
-  const name = this.registerName.trim();
-  const email = this.registerEmail.trim();
-  const phoneNumber = this.registerPhoneNumber.trim();
-  const document = this.registerDocument.trim();
-  const password = this.registerPassword;
+    const name = this.registerName.trim();
+    const email = this.registerEmail.trim();
+    const phoneNumber = this.registerPhoneNumber.trim();
+    const document = this.registerDocument.trim();
+    const password = this.registerPassword;
 
-  if (!name || !email || !document || !password) {
-    this.registerErrorMessage = 'Completa los campos obligatorios.';
-    return;
-  }
-  if (password !== this.registerConfirmPassword) {
-    this.registerErrorMessage = 'Las contraseñas no coinciden.';
-    return;
-  }
-  if ((password ?? '').length < 8) {
-    this.registerErrorMessage = 'La contraseña debe tener al menos 8 caracteres.';
-    return;
-  }
-
-  this.isRegistering = true;
-
-  // Una sola llamada a /api/users/register
-  this.userApi.createUser({
-    name,
-    email,
-    password,
-    document,
-    phoneNumbers: phoneNumber ? [phoneNumber] : [],
-    roleName: 'USER'
-  }).subscribe({
-    next: () => {
-      this.isRegistering = false;
-      this.toastVariant = 'success';
-      this.toastMessage = 'Cuenta creada exitosamente.';
-      this.toastOpen = true;
-      this.registerName = '';
-      this.registerEmail = '';
-      this.registerPhoneNumber = '';
-      this.registerDocument = '';
-      this.registerPassword = '';
-      this.registerConfirmPassword = '';
-      this.loginEmail = email;
-    },
-    error: () => {
-      this.isRegistering = false;
-      this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
+    if (!name || !email || !document || !password) {
+      this.registerErrorMessage = 'Completa los campos obligatorios.';
+      return;
     }
-  });
+    if (password !== this.registerConfirmPassword) {
+      this.registerErrorMessage = 'Las contraseñas no coinciden.';
+      return;
+    }
+    if ((password ?? '').length < 8) {
+      this.registerErrorMessage = 'La contraseña debe tener al menos 8 caracteres.';
+      return;
+    }
 
-}
+    this.isRegistering = true;
+
+    // Una sola llamada a /api/users/register
+    this.userApi.createUser({
+      name,
+      email,
+      password,
+      document,
+      phoneNumbers: phoneNumber ? [phoneNumber] : [],
+      roleName: 'USER'
+    }).subscribe({
+      next: () => {
+        this.isRegistering = false;
+        this.toastVariant = 'success';
+        this.toastMessage = 'Cuenta creada exitosamente.';
+        this.toastOpen = true;
+        this.registerName = '';
+        this.registerEmail = '';
+        this.registerPhoneNumber = '';
+        this.registerDocument = '';
+        this.registerPassword = '';
+        this.registerConfirmPassword = '';
+        this.loginEmail = email;
+      },
+      error: () => {
+        this.isRegistering = false;
+        this.registerErrorMessage = 'No fue posible registrarse. Verifica los datos.';
+      }
+    });
+
+  }
 }

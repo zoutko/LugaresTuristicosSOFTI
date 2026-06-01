@@ -1,6 +1,6 @@
 <div class="page">
     <header class="topbar">
-        <a class="brand" routerLink="/" aria-label="Recorridos Turísticos">
+        <a class="brand" [routerLink]="isAdministrator() ? '/admin/lugares' : '/'" aria-label="Recorridos Turísticos">
             <span class="brand-icon" aria-hidden="true">
                 <svg viewBox="0 0 64 40" focusable="false" aria-hidden="true">
                     <path d="M6 36L24 10l10 16 6-8 18 18H6z" fill="currentColor" />
@@ -14,52 +14,33 @@
         </a>
 
         <nav class="menu" aria-label="Navegación principal">
-            <a class="menu-item" routerLink="/">Inicio</a>
-             <a class="menu-item" routerLink="/recorridos">Recorridos</a>
+            <a *ngIf="!isAdministrator()" class="menu-item" routerLink="/">
+                Inicio
+            </a>
+            <a class="menu-item" routerLink="/recorridos">Recorridos</a>
             <a class="menu-item" routerLink="/lugares">Lugares Turísticos</a>
         </nav>
 
         <div class="user-menu" (click)="$event.stopPropagation()">
-            <button
-                class="user"
-                type="button"
-                aria-label="Usuario"
-                aria-haspopup="menu"
-                [attr.aria-expanded]="userMenuOpen"
-                (click)="toggleUserMenu($event)"
-            >
+            <button class="user" type="button" aria-label="Usuario" aria-haspopup="menu"
+                [attr.aria-expanded]="userMenuOpen" (click)="toggleUserMenu($event)">
                 <span class="user-icon" aria-hidden="true"></span>
             </button>
 
             <div class="user-dropdown" *ngIf="userMenuOpen" role="menu" aria-label="Opciones de usuario">
-                <a
-                    *ngIf="!isLoggedIn()"
-                    class="user-dropdown-item"
-                    role="menuitem"
-                    routerLink="/auth"
-                    [queryParams]="{ returnUrl: getReturnUrl() }"
-                    (click)="closeUserMenu()"
-                >
+                <a *ngIf="!isLoggedIn()" class="user-dropdown-item" role="menuitem" routerLink="/auth"
+                    [queryParams]="{ returnUrl: getReturnUrl() }" (click)="closeUserMenu()">
                     Iniciar Sesión
                 </a>
 
                 <ng-container *ngIf="isLoggedIn()">
-                    <a
-                        *ngIf="!isOnProfilePage()"
-                        class="user-dropdown-item user-dropdown-item--button"
-                        role="menuitem"
-                        routerLink="/profile"
-                        (click)="closeUserMenu()"
-                    >
+                    <a *ngIf="!isOnProfilePage()" class="user-dropdown-item user-dropdown-item--button" role="menuitem"
+                        routerLink="/profile" (click)="closeUserMenu()">
                         Consultar Perfil
                     </a>
 
-                    <button
-                        class="user-dropdown-item user-dropdown-item--button"
-                        type="button"
-                        role="menuitem"
-                        (click)="logout()"
-                    >
+                    <button class="user-dropdown-item user-dropdown-item--button" type="button" role="menuitem"
+                        (click)="logout()">
                         Cerrar Sesión
                     </button>
                 </ng-container>
@@ -67,9 +48,9 @@
         </div>
     </header>
 
-<!-- Contenido de las páginas -->
+    <!-- Contenido de las páginas -->
     <main class="content">
-    <router-outlet></router-outlet>
+        <router-outlet></router-outlet>
     </main>
 
     <!-- Footer -->

@@ -29,12 +29,16 @@
     </div>
 
     <div *ngIf="!loading() && featuredTourCards().length > 0" class="featured-grid">
-      <app-tour-card
-        *ngFor="let tour of featuredTourCards()"
-        [tour]="tour"
-        [showRemoveButton]="false"
-        (view)="viewTour($event)"
-      ></app-tour-card>
+      <app-tour-card *ngFor="let tour of featuredTourCards()" [tour]="tour" [showRemoveButton]="false"
+        [isSaved]="savedIds.has(tour.id)" (save)="onSaveTour($event)" (removeSaved)="onRemoveSavedTour($event)"
+        (view)="viewTour($event)">
+      </app-tour-card>
     </div>
   </div>
 </section>
+<app-toast
+  [open]="toastOpen"
+  [message]="toastMessage"
+  [variant]="toastVariant"
+  (closed)="closeToast()">
+</app-toast>
