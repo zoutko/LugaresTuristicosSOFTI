@@ -16,7 +16,7 @@ export class TourCardComponent {
   @Input() showViewButton = true;
   @Input() showEditButton = false
   @Input() showDeleteButton = false;
-  @Input() showSaveButton = false;
+  @Input() showSaveButton = true;
   @Input() isSaved = false;
   @Output() view = new EventEmitter<number>();
   @Output() remove = new EventEmitter<number>();
