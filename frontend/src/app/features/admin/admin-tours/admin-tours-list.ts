@@ -83,7 +83,7 @@ export class AdminToursListComponent implements OnInit {
   }
 
   
-    loadTours(): void {
+/*loadTours(): void {
   this.loading.set(true);
   this.error.set('');
 
@@ -100,11 +100,63 @@ export class AdminToursListComponent implements OnInit {
       this.loading.set(false);
     }
   });
+}*/
+
+loadTours(): void {
+  this.loading.set(true);
+  this.error.set('');
+
+  this.http.get<any[]>('/api/tours', { headers: this.authToken.getAuthHeaders() }).subscribe({
+    next: (tours) => {
+      // Mapear los tours para extraer la imagen correctamente
+      const processedTours = tours.map(tour => ({
+        id: tour.id,
+        name: tour.name,
+        description: tour.description,
+        recommendations: tour.recommendations,
+        environment: tour.environment,
+        price: tour.price,
+        location: tour.location,
+        city: this.extractCityFromLocation(tour.location),
+        country: this.extractCountryFromLocation(tour.location),
+        categories: tour.categories || [],
+        // Extraer la imagen del album
+        imageUrl: tour.album?.currentPhoto?.filePath || 
+                  tour.album?.photos?.[0]?.filePath || 
+                  '',
+        // Guardar el album completo por si se necesita después
+        album: tour.album
+      }));
+      
+      this.allTours.set(processedTours);
+      this.extractCategories();
+      this.syncPriceRange();
+      this.loading.set(false);
+    },
+    error: (err) => {
+      console.error('Error loading tours:', err);
+      this.error.set('No fue posible cargar los recorridos.');
+      this.loading.set(false);
+    }
+  });
+}
+
+// Métodos auxiliares para extraer ciudad y país
+private extractCityFromLocation(location: string): string {
+  if (!location) return '';
+  const parts = location.split(',').map(p => p.trim());
+  return parts[0] || '';
+}
+
+private extractCountryFromLocation(location: string): string {
+  if (!location) return '';
+  const parts = location.split(',').map(p => p.trim());
+  return parts[parts.length - 1] || '';
 }
   
  extractCategories(): void {
   const categoriesSet = new Set<string>();
-  this.allTours().forEach(tour => {  // ← Usar ()
+  this.allTours().forEach(tour => { 
     tour.categories?.forEach(cat => categoriesSet.add(cat));
   });
   this.availableCategories = Array.from(categoriesSet).sort();
@@ -212,7 +264,7 @@ confirmDelete(): void {
       
       const currentTours = this.allTours();
       const filteredTours = currentTours.filter(t => t.id !== this.deleteTourId);
-      this.allTours.set(filteredTours);  // ← Usar .set()
+      this.allTours.set(filteredTours);  
       
       this.showToast('Recorrido eliminado exitosamente', 'success');
       this.closeDeleteModal();
