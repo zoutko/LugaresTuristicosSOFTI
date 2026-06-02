@@ -1,0 +1,43 @@
+<div class="map-inner">
+  <h4 *ngIf="showTitle && title" class="map-title">{{ title }}</h4>
+
+  <ng-container *ngIf="hasCoordinates(); else noCoords">
+    <iframe
+      class="map-frame"
+      [src]="embedUrl()"
+      [title]="title || 'Mapa'"
+      [style.min-height.px]="minHeight"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+  </ng-container>
+
+  <ng-template #noCoords>
+    <div
+      class="map-placeholder"
+      [style.min-height.px]="minHeight"
+      aria-label="Mapa no disponible"
+    >
+      <span>Mapa no disponible</span>
+      <small>Faltan coordenadas</small>
+    </div>
+  </ng-template>
+
+  <div class="coords-row" *ngIf="showDetails">
+    <div class="coords">
+      <span class="label">Lat:</span>
+      <span class="value">{{ hasCoordinates() ? lat : '—' }}</span>
+      <span class="label">Lng:</span>
+      <span class="value">{{ hasCoordinates() ? lng : '—' }}</span>
+    </div>
+
+    <a
+      class="map-link"
+      *ngIf="getOpenStreetMapLink() as link"
+      [href]="link"
+      target="_blank"
+      rel="noopener noreferrer"
+      >Abrir mapa</a
+    >
+  </div>
+</div>

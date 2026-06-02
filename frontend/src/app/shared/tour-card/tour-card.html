@@ -4,7 +4,7 @@
     <button
       type="button"
       class="save-fab"
-      *ngIf="!showRemoveButton"
+      *ngIf="showSaveButton"
       [class.save-fab--saved]="isSaved"
       [attr.aria-label]="isSaved ? 'Quitar de guardados' : 'Guardar recorrido'"
       [attr.title]="isSaved ? 'Quitar de guardados' : 'Guardar recorrido'"

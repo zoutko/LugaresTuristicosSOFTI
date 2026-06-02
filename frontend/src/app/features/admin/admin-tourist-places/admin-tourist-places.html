@@ -69,7 +69,7 @@
                 <span class="icon icon--edit" aria-hidden="true"></span>
                 <span class="sr-only">Editar</span>
               </a>
-              <button class="icon-button" type="button" (click)="deletePlace(place.id)"
+              <button class="icon-button" type="button" (click)="openDeleteModal(place.id)"
                 [disabled]="deletingId() === place.id" aria-label="Eliminar" title="Eliminar">
                 <span class="icon icon--delete" aria-hidden="true"></span>
                 <span class="sr-only">Eliminar</span>
@@ -81,3 +81,13 @@
     </article>
   </div>
 </section>
+
+<app-confirm-modal
+  [open]="showDeleteModal()"
+  title="¿Eliminar lugar turístico?"
+  message="Esta acción es irreversible. El lugar será eliminado permanentemente."
+  confirmText="Sí, eliminar"
+  cancelText="Cancelar"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()">
+</app-confirm-modal>

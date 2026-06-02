@@ -10,13 +10,13 @@
 }
 
 .topbar {
-    height: 72px;
+    min-height: 72px;
     background-color: var(--color-surface);
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 14px;
-    padding: 0 20px;
+    padding: 10px 20px;
     box-shadow: var(--shadow-topbar);
     position: sticky;
     top: 0;
@@ -65,6 +65,8 @@
     align-items: center;
     margin-left: auto;
     gap: 2px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .menu-item {
@@ -225,12 +227,14 @@
 }
 
 .footer-inner {
-    height: 72px;
+    min-height: 72px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 32px;
     padding: 0 20px;
+    text-align: center;
+    flex-wrap: wrap;
 }
 
 .footer-title {
@@ -258,14 +262,52 @@
     }
 
     .topbar {
-        padding: 0 20px;
-        height: 64px;
+        min-height: 64px;
+        padding: 8px 16px;
     }
 }
 
 @media (max-width: 520px) {
+    .topbar {
+        gap: 10px;
+        padding: 8px 12px;
+    }
+
+    .brand {
+        gap: 10px;
+    }
+
+    .brand-icon svg {
+        width: 54px;
+        height: 34px;
+    }
+
+    .brand-title {
+        font-size: 15px;
+    }
+
+    .user-icon {
+        width: 28px;
+        height: 28px;
+    }
+
     .content {
-        padding: 32px 16px;
+        padding: 24px 12px;
+    }
+
+    .footer-inner {
+        min-height: auto;
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 16px;
+    }
+
+    .footer-title {
+        font-size: 15px;
+    }
+
+    .footer-email {
+        font-size: 13px;
     }
 }
 

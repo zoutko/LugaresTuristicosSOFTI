@@ -10,12 +10,13 @@ import { TouristPlaceApiService } from '../../../core/services/tourist-place-api
 import { TourReviewService } from '../../../core/services/tour-review.service';
 import { ItineraryItem, Tour } from '../../../core/models/tour-model';
 import { TourReview } from '../../../core/models/review-model';
+import { MapEmbedComponent } from '../../../shared/map-embed/map-embed';
 import { ToastComponent, ToastVariant } from '../../../shared/toast/toast';
 
 @Component({
   selector: 'app-tour-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, ToastComponent],
+  imports: [CommonModule, RouterLink, ToastComponent, MapEmbedComponent],
   templateUrl: './tour-detail.html',
   styleUrl: './tour-detail.css',
 })
@@ -49,6 +50,14 @@ export class TourDetailComponent {
   readonly reviewRating = signal<number>(0);
   readonly reviewSubmitting = signal(false);
   readonly editingReviewId = signal<number | null>(null);
+  readonly minBookingDate = (() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  })();
 
   toastOpen = false;
   toastMessage = '';
@@ -318,12 +327,12 @@ export class TourDetailComponent {
 
     const request = editingReviewId
       ? this.reviewApi.updateReview({
-          tourId,
-          reviewId: editingReviewId,
-          requesterId: userId,
-          rating,
-          comment,
-        })
+        tourId,
+        reviewId: editingReviewId,
+        requesterId: userId,
+        rating,
+        comment,
+      })
       : this.reviewApi.createReview({ tourId, authorId: userId, rating, comment });
 
     request
@@ -416,7 +425,15 @@ export class TourDetailComponent {
   }
 
   reserve(): void {
-    this.showToast('La reserva aún no está disponible.', 'info');
+    const selectedDate = this.bookingDate();
+
+    if (selectedDate && selectedDate < this.minBookingDate) {
+      this.showToast(
+        'No puedes seleccionar una fecha anterior a hoy.',
+        'error'
+      );
+      return;
+    }
   }
 
   private showToast(message: string, variant: ToastVariant = 'info'): void {

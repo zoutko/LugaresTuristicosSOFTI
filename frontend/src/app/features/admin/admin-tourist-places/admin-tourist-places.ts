@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthTokenService } from '../../../core/services/auth-token.service';
 import { TouristPlaceApiService } from '../../../core/services/tourist-place-api.service';
+import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal';
 import {
   TOURIST_PLACE_ENVIRONMENTS,
   TOURIST_PLACE_FALLBACK_IMAGES,
@@ -20,7 +21,7 @@ import { TouristPlace } from '../../tourist-places/tourist-places.types';
 
 @Component({
   selector: 'app-admin-tourist-places',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmModalComponent],
   templateUrl: './admin-tourist-places.html',
   styleUrl: './admin-tourist-places.css',
 })
@@ -37,6 +38,8 @@ export class AdminTouristPlaces {
 
   readonly search = signal('');
   readonly environment = signal<TouristPlaceEnvironment>('ALL');
+  readonly showDeleteModal = signal(false);
+  readonly placeToDelete = signal<number | null>(null);
 
   readonly filteredPlaces = computed(() => {
     return filterTouristPlaces({
@@ -70,6 +73,16 @@ export class AdminTouristPlaces {
         this.loading.set(false);
       },
     });
+  }
+
+  openDeleteModal(placeId: number): void {
+    this.placeToDelete.set(placeId);
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal(): void {
+    this.placeToDelete.set(null);
+    this.showDeleteModal.set(false);
   }
 
   private loadCoverPhotos(places: TouristPlace[]): void {
@@ -106,32 +119,46 @@ export class AdminTouristPlaces {
     return getTouristPlaceCategories(place);
   }
 
-  deletePlace(placeId: number): void {
-    if (this.deletingId()) return;
+  confirmDelete(): void {
+    const placeId = this.placeToDelete();
 
-    if (!this.authToken.hasToken()) {
-      this.error.set('Debes iniciar sesion como administrador para eliminar lugares.');
+    if (!placeId || this.deletingId()) {
       return;
     }
 
-    const confirmed = confirm('¿Seguro que deseas eliminar este lugar turístico?');
-    if (!confirmed) return;
+    if (!this.authToken.hasToken()) {
+      this.error.set(
+        'Debes iniciar sesion como administrador para eliminar lugares.'
+      );
+      return;
+    }
 
     this.error.set('');
     this.deletingId.set(placeId);
 
-    this.placeApi.deletePlace(placeId, this.authToken.getAuthHeaders()).subscribe({
+    this.placeApi.deletePlace(
+      placeId,
+      this.authToken.getAuthHeaders()
+    ).subscribe({
       next: () => {
-        this.places.update((current) => current.filter((place) => place.id !== placeId));
-        this.coverPhotoByPlaceId.update((current) => {
-          const { [placeId]: _removed, ...rest } = current;
+        this.places.update(current =>
+          current.filter(place => place.id !== placeId)
+        );
+
+        this.coverPhotoByPlaceId.update(current => {
+          const { [placeId]: removed, ...rest } = current;
           return rest;
         });
+
         this.deletingId.set(null);
+        this.closeDeleteModal();
       },
       error: () => {
-        this.error.set('No fue posible eliminar el lugar. Verifica permisos de administrador.');
+        this.error.set(
+          'No fue posible eliminar el lugar. Verifica permisos de administrador.'
+        );
         this.deletingId.set(null);
+        this.closeDeleteModal();
       },
     });
   }

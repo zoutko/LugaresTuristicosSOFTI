@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { TouristPlaceApiService } from '../../core/services/tourist-place-api.service';
 import { getTouristPlaceEnvironmentLabel } from '../../core/utils/tourist-place.utils';
+import { MapEmbedComponent } from '../../shared/map-embed/map-embed';
 import {
   TouristPlace as TouristPlaceResponse,
   TouristPlaceAlbum,
@@ -14,14 +14,13 @@ import {
 
 @Component({
   selector: 'app-tourist-place',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, MapEmbedComponent],
   templateUrl: './tourist-place.html',
   styleUrl: './tourist-place.css',
 })
 export class TouristPlace {
   private readonly placeApi = inject(TouristPlaceApiService);
   private readonly route = inject(ActivatedRoute);
-  private readonly sanitizer = inject(DomSanitizer);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly place = signal<TouristPlaceResponse | null>(null);
@@ -36,24 +35,6 @@ export class TouristPlace {
     return categories.length > 0 ? categories : ['Cultural'];
   });
   readonly activities = computed(() => this.place()?.activities?.filter((activity) => activity.description) ?? []);
-  readonly hasCoordinates = computed(() => {
-    const location = this.place()?.location;
-    return typeof location?.latitude === 'number' && typeof location?.longitude === 'number';
-  });
-  readonly mapUrl = computed<SafeResourceUrl | null>(() => {
-    const location = this.place()?.location;
-    if (location?.latitude == null || location?.longitude == null) {
-      return null;
-    }
-
-    const lat = location.latitude;
-    const lng = location.longitude;
-    const offset = 0.01;
-    const bbox = [lng - offset, lat - offset, lng + offset, lat + offset].join(',');
-    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
-
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  });
 
   private readonly fallbackImage =
     'https://images.unsplash.com/photo-1512813195386-6cf811ad3542?auto=format&fit=crop&w=1400&q=80';
@@ -128,14 +109,5 @@ export class TouristPlace {
     }
 
     return `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`;
-  }
-
-  getOpenStreetMapLink(): string {
-    const location = this.place()?.location;
-    if (location?.latitude == null || location?.longitude == null) {
-      return 'https://www.openstreetmap.org';
-    }
-
-    return `https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}#map=15/${location.latitude}/${location.longitude}`;
   }
 }
